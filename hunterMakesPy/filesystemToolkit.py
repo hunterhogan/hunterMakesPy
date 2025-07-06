@@ -5,11 +5,10 @@ callables from modules, and safely creating directories.
 
 """
 
-from collections.abc import Iterable
+from hunterMakesPy import identifierDotAttribute
 from os import PathLike
 from pathlib import Path, PurePath
 from typing import Any, TYPE_CHECKING, TypeVar
-from Z0Z_tools import identifierDotAttribute
 import contextlib
 import importlib
 import importlib.util

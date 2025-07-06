@@ -75,7 +75,7 @@ def autoDecodingRLE(arrayTarget: NDArray[integer[Any]], *, assumeAddSpaces: bool
 					option2AsStr = option2AsStr or python_minifier.minify(str(option2))
 					lengthOption2 = getLengthOption(option2AsStr)
 
-					if lengthOption1 < lengthOption2:  # noqa: SIM108
+					if lengthOption1 < lengthOption2:
 						addMe = option1
 					else:
 						addMe = option2
@@ -106,7 +106,7 @@ def autoDecodingRLE(arrayTarget: NDArray[integer[Any]], *, assumeAddSpaces: bool
 					option2AsStr = option2AsStr or python_minifier.minify(str(option2))
 					lengthOption2 = getLengthOption(option2AsStr)
 
-					if lengthOption1 < lengthOption2:  # noqa: SIM108
+					if lengthOption1 < lengthOption2:
 						addMe = option1
 					else:
 						addMe = option2
@@ -249,10 +249,10 @@ def updateExtendPolishDictionaryLists(*dictionaryLists: Mapping[str, list[Any] |
 				ImaStr = str(keyName)
 				ImaList = list(keyValue)
 				ePluribusUnum.setdefault(ImaStr, []).extend(ImaList)
-			except TypeError:  # noqa: PERF203
+			except TypeError:
 				if killErroneousDataTypes:
 					continue
-				else:  # noqa: RET507
+				else:
 					raise
 
 	if destroyDuplicates:

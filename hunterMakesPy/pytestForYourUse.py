@@ -1,12 +1,12 @@
-"""Pytest tests you can use in your package to test some Z0Z_tools functions.
+"""Pytest tests you can use in your package to test some hunterMakesPy functions.
 
 Each function in this module returns a list of test functions that can be used with `pytest.parametrize`.
 """
 # ruff: noqa: S101
 from collections.abc import Callable, Iterable, Iterator
+from hunterMakesPy import defineConcurrencyLimit, intInnit, oopsieKwargsie
 from typing import Any, NoReturn
 from unittest.mock import Mock, patch
-from Z0Z_tools import defineConcurrencyLimit, intInnit, oopsieKwargsie
 import pytest
 
 def PytestFor_defineConcurrencyLimit(callableToTest: Callable[..., int] = defineConcurrencyLimit, cpuCount: int = 8) -> list[tuple[str, Callable[[], None]]]:  # noqa: C901
@@ -31,9 +31,9 @@ def PytestFor_defineConcurrencyLimit(callableToTest: Callable[..., int] = define
 
 	Examples
 	--------
-	Run each test on `Z0Z_tools.defineConcurrencyLimit`:
+	Run each test on `hunterMakesPy.defineConcurrencyLimit`:
 	```python
-	from Z0Z_tools.pytestForYourUse import PytestFor_defineConcurrencyLimit
+	from hunterMakesPy.pytestForYourUse import PytestFor_defineConcurrencyLimit
 
 	listOfTests = PytestFor_defineConcurrencyLimit()
 	for nameOfTest, callablePytest in listOfTests:
@@ -42,7 +42,7 @@ def PytestFor_defineConcurrencyLimit(callableToTest: Callable[..., int] = define
 
 	Or, run each test on your function that has a compatible signature:
 	```python
-	from Z0Z_tools.pytestForYourUse import PytestFor_defineConcurrencyLimit
+	from hunterMakesPy.pytestForYourUse import PytestFor_defineConcurrencyLimit
 	from packageLocal import functionLocal
 
 	@pytest.mark.parametrize("nameOfTest,callablePytest", PytestFor_defineConcurrencyLimit(callableToTest=functionLocal))
@@ -134,9 +134,9 @@ def PytestFor_intInnit(callableToTest: Callable[[Iterable[int], str | None, type
 
 	Examples
 	--------
-	Run tests on `Z0Z_tools.intInnit`:
+	Run tests on `hunterMakesPy.intInnit`:
 	```python
-	from Z0Z_tools.pytestForYourUse import PytestFor_intInnit
+	from hunterMakesPy.pytestForYourUse import PytestFor_intInnit
 
 	listOfTests = PytestFor_intInnit()
 	for nameOfTest, callablePytest in listOfTests:
@@ -145,7 +145,7 @@ def PytestFor_intInnit(callableToTest: Callable[[Iterable[int], str | None, type
 
 	Run tests on your compatible function:
 	```python
-	from Z0Z_tools.pytestForYourUse import PytestFor_intInnit
+	from hunterMakesPy.pytestForYourUse import PytestFor_intInnit
 	from packageLocal import functionLocal
 
 	@pytest.mark.parametrize("nameOfTest,callablePytest",
@@ -271,9 +271,9 @@ def PytestFor_oopsieKwargsie(callableToTest: Callable[[str], bool | None | str] 
 
 	Examples
 	--------
-	Run each test on `Z0Z_tools.oopsieKwargsie`:
+	Run each test on `hunterMakesPy.oopsieKwargsie`:
 	```python
-	from Z0Z_tools.pytestForYourUse import PytestFor_oopsieKwargsie
+	from hunterMakesPy.pytestForYourUse import PytestFor_oopsieKwargsie
 
 	listOfTests = PytestFor_oopsieKwargsie()
 	for nameOfTest, callablePytest in listOfTests:
@@ -282,7 +282,7 @@ def PytestFor_oopsieKwargsie(callableToTest: Callable[[str], bool | None | str] 
 
 	Or, run each test on your function that has a compatible signature:
 	```python
-	from Z0Z_tools.pytestForYourUse import PytestFor_oopsieKwargsie
+	from hunterMakesPy.pytestForYourUse import PytestFor_oopsieKwargsie
 	from packageLocal import functionLocal
 
 	@pytest.mark.parametrize("nameOfTest,callablePytest", PytestFor_oopsieKwargsie(callableToTest=functionLocal))

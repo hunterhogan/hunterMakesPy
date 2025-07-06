@@ -79,7 +79,7 @@ def _constructErrorMessage(context: ErrorMessageContext, parameterName: str, par
 def defineConcurrencyLimit(*, limit: bool | float | int | None, cpuTotal: int = multiprocessing.cpu_count()) -> int:  # noqa: C901, PYI041
 	"""Determine the concurrency limit based on the provided parameter.
 
-	This package has Pytest tests you can import and run on this function. `from Z0Z_tools.pytest_parseParameters import makeTestSuiteConcurrencyLimit`
+	This package has Pytest tests you can import and run on this function. `from hunterMakesPy.pytest_parseParameters import makeTestSuiteConcurrencyLimit`
 
 	Parameters
 	----------
@@ -96,7 +96,7 @@ def defineConcurrencyLimit(*, limit: bool | float | int | None, cpuTotal: int = 
 
 	Notes
 	-----
-	If you want to be extra nice to your users, consider using `Z0Z_tools.oopsieKwargsie()` to handle
+	If you want to be extra nice to your users, consider using `hunterMakesPy.oopsieKwargsie()` to handle
 	malformed inputs. For example:
 
 	```
@@ -192,7 +192,7 @@ def intInnit(listInt_Allegedly: Iterable[Any], parameterName: str | None = None,
 	Notes
 	-----
 	This package includes Pytest tests that can be imported and run:
-	`from Z0Z_tools.pytest_parseParameters import makeTestSuiteIntInnit`
+	`from hunterMakesPy.pytest_parseParameters import makeTestSuiteIntInnit`
 
 	The function performs strict validation and follows fail-early principles to catch potential issues before they become catastrophic.
 
@@ -283,7 +283,7 @@ def oopsieKwargsie(huh: Any) -> bool | None | str:
 	"""Interpret a `str` as `True`, `False`, or `None` to avoid an `Exception`.
 
 	If a calling function passes a `str` to a parameter that shouldn't receive a `str`, `oopsieKwargsie()` might help you avoid an `Exception`. It tries to interpret the string as `True`, `False`, or `None`. This package has Pytest tests you can import and run on this function.
-	`from Z0Z_tools.pytest_parseParameters import makeTestSuiteOopsieKwargsie`
+	`from hunterMakesPy.pytest_parseParameters import makeTestSuiteOopsieKwargsie`
 
 	Parameters
 	----------
