@@ -9,7 +9,7 @@ from typing import TypeVar
 
 TypeSansNone = TypeVar('TypeSansNone')
 
-def raiseIfNone(returnTarget: TypeSansNone | None, errorMessage: str | None = None) -> TypeSansNone:  # noqa: UP047
+def raiseIfNone(returnTarget: TypeSansNone | None, errorMessage: str | None = None) -> TypeSansNone:
 	"""Raise a `ValueError` if the target value is `None`, otherwise return the value: tell the type checker that the return value is not `None`.
 
 	(AI generated docstring)

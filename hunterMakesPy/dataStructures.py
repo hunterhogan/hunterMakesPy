@@ -249,7 +249,7 @@ def updateExtendPolishDictionaryLists(*dictionaryLists: Mapping[str, list[Any] |
 				ImaStr = str(keyName)
 				ImaList = list(keyValue)
 				ePluribusUnum.setdefault(ImaStr, []).extend(ImaList)
-			except TypeError:
+			except TypeError:  # noqa: PERF203
 				if killErroneousDataTypes:
 					continue
 				else:

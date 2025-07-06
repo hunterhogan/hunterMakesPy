@@ -2,7 +2,6 @@
 
 Each function in this module returns a list of test functions that can be used with `pytest.parametrize`.
 """
-# ruff: noqa: S101
 from collections.abc import Callable, Iterable, Iterator
 from hunterMakesPy import defineConcurrencyLimit, intInnit, oopsieKwargsie
 from typing import Any, NoReturn
@@ -88,7 +87,7 @@ def PytestFor_defineConcurrencyLimit(callableToTest: Callable[..., int] = define
 	@patch('multiprocessing.cpu_count', return_value=cpuCount)
 	def testInvalidStrings(_mockCpu: Mock) -> None:
 		for stringInput in ["invalid", "True but not quite", "None of the above"]:
-			with pytest.raises(ValueError, match="must be a number, True, False, or None"):
+			with pytest.raises(ValueError, match="must be a number, `True`, `False`, or `None`"):
 				callableToTest(limit=stringInput, cpuTotal=cpuCount) # pyright: ignore[reportArgumentType]
 
 	@patch('multiprocessing.cpu_count', return_value=cpuCount)
@@ -164,7 +163,7 @@ def PytestFor_intInnit(callableToTest: Callable[[Iterable[int], str | None, type
 	def testRejectsNonWholeNumbers() -> None:
 		listInvalidNumbers: list[float] = [13.7, 21.5, 34.8, -55.9]
 		for invalidNumber in listInvalidNumbers:
-			with pytest.raises(ValueError):  # noqa: PT011
+			with pytest.raises(ValueError):
 				callableToTest([invalidNumber], 'test', None) # pyright: ignore[reportArgumentType]
 
 	def testRejectsBooleans() -> None:
@@ -173,11 +172,11 @@ def PytestFor_intInnit(callableToTest: Callable[[Iterable[int], str | None, type
 
 	def testRejectsInvalidStrings() -> None:
 		for invalidString in ['NW', '', ' ', 'SE.SW']:
-			with pytest.raises(ValueError):  # noqa: PT011
+			with pytest.raises(ValueError):
 				callableToTest([invalidString], 'test', None) # pyright: ignore[reportArgumentType]
 
 	def testRejectsEmptyList() -> None:
-		with pytest.raises(ValueError):  # noqa: PT011
+		with pytest.raises(ValueError):
 			callableToTest([], 'test', None)
 
 	def testHandlesMixedValidTypes() -> None:
@@ -198,7 +197,7 @@ def PytestFor_intInnit(callableToTest: Callable[[Iterable[int], str | None, type
 
 		invalidCases: list[list[bytes]] = [[b'\x00']]
 		for inputData in invalidCases:
-			with pytest.raises(ValueError):  # noqa: PT011
+			with pytest.raises(ValueError):
 				callableToTest(inputData, 'test', None) # pyright: ignore[reportArgumentType]
 
 	def testHandlesMemoryview() -> None:
@@ -213,7 +212,7 @@ def PytestFor_intInnit(callableToTest: Callable[[Iterable[int], str | None, type
 
 		invalidMemoryviewCases: list[list[memoryview]] = [[memoryview(b'\x00')]]
 		for inputData in invalidMemoryviewCases:
-			with pytest.raises(ValueError):  # noqa: PT011
+			with pytest.raises(ValueError):
 				callableToTest(inputData, 'test', None) # pyright: ignore[reportArgumentType]
 
 	def testRejectsMutableSequence() -> None:
@@ -234,7 +233,7 @@ def PytestFor_intInnit(callableToTest: Callable[[Iterable[int], str | None, type
 
 	def testRejectsInvalidComplex() -> None:
 		for invalidComplex in [13+1j, 21+0.5j, 34.5+0j]:
-			with pytest.raises(ValueError):  # noqa: PT011
+			with pytest.raises(ValueError):
 				callableToTest([invalidComplex], 'test', None) # pyright: ignore[reportArgumentType]
 
 	return [
@@ -308,16 +307,16 @@ def PytestFor_oopsieKwargsie(callableToTest: Callable[[str], bool | None | str] 
 			assert callableToTest(stringInput) == stringInput
 
 	def testHandlesNonStringObjects() -> None:
-		class UnStringable:
+		class NeverGonnaStringIt:
 			def __str__(self) -> NoReturn:
 				message = "Cannot be stringified"
 				raise TypeError(message)
 
 		assert callableToTest(123) == "123" # pyright: ignore[reportArgumentType]
 
-		unStringableObject = UnStringable()
-		result = callableToTest(unStringableObject) # pyright: ignore[reportArgumentType]
-		assert result is unStringableObject
+		neverGonnaStringIt = NeverGonnaStringIt()
+		result = callableToTest(neverGonnaStringIt) # pyright: ignore[reportArgumentType]
+		assert result is neverGonnaStringIt
 
 	return [
 		('testHandlesTrueVariants', testHandlesTrueVariants),

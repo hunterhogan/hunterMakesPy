@@ -134,9 +134,9 @@ def defineConcurrencyLimit(*, limit: bool | float | int | None, cpuTotal: int = 
 		if isinstance(limitFromString, str):
 			try:
 				limit = float(limitFromString)
-			except ValueError:
-				message = f"I received '{limitFromString}', but it must be a number, True, False, or None."
-				raise ValueError(message)
+			except ValueError as ERRORmessage:
+				message = f"I received '{limitFromString}', but it must be a number, `True`, `False`, or `None`."
+				raise ValueError(message) from ERRORmessage
 		else:
 			limit = limitFromString
 	if isinstance(limit, float) and abs(limit) >= 1:
@@ -159,6 +159,7 @@ def defineConcurrencyLimit(*, limit: bool | float | int | None, cpuTotal: int = 
 
 	return max(int(concurrencyLimit), 1)
 
+# ruff: noqa: TRY301
 def intInnit(listInt_Allegedly: Iterable[Any], parameterName: str | None = None, parameterType: type[Any] | None = None) -> list[int]:  # noqa: C901, PLR0912, PLR0915
 	"""Validate and convert input values to a `list` of integers.
 
@@ -257,8 +258,6 @@ def intInnit(listInt_Allegedly: Iterable[Any], parameterName: str | None = None,
 			if lengthInitial is not None and isinstance(listInt_Allegedly, Sized) and len(listInt_Allegedly) != lengthInitial:
 				raise RuntimeError((lengthInitial, len(listInt_Allegedly)))
 
-		return listValidated
-
 	except (TypeError, ValueError) as ERRORmessage:
 		if isinstance(ERRORmessage.args[0], ErrorMessageContext):
 			context = ERRORmessage.args[0]
@@ -279,6 +278,9 @@ def intInnit(listInt_Allegedly: Iterable[Any], parameterName: str | None = None,
 			ERRORmessage
 		) from None
 
+	else:
+		return listValidated
+
 def oopsieKwargsie(huh: Any) -> bool | None | str:
 	"""Interpret a `str` as `True`, `False`, or `None` to avoid an `Exception`.
 
@@ -289,6 +291,7 @@ def oopsieKwargsie(huh: Any) -> bool | None | str:
 	----------
 	huh : Any
 		(huh) The input string to be parsed.
+
 
 	Returns
 	-------
