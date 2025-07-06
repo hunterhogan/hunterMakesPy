@@ -1,3 +1,4 @@
+# pyright: standard
 from collections.abc import Callable
 from hunterMakesPy.pytestForYourUse import (
 	PytestFor_defineConcurrencyLimit, PytestFor_intInnit, PytestFor_oopsieKwargsie)

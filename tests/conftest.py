@@ -1,4 +1,4 @@
-# pyright: reportUnknownLambdaType=false, reportUnknownArgumentType=false
+# pyright: standard
 from collections.abc import Callable
 from typing import Any
 import pathlib

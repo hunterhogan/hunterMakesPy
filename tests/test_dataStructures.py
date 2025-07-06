@@ -1,4 +1,4 @@
-# pyright: reportUnknownLambdaType=false, reportUnknownArgumentType=false
+# pyright: standard
 from collections.abc import Callable, Iterable, Iterator
 from decimal import Decimal
 from fractions import Fraction
