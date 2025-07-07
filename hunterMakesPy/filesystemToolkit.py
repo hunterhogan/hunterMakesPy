@@ -1,7 +1,6 @@
 """File system and module import utilities.
 
-This module provides basic file I/O utilities such as writing tabular data to files, computing canonical relative paths, importing
-callables from modules, and safely creating directories.
+This module provides basic file I/O utilities such as importing callables from modules, and safely creating directories.
 
 """
 

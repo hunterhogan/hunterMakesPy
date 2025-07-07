@@ -125,29 +125,29 @@ def autoDecodingRLE(arrayTarget: NDArray[integer[Any]], *, assumeAddSpaces: bool
 	patternRegex = regex.compile(
 		"(?<!rang)(?:"
 		# Pattern 1: Comma ahead, bracket behind  # noqa: ERA001
-		"(?P<joinAhead>,)\\((?P<malkovich>\\d+),(?P<multiple>\\d+)\\)(?P<bracketBehind>])|"
+		"(?P<joinAhead>,)\\((?P<malkovich>\\d+),(?P<multiply>\\d+)\\)(?P<bracketBehind>])|"
 		# Pattern 2: Bracket or start ahead, comma behind  # noqa: ERA001
-		"(?P<bracketOrStartAhead>\\[|^.)\\((?P<malkovichmalkovich>\\d+),(?P<multiple_fml>\\d+)\\)(?P<joinBehind>,)|"
+		"(?P<bracketOrStartAhead>\\[|^.)\\((?P<malkovichMalkovich>\\d+),(?P<multiplyIDK>\\d+)\\)(?P<joinBehind>,)|"
 		# Pattern 3: Bracket ahead, bracket behind  # noqa: ERA001
-		"(?P<bracketAhead>\\[)\\((?P<malkovichmalkovichmalkovich>\\d+),(?P<multiple_whatever>\\d+)\\)(?P<bracketBehindbracketBehind>])|"
+		"(?P<bracketAhead>\\[)\\((?P<malkovichMalkovichMalkovich>\\d+),(?P<multiply_whatever>\\d+)\\)(?P<bracketBehindBracketBehind>])|"
 		# Pattern 4: Comma ahead, comma behind  # noqa: ERA001
-		"(?P<joinAhead_prayharder>,)\\((?P<malkovichmalkovichmalkovichmalkovich>\\d+),(?P<multiple_prayharder>\\d+)\\)(?P<joinBehind_prayharder>,)"
+		"(?P<joinAheadJoinAhead>,)\\((?P<malkovichMalkovichMalkovichMalkovich>\\d+),(?P<multiplyOrSomething>\\d+)\\)(?P<joinBehindJoinBehind>,)"
 		")"
 	)
 
 	def replacementByContext(match: regex.Match[str]) -> str:
 		"""Generate replacement string based on context patterns."""
-		yourIdentifiersSuck = match.groupdict()
-		joinAhead = yourIdentifiersSuck.get('joinAhead') or yourIdentifiersSuck.get('joinAhead_prayharder')
-		malkovich = yourIdentifiersSuck.get('malkovich') or yourIdentifiersSuck.get('malkovichmalkovich') or yourIdentifiersSuck.get('malkovichmalkovichmalkovich') or yourIdentifiersSuck.get('malkovichmalkovichmalkovichmalkovich')
-		multiple = yourIdentifiersSuck.get('multiple') or yourIdentifiersSuck.get('multiple_fml') or yourIdentifiersSuck.get('multiple_whatever') or yourIdentifiersSuck.get('multiple_prayharder')
-		joinBehind = yourIdentifiersSuck.get('joinBehind') or yourIdentifiersSuck.get('joinBehind_prayharder')
+		elephino = match.groupdict()
+		joinAhead = elephino.get('joinAhead') or elephino.get('joinAheadJoinAhead')
+		malkovich = elephino.get('malkovich') or elephino.get('malkovichMalkovich') or elephino.get('malkovichMalkovichMalkovich') or elephino.get('malkovichMalkovichMalkovichMalkovich')
+		multiply = elephino.get('multiply') or elephino.get('multiplyIDK') or elephino.get('multiply_whatever') or elephino.get('multiplyOrSomething')
+		joinBehind = elephino.get('joinBehind') or elephino.get('joinBehindJoinBehind')
 
 		replaceAhead = "]+[" if joinAhead == "," else "["
 
 		replaceBehind = "+[" if joinBehind == "," else ""
 
-		return f"{replaceAhead}{malkovich}]*{multiple}{replaceBehind}"
+		return f"{replaceAhead}{malkovich}]*{multiply}{replaceBehind}"
 
 	arrayAsStr = patternRegex.sub(replacementByContext, arrayAsStr)
 	arrayAsStr = patternRegex.sub(replacementByContext, arrayAsStr)

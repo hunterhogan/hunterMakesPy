@@ -22,7 +22,7 @@ def testWriteStringToHereCreatesFileAndWritesContent(pathTmpTesting: pathlib.Pat
 	filePath = nestedDirectory / "test.txt"
 	writeStringToHere("hello world", filePath)
 	assert filePath.exists(), uniformTestFailureMessage(True, filePath.exists(), "testWriteStringToHereCreatesFileAndWritesContent", filePath)
-	assert filePath.read_text() == "hello world", uniformTestFailureMessage("hello world", filePath.read_text(), "testWriteStringToHereCreatesFileAndWritesContent", filePath)
+	assert filePath.read_text(encoding="utf-8") == "hello world", uniformTestFailureMessage("hello world", filePath.read_text(encoding="utf-8"), "testWriteStringToHereCreatesFileAndWritesContent", filePath)
 
 @pytest.mark.parametrize(
 	"moduleName, identifier, expectedType",

@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 	from importlib.machinery import ModuleSpec
 
 try:
-	identifierPackagePACKAGING: str = tomli_loads(Path("pyproject.toml").read_text())["project"]["name"]
+	identifierPackagePACKAGING: str = tomli_loads(Path("pyproject.toml").read_text(encoding="utf-8"))["project"]["name"]
 except Exception:  # noqa: BLE001
 	identifierPackagePACKAGING = "hunterMakesPy"
 

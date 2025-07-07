@@ -1,25 +1,49 @@
 [project]
 name = "hunterMakesPy"
-version = "0.1.0"
-description = ""
+version = "0.1.1"
+description = "A modular Python toolkit for defensive programming, parameter validation, file system utilities, and flexible data structure manipulation. Provides helpers for error propagation, input validation, concurrency limits, safe directory creation, dynamic module loading, string extraction from nested structures, and dictionary merging."
 readme = "README.md"
 requires-python = ">=3.10"
 license = { 'text' = "CC-BY-NC-4.0" }
 authors = [{ name = "Hunter Hogan", email = "HunterHogan@pm.me" }]
-keywords = []
+keywords = [
+  "defensive programming",
+  "parameter validation",
+  "input validation",
+  "error propagation",
+  "concurrency limit",
+  "integer parsing",
+  "file system utilities",
+  "directory creation",
+  "dynamic import",
+  "module loading",
+  "attribute loading",
+  "string extraction",
+  "nested data structures",
+  "dictionary merging",
+  "package settings",
+  "configuration",
+  "pytest",
+  "test utilities"
+]
 classifiers = [
   "Development Status :: 4 - Beta",
   "Environment :: Console",
+  "Framework :: Pytest",
+  "Intended Audience :: Developers",
   "Intended Audience :: End Users/Desktop",
   "Intended Audience :: Other Audience",
   "Natural Language :: English",
   "Operating System :: OS Independent",
-  "Programming Language :: Python",
-  "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Programming Language :: Python",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+  "Topic :: Utilities",
   "Typing :: Typed",
 ]
 urls = { Donate = "https://www.patreon.com/integrated", Homepage = "https://github.com/hunterhogan/", Issues = "https://github.com/hunterhogan/", Repository = "https://github.com/hunterhogan/" }

@@ -1,3 +1,5 @@
+abstract: |
+  hunterMakesPy is a modular Python toolkit for defensive programming, parameter validation, file system operations, and data structure manipulation. It provides utilities for safe error handling, flexible input validation, dynamic module and attribute importing, and merging or transforming complex data structures. The package emphasizes clear identifiers, robust type handling, and reusable components for building reliable Python applications.
 authors:
 - given-names: Hunter
   family-names: Hogan
