@@ -1,12 +1,37 @@
+abstract: "hunterMakesPy is a modular Python toolkit for defensive programming, parameter
+  validation, file system operations, and data structure manipulation. It provides
+  utilities for safe error handling, flexible input validation, dynamic module and
+  attribute importing, and merging or transforming complex data structures. The package
+  emphasizes clear identifiers, robust type handling, and reusable components for
+  building reliable Python applications.\n"
 authors:
 - given-names: Hunter
   family-names: Hogan
   email: HunterHogan@pm.me
 cff-version: 1.2.0
+keywords:
+- defensive programming
+- parameter validation
+- input validation
+- error propagation
+- concurrency limit
+- integer parsing
+- file system utilities
+- directory creation
+- dynamic import
+- module loading
+- attribute loading
+- string extraction
+- nested data structures
+- dictionary merging
+- package settings
+- configuration
+- pytest
+- test utilities
 license: CC-BY-NC-4.0
 message: Cite this software with the metadata in this file.
 repository: https://github.com/hunterhogan/
-repository-artifact: https://pypi.org/project/huntermakespy/0.1.0/
+repository-artifact: https://pypi.org/project/huntermakespy/0.1.1/
 title: hunterMakesPy
 url: https://github.com/hunterhogan/
-version: 0.1.0
+version: 0.1.1
