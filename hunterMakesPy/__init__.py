@@ -1,7 +1,5 @@
 """A modular toolkit for defensive programming, parameter validation, file system utilities, and data structure manipulation.
 
-(AI generated docstring)
-
 This package provides:
 - Defensive programming helpers for handling `None` values and error propagation.
 - Parameter and input validation, integer parsing, and concurrency limit utilities.

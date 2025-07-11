@@ -1,7 +1,7 @@
 [project]
 name = "hunterMakesPy"
 version = "0.1.1"
-description = "A modular Python toolkit for defensive programming, parameter validation, file system utilities, and flexible data structure manipulation. Provides helpers for error propagation, input validation, concurrency limits, safe directory creation, dynamic module loading, string extraction from nested structures, and dictionary merging."
+description = "Easy Python functions making making functional Python functions easier."
 readme = "README.md"
 requires-python = ">=3.10"
 license = { 'text' = "CC-BY-NC-4.0" }
