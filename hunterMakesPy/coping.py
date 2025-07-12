@@ -1,10 +1,4 @@
-"""Utility functions for handling `None` values and coping with common programming patterns.
-
-(AI generated docstring)
-
-This module provides helper functions for defensive programming and error handling, particularly for dealing with `None` values that should not occur in correct program flow.
-
-"""
+"""Package configuration and defensive programming utilities for Python projects."""
 from importlib.util import find_spec
 from pathlib import Path
 from tomllib import loads as tomllib_loads
@@ -36,7 +30,44 @@ def getPathPackageINSTALLING(identifierPackage: str) -> Path:
 
 @dataclasses.dataclass
 class PackageSettings:
-	"""Configurable package settings for any Python package."""
+	"""Configuration container for Python package metadata and runtime settings.
+
+	This `class` provides a simple way to store and access basic information about a Python package, It will automatically resolve
+	package identifiers and installation paths if they are not passed to the `class` constructor. Python `dataclasses` are easy to
+	subtype and extend.
+
+	Parameters
+	----------
+	identifierPackageFALLBACK : str = ''
+		Fallback package identifier used only during initialization when automatic discovery fails.
+	pathPackage : Path = Path()
+		Absolute path to the installed package directory. Automatically resolved from `identifierPackage` if not provided.
+	identifierPackage : str = ''
+		Canonical name of the package. Automatically extracted from `pyproject.toml`.
+	fileExtension : str = '.py'
+		Default file extension.
+
+	Examples
+	--------
+	Automatic package discovery from development environment:
+
+	```python
+	settings = PackageSettings(identifierPackageFALLBACK='cobraPy')
+	# Automatically discovers package name from pyproject.toml
+	# Resolves installation path from package identifier
+	```
+
+	Explicit configuration for specific deployment:
+
+	```python
+	settings = PackageSettings(
+		identifierPackage='cobraPy',
+		pathPackage=Path('/opt/tenEx/packages/cobraPy'),
+		fileExtension='.pyx'
+	)
+	```
+
+	"""
 
 	identifierPackageFALLBACK: dataclasses.InitVar[str] = ''
 	"""Fallback package identifier used during initialization only."""

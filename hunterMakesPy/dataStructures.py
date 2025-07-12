@@ -46,7 +46,7 @@ def autoDecodingRLE(arrayTarget: NDArray[integer[Any]], *, assumeAddSpaces: bool
 	"""
 	def sliceNDArrayToNestedLists(arraySlice: NDArray[integer[Any]]) -> Any:
 		def getLengthOption(optionAsStr: str) -> int:
-			# `assumeAddSpaces` characters: `,` 1; `]*` 2  # noqa: ERA001
+			"""`assumeAddSpaces` characters: `,` 1; `]*` 2."""
 			return assumeAddSpaces * (optionAsStr.count(',') + optionAsStr.count(']*') * 2) + len(optionAsStr)
 
 		if arraySlice.ndim > 1:
@@ -249,7 +249,7 @@ def updateExtendPolishDictionaryLists(*dictionaryLists: Mapping[str, list[Any] |
 				ImaStr = str(keyName)
 				ImaList = list(keyValue)
 				ePluribusUnum.setdefault(ImaStr, []).extend(ImaList)
-			except TypeError:  # noqa: PERF203
+			except TypeError:
 				if killErroneousDataTypes:
 					continue
 				else:
