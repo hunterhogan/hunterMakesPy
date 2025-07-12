@@ -33,13 +33,6 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '>=3.11'
-      - name: Cache, pip
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: pip-a-dee-doo-dah
-          restore-keys: pip-a-dee-doo-dah
-
       - name: Check if version exists on PyPI
         id: check
         env:
@@ -61,20 +54,25 @@ jobs:
                 appendStream.write(f'url={url}\n')
           "
 
-      - name: Build wheels and source dist
-        if: steps.check.outputs.should_publish == 'true'
-        run: |
-          pip install build
-          python -m build
-
+  release-build:
+    needs: check-version
+    if: needs.check-version.outputs.should_publish == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - run: pipx run build
       - name: Upload distributions
         uses: actions/upload-artifact@v4
         with:
           name: release-dists
           path: dist/
+          if-no-files-found: error
 
   pypi-publish:
-    needs: [check-version]
+    needs: [check-version, release-build]
     if: needs.check-version.outputs.should_publish == 'true'
     runs-on: ubuntu-latest
     environment:
@@ -92,3 +90,4 @@ jobs:
         uses: pypa/gh-action-pypi-publish@76f52bc884231f62b9a034ebfe128415bbaabdfc #v1.12.2
         with:
           packages-dir: dist/
+          verify-metadata: true
