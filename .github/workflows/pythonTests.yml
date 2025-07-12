@@ -25,12 +25,12 @@ jobs:
           key: pip-a-dee-doo-dah
           restore-keys: pip-a-dee-doo-dah
 
-      - run: pip install packaging
+      - run: pip install packaging requests
 
       - id: get-python-versions
         run: |
           python -c "
-          import itertools, json, os, packaging.specifiers, packaging.version, pathlib, requests, subprocess, tomllib
+          import itertools, json, os, packaging.specifiers, packaging.version, pathlib, requests, tomllib
           listPythonVersions = [str(max(group))
             for _key, group in itertools.groupby(
               packaging.specifiers.SpecifierSet(tomllib.loads(pathlib.Path('pyproject.toml').read_text())['project']['requires-python']).filter(
