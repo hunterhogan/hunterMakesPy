@@ -31,7 +31,7 @@ keywords:
 license: CC-BY-NC-4.0
 message: Cite this software with the metadata in this file.
 repository: https://github.com/hunterhogan/
-repository-artifact: https://pypi.org/project/huntermakespy/0.1.0/
+repository-artifact: https://pypi.org/project/huntermakespy/0.1.2/
 title: hunterMakesPy
 url: https://github.com/hunterhogan/
-version: 0.1.0
+version: 0.1.2
