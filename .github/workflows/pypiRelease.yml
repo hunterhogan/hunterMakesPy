@@ -51,11 +51,11 @@ jobs:
 
           try:
             urllib.request.urlopen(urllib.request.Request(url, method='HEAD'))
-            except urllib.error.HTTPError as HTTPError:
-              if HTTPError.code == 404:
-                with open(os.environ['GITHUB_OUTPUT'], 'a') as appendStream:
-                  appendStream.write('should_publish=true\n')
-                  appendStream.write(f'url={url}\n')
+          except urllib.error.HTTPError as HTTPError:
+            if HTTPError.code == 404:
+              with open(os.environ['GITHUB_OUTPUT'], 'a') as appendStream:
+                appendStream.write('should_publish=true\n')
+                appendStream.write(f'url={url}\n')
                   "
 
       - name: Build wheels and source dist
