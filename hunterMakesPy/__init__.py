@@ -9,7 +9,7 @@ This package provides:
 """
 from hunterMakesPy.theTypes import identifierDotAttribute as identifierDotAttribute
 
-from hunterMakesPy.coping import raiseIfNone as raiseIfNone
+from hunterMakesPy.coping import PackageSettings as PackageSettings, raiseIfNone as raiseIfNone
 
 from hunterMakesPy.parseParameters import (defineConcurrencyLimit as defineConcurrencyLimit, intInnit as intInnit,
 	oopsieKwargsie as oopsieKwargsie)

@@ -5,9 +5,54 @@
 This module provides helper functions for defensive programming and error handling, particularly for dealing with `None` values that should not occur in correct program flow.
 
 """
-from typing import TypeVar
+from importlib.util import find_spec
+from pathlib import Path
+from tomllib import loads as tomllib_loads
+from typing import TYPE_CHECKING, TypeVar
+import dataclasses
+
+if TYPE_CHECKING:
+	from importlib.machinery import ModuleSpec
 
 TypeSansNone = TypeVar('TypeSansNone')
+
+def getIdentifierPackagePACKAGING(identifierPackageFALLBACK: str) -> str:
+	"""Get package name from pyproject.toml or fallback to provided value."""
+	try:
+		return tomllib_loads(Path('pyproject.toml').read_text(encoding='utf-8'))['project']['name']
+	except Exception:  # noqa: BLE001
+		return identifierPackageFALLBACK
+
+def getPathPackageINSTALLING(identifierPackage: str) -> Path:
+	"""Return the root directory of the installed package."""
+	try:
+		moduleSpecification: ModuleSpec | None = find_spec(identifierPackage)
+		if moduleSpecification and moduleSpecification.origin:
+			pathFilename = Path(moduleSpecification.origin)
+			return pathFilename.parent if pathFilename.is_file() else pathFilename
+	except ModuleNotFoundError:
+		pass
+	return Path.cwd()
+
+@dataclasses.dataclass
+class PackageSettings:
+	"""Configurable package settings for any Python package."""
+
+	identifierPackageFALLBACK: dataclasses.InitVar[str] = ''
+	"""Fallback package identifier used during initialization only."""
+	pathPackage: Path = dataclasses.field(default_factory=Path, metadata={'evaluateWhen': 'installing'})
+	"""Absolute path to the installed package."""
+	identifierPackage: str = dataclasses.field(default='', metadata={'evaluateWhen': 'packaging'})
+	"""Name of this package."""
+	fileExtension: str = dataclasses.field(default='.py', metadata={'evaluateWhen': 'installing'})
+	"""Default file extension for files."""
+
+	def __post_init__(self, identifierPackageFALLBACK: str) -> None:
+		"""Initialize computed fields after dataclass initialization."""
+		if not self.identifierPackage and identifierPackageFALLBACK:
+			self.identifierPackage = getIdentifierPackagePACKAGING(identifierPackageFALLBACK)
+		if self.pathPackage == Path() and self.identifierPackage:
+			self.pathPackage = getPathPackageINSTALLING(self.identifierPackage)
 
 def raiseIfNone(returnTarget: TypeSansNone | None, errorMessage: str | None = None) -> TypeSansNone:
 	"""Raise a `ValueError` if the target value is `None`, otherwise return the value: tell the type checker that the return value is not `None`.
