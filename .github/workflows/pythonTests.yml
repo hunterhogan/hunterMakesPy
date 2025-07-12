@@ -33,19 +33,24 @@ jobs:
         run: |
           python -c "
           import itertools, json, os, packaging.specifiers, packaging.version, pathlib, requests, tomllib
+
+          dictionaryProject = tomllib.loads(pathlib.Path('pyproject.toml').read_text())['project']
+          versionPackage = dictionaryProject['version']
+          namePackage = dictionaryProject['name']
+
           listPythonVersions = [str(max(group))
             for _key, group in itertools.groupby(
-              packaging.specifiers.SpecifierSet(tomllib.loads(pathlib.Path('pyproject.toml').read_text())['project']['requires-python']).filter(
-                packaging.version.Version(item['version'])
-            for item in requests.get(
-              'https://raw.githubusercontent.com/actions/python-versions/main/versions-manifest.json'
-              ).json())
-            , lambda V: V.release[0:-1])]
+              packaging.specifiers.SpecifierSet(dictionaryProject['requires-python']).filter(
+                packaging.version.Version(manifest['version'])
+              for manifest in requests.get(
+                'https://raw.githubusercontent.com/actions/python-versions/main/versions-manifest.json'
+                ).json())
+              , lambda V: V.release[0:-1])]
 
           with open(os.environ['GITHUB_OUTPUT'], 'a') as writeStream:
             writeStream.write(f'versions={json.dumps(listPythonVersions)}\n')
-            writeStream.write(f'versionPackage={project[\"version\"]}\n')
-            writeStream.write(f'namePackage={project[\"name\"]}\n')
+            writeStream.write(f'versionPackage={versionPackage}\n')
+            writeStream.write(f'namePackage={namePackage}\n')
           "
 
   make-testbeds:
