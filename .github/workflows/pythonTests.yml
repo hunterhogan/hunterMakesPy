@@ -14,24 +14,44 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - run: pip install packaging requests tomli
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '>=3.11'
+
+      - name: Cache, pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: pip-a-dee-doo-dah
+          restore-keys: pip-a-dee-doo-dah
+
+      - run: pip install packaging
+
+      - name: Cache Python versions manifest
+        uses: actions/cache@v4
+        with:
+          path: .python-versions-cache/
+          key: python-versions-manifest-
+          restore-keys: python-versions-manifest-
+
       - id: get-python-versions
         run: |
           python -c "
-          from packaging.specifiers import SpecifierSet
-          from packaging.version import Version
-          from pathlib import Path
-          import itertools, json, requests, tomli, os
+          import itertools, json, os, packaging.specifiers, packaging.version, pathlib, tomllib, subprocess
+          subprocess.run(['python', '.github/scripts/http_cache_fetch.py'
+            , 'https://raw.githubusercontent.com/actions/python-versions/main/versions-manifest.json'
+            , '.python-versions-cache/manifest.json'
+          ], check=True)
 
-          specifications = SpecifierSet(tomli.loads(Path('pyproject.toml').read_text())['project']['requires-python'])
-
-          listPythonVersions = [str(max(group)) for _key, group in itertools.groupby(
-            specifications.filter(Version(item['version']) for item in requests.get(
-              'https://raw.githubusercontent.com/actions/python-versions/main/versions-manifest.json').json())
+          listPythonVersions = [str(max(group))
+            for _key, group in itertools.groupby(
+              packaging.specifiers.SpecifierSet(tomllib.loads(pathlib.Path('pyproject.toml').read_text())['project']['requires-python']).filter(
+                packaging.version.Version(item['version'])
+            for item in json.loads(pathlib.Path('.python-versions-cache/manifest.json').read_text()))
             , lambda V: V.release[0:-1])]
 
           with open(os.environ['GITHUB_OUTPUT'], 'a') as writeStream:
-              writeStream.write(f'versions={json.dumps(listPythonVersions)}\n')
+            writeStream.write(f'versions={json.dumps(listPythonVersions)}\n')
           "
 
   make-testbeds:
@@ -39,18 +59,20 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ${{fromJson(needs.get-python-versions.outputs.python-versions)}}
+        python-version: ${{ fromJson(needs.get-python-versions.outputs.python-versions) }}
     steps:
       - uses: actions/checkout@v4
+      - name: Cache, pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: pip-a-dee-doo-dah
+          restore-keys: pip-a-dee-doo-dah
 
-      - name: Install Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
 
       - name: Install package[testing]
-        run: |
-          python -m pip install --upgrade pip
-          pip install ".[testing]"
-
+        run: pip install ".[testing]"
       - run: pytest
