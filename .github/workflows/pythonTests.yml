@@ -31,11 +31,6 @@ jobs:
         run: |
           python -c "
           import itertools, json, os, packaging.specifiers, packaging.version, pathlib, requests, subprocess, tomllib
-          subprocess.run(['python', '.github/scripts/http_cache_fetch.py'
-            , 'https://raw.githubusercontent.com/actions/python-versions/main/versions-manifest.json'
-            , '.python-versions-cache/manifest.json'
-          ], check=True)
-
           listPythonVersions = [str(max(group))
             for _key, group in itertools.groupby(
               packaging.specifiers.SpecifierSet(tomllib.loads(pathlib.Path('pyproject.toml').read_text())['project']['requires-python']).filter(
