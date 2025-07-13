@@ -43,6 +43,9 @@ jobs:
                       appendStream.write(f'url={url}\n')
           "
 
+      - name: DEBUG print should_publish output
+        run: echo "should_publish=[32m${{ steps.check.outputs.should_publish }}[0m"
+
       - name: Build wheels and source dist
         if: steps.check.outputs.should_publish == 'true'
         run: pipx run build
