@@ -24,14 +24,6 @@ jobs:
         with:
           python-version: '>=3.11'
 
-      - name: Cache, pip
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: pip-a-dee-doo-dah
-          restore-keys: pip-a-dee-doo-dah
-      - run: pip install build
-
       - name: Check if version exists on PyPI
         id: check
         run: |
@@ -53,13 +45,14 @@ jobs:
 
       - name: Build wheels and source dist
         if: steps.check.outputs.should_publish == 'true'
-        run: python -m build
+        run: pipx run build
 
       - name: Upload distributions
         uses: actions/upload-artifact@v4
         with:
           name: release-dists
           path: dist/
+          if-no-files-found: error
 
   pypi-publish:
     needs: [check-version]
