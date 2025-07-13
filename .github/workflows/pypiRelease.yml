@@ -1,3 +1,5 @@
+# See https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python#publishing-to-package-registries
+
 name: Make PyPI Release
 
 on:
@@ -22,43 +24,40 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: '>=3.11'
-
-      - name: Check if version exists on PyPI
+          python-version: "3.x"
+      - run: pip install requests toml
+      - name: Check PyPI version
         id: check
         run: |
           python -c "
-          import os, pathlib, tomllib, urllib.error, urllib.request
-
-          dictionaryProject = tomllib.loads(pathlib.Path('pyproject.toml').read_text())['project']
-          versionPackage, namePackage = dictionaryProject['version'], dictionaryProject['name']
-          url = f'https://pypi.org/project/{namePackage}/{versionPackage}'
-
-          try:
-              urllib.request.urlopen(urllib.request.Request(url, method='HEAD'))
-          except urllib.error.HTTPError as HTTPError:
-              if HTTPError.code == 404:
-                  with open(os.environ['GITHUB_OUTPUT'], 'a') as appendStream:
-                      appendStream.write('should_publish=true\n')
-                      appendStream.write(f'url={url}\n')
+          import os, requests, toml
+          dictionaryProject = toml.load('pyproject.toml')['project']
+          version = dictionaryProject['version']
+          name = dictionaryProject['name']
+          if version not in requests.get(f'https://pypi.org/pypi/{name}/json').json().get('releases', []):
+            with open(os.environ['GITHUB_OUTPUT'], 'a') as appendStream:
+              appendStream.write('should_publish=true\n')
+              appendStream.write(f'url=https://pypi.org/project/{name}/{version}\n')
           "
 
-      - name: DEBUG print should_publish output
-        run: echo "should_publish=[32m${{ steps.check.outputs.should_publish }}[0m"
-
-      - name: Build wheels and source dist
-        if: steps.check.outputs.should_publish == 'true'
-        run: pipx run build
-
+  release-build:
+    needs: check-version
+    if: needs.check-version.outputs.should_publish == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - run: pipx run build
       - name: Upload distributions
         uses: actions/upload-artifact@v4
         with:
           name: release-dists
           path: dist/
-          if-no-files-found: error
 
   pypi-publish:
-    needs: [check-version]
+    needs: [check-version, release-build]
     if: needs.check-version.outputs.should_publish == 'true'
     runs-on: ubuntu-latest
     environment:
