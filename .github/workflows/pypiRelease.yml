@@ -23,61 +23,46 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '>=3.11'
-      - name: Get versionPackage and namePackage from Python Tests workflow
-        id: use-project-info
-        run: |
-          if [ "${{ github.event_name }}" = "workflow_run" ]; then
-            RUN_ID=${{ github.event.workflow_run.id }}
-          else
-            RUN_ID=${{ github.run_id }}
-          fi
-          versionPackage=$(gh api repos/${{ github.repository }}/actions/runs/$RUN_ID/jobs | jq -r '.jobs[] | select(.name == "get-project-info") | .outputs.versionPackage')
-          echo "versionPackage=$versionPackage" >> "$GITHUB_OUTPUT"
-          namePackage=$(gh api repos/${{ github.repository }}/actions/runs/$RUN_ID/jobs | jq -r '.jobs[] | select(.name == "get-project-info") | .outputs.namePackage')
-          echo "namePackage=$namePackage" >> "$GITHUB_OUTPUT"
-        env:
-          GH_TOKEN: ${{ github.token }}
+
+      - name: Cache, pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: pip-a-dee-doo-dah
+          restore-keys: pip-a-dee-doo-dah
+      - run: pip install build
 
       - name: Check if version exists on PyPI
         id: check
-        env:
-          versionPackage: ${{ steps.use-project-info.outputs.versionPackage }}
-          namePackage: ${{ steps.use-project-info.outputs.namePackage }}
         run: |
           python -c "
-          import os, urllib.error, urllib.request
+          import os, pathlib, tomllib, urllib.error, urllib.request
 
-          versionPackage, namePackage = os.environ['versionPackage'], os.environ['namePackage']
+          dictionaryProject = tomllib.loads(pathlib.Path('pyproject.toml').read_text())['project']
+          versionPackage, namePackage = dictionaryProject['version'], dictionaryProject['name']
           url = f'https://pypi.org/project/{namePackage}/{versionPackage}'
 
           try:
-            urllib.request.urlopen(urllib.request.Request(url, method='HEAD'))
+              urllib.request.urlopen(urllib.request.Request(url, method='HEAD'))
           except urllib.error.HTTPError as HTTPError:
-            if HTTPError.code == 404:
-              with open(os.environ['GITHUB_OUTPUT'], 'a') as appendStream:
-                appendStream.write('should_publish=true\n')
-                appendStream.write(f'url={url}\n')
+              if HTTPError.code == 404:
+                  with open(os.environ['GITHUB_OUTPUT'], 'a') as appendStream:
+                      appendStream.write('should_publish=true\n')
+                      appendStream.write(f'url={url}\n')
           "
 
-  release-build:
-    needs: check-version
-    if: needs.check-version.outputs.should_publish == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.x"
-      - run: pipx run build
+      - name: Build wheels and source dist
+        if: steps.check.outputs.should_publish == 'true'
+        run: python -m build
+
       - name: Upload distributions
         uses: actions/upload-artifact@v4
         with:
           name: release-dists
           path: dist/
-          if-no-files-found: error
 
   pypi-publish:
-    needs: [check-version, release-build]
+    needs: [check-version]
     if: needs.check-version.outputs.should_publish == 'true'
     runs-on: ubuntu-latest
     environment:
@@ -95,4 +80,3 @@ jobs:
         uses: pypa/gh-action-pypi-publish@76f52bc884231f62b9a034ebfe128415bbaabdfc #v1.12.2
         with:
           packages-dir: dist/
-          verify-metadata: true
