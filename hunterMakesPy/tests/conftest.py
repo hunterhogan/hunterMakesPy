@@ -5,8 +5,7 @@ import pathlib
 import pytest
 
 # SSOT for test data paths and filenames
-# SSOT for test data paths and filenames
-pathDataSamples = pathlib.Path("tests/dataSamples")
+pathDataSamples = pathlib.Path("hunterMakesPy/tests/dataSamples")
 
 # Fixture to provide a temporary directory for filesystem tests
 @pytest.fixture

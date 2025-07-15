@@ -5,156 +5,159 @@ from numpy import integer
 from numpy.typing import NDArray
 from typing import Any
 import more_itertools
-import python_minifier
 import re as regex
+import sys
 
-def autoDecodingRLE(arrayTarget: NDArray[integer[Any]], *, assumeAddSpaces: bool = False) -> str:  # noqa: C901, PLR0915
-	"""Transform a NumPy array into a compact, self-decoding run-length encoded string representation.
+if sys.version_info < (3, 14):
+	import python_minifier
 
-	This function converts a NumPy array into a string that, when evaluated as Python code,
-	recreates the original array structure. The function employs two compression strategies:
-	1. Python's `range` syntax for consecutive integer sequences
-	2. Multiplication syntax for repeated elements
+	def autoDecodingRLE(arrayTarget: NDArray[integer[Any]], *, assumeAddSpaces: bool = False) -> str:  # noqa: C901, PLR0915
+		"""Transform a NumPy array into a compact, self-decoding run-length encoded string representation.
 
-	The resulting string representation is designed to be both human-readable and space-efficient,
-	especially for large cartesian mappings with repetitive patterns. When this string is used
-	as a data source, Python will automatically decode it into Python `list`, which if used as an
-	argument to `numpy.array()`, will recreate the original array structure.
+		This function converts a NumPy array into a string that, when evaluated as Python code,
+		recreates the original array structure. The function employs two compression strategies:
+		1. Python's `range` syntax for consecutive integer sequences
+		2. Multiplication syntax for repeated elements
 
-	Parameters
-	----------
-	arrayTarget : NDArray[integer[Any]]
-		(array2target) The NumPy array to be encoded.
-	assumeAddSpaces : bool = False
-		(assume2add2spaces) Affects internal length comparison during compression decisions.
-		This parameter doesn't directly change output format but influences whether
-		`range` or multiplication syntax is preferred in certain cases. The parameter
-		exists because the Abstract Syntax Tree (AST) inserts spaces in its string
-		representation.
+		The resulting string representation is designed to be both human-readable and space-efficient,
+		especially for large cartesian mappings with repetitive patterns. When this string is used
+		as a data source, Python will automatically decode it into Python `list`, which if used as an
+		argument to `numpy.array()`, will recreate the original array structure.
 
-	Returns
-	-------
-	rleString : str
-		(rle2string) A string representation of the array using run-length encoding that,
-		when evaluated as Python code, reproduces the original array structure.
+		Parameters
+		----------
+		arrayTarget : NDArray[integer[Any]]
+			(array2target) The NumPy array to be encoded.
+		assumeAddSpaces : bool = False
+			(assume2add2spaces) Affects internal length comparison during compression decisions.
+			This parameter doesn't directly change output format but influences whether
+			`range` or multiplication syntax is preferred in certain cases. The parameter
+			exists because the Abstract Syntax Tree (AST) inserts spaces in its string
+			representation.
 
-	Notes
-	-----
-	The "autoDecoding" feature means that the string representation evaluates directly
-	to the desired data structure without explicit decompression steps.
+		Returns
+		-------
+		rleString : str
+			(rle2string) A string representation of the array using run-length encoding that,
+			when evaluated as Python code, reproduces the original array structure.
 
-	"""
-	def sliceNDArrayToNestedLists(arraySlice: NDArray[integer[Any]]) -> Any:
-		def getLengthOption(optionAsStr: str) -> int:
-			"""`assumeAddSpaces` characters: `,` 1; `]*` 2."""
-			return assumeAddSpaces * (optionAsStr.count(',') + optionAsStr.count(']*') * 2) + len(optionAsStr)
+		Notes
+		-----
+		The "autoDecoding" feature means that the string representation evaluates directly
+		to the desired data structure without explicit decompression steps.
 
-		if arraySlice.ndim > 1:
-			axisOfOperation = 0
-			return [sliceNDArrayToNestedLists(arraySlice[index]) for index in range(arraySlice.shape[axisOfOperation])]
-		if arraySlice.ndim == 1:
-			arraySliceAsList: list[int | range] = []
-			cache_consecutiveGroup_addMe: dict[Iterator[Any], list[int] | list[range]] = {}
-			for consecutiveGroup in more_itertools.consecutive_groups(arraySlice.tolist()):
-				if consecutiveGroup in cache_consecutiveGroup_addMe:
-					addMe = cache_consecutiveGroup_addMe[consecutiveGroup]
-				else:
-					ImaSerious: list[int] = list(consecutiveGroup)
-					ImaRange = [range(ImaSerious[0], ImaSerious[-1] + 1)]
-					ImaRangeAsStr = python_minifier.minify(str(ImaRange)).replace('range(0,', 'range(').replace('range', '*range')
+		"""
+		def sliceNDArrayToNestedLists(arraySlice: NDArray[integer[Any]]) -> Any:
+			def getLengthOption(optionAsStr: str) -> int:
+				"""`assumeAddSpaces` characters: `,` 1; `]*` 2."""
+				return assumeAddSpaces * (optionAsStr.count(',') + optionAsStr.count(']*') * 2) + len(optionAsStr)
 
-					option1 = ImaRange
-					option1AsStr = ImaRangeAsStr
-					option2 = ImaSerious
-					option2AsStr = None
-
-					# alpha, potential function
-					option1AsStr = option1AsStr or python_minifier.minify(str(option1))
-					lengthOption1 = getLengthOption(option1AsStr)
-
-					option2AsStr = option2AsStr or python_minifier.minify(str(option2))
-					lengthOption2 = getLengthOption(option2AsStr)
-
-					if lengthOption1 < lengthOption2:
-						addMe = option1
+			if arraySlice.ndim > 1:
+				axisOfOperation = 0
+				return [sliceNDArrayToNestedLists(arraySlice[index]) for index in range(arraySlice.shape[axisOfOperation])]
+			if arraySlice.ndim == 1:
+				arraySliceAsList: list[int | range] = []
+				cache_consecutiveGroup_addMe: dict[Iterator[Any], list[int] | list[range]] = {}
+				for consecutiveGroup in more_itertools.consecutive_groups(arraySlice.tolist()):
+					if consecutiveGroup in cache_consecutiveGroup_addMe:
+						addMe = cache_consecutiveGroup_addMe[consecutiveGroup]
 					else:
-						addMe = option2
+						ImaSerious: list[int] = list(consecutiveGroup)
+						ImaRange = [range(ImaSerious[0], ImaSerious[-1] + 1)]
+						ImaRangeAsStr = python_minifier.minify(str(ImaRange)).replace('range(0,', 'range(').replace('range', '*range')
 
-					cache_consecutiveGroup_addMe[consecutiveGroup] = addMe
+						option1 = ImaRange
+						option1AsStr = ImaRangeAsStr
+						option2 = ImaSerious
+						option2AsStr = None
 
-				arraySliceAsList += addMe
+						# alpha, potential function
+						option1AsStr = option1AsStr or python_minifier.minify(str(option1))
+						lengthOption1 = getLengthOption(option1AsStr)
 
-			listRangeAndTuple: list[int | range | tuple[int | range, int]] = []
-			cache_malkovichGrouped_addMe: dict[tuple[int | range, int], list[tuple[int | range, int]] | list[int | range]] = {}
-			for malkovichGrouped in more_itertools.run_length.encode(arraySliceAsList):
-				if malkovichGrouped in cache_malkovichGrouped_addMe:
-					addMe = cache_malkovichGrouped_addMe[malkovichGrouped]
-				else:
-					lengthMalkovich = malkovichGrouped[-1]
-					malkovichAsList = list(more_itertools.run_length.decode([malkovichGrouped]))
-					malkovichMalkovich = f"[{malkovichGrouped[0]}]*{lengthMalkovich}"
+						option2AsStr = option2AsStr or python_minifier.minify(str(option2))
+						lengthOption2 = getLengthOption(option2AsStr)
 
-					option1 = [malkovichGrouped]
-					option1AsStr = malkovichMalkovich
-					option2 = malkovichAsList
-					option2AsStr = None
+						if lengthOption1 < lengthOption2:
+							addMe = option1
+						else:
+							addMe = option2
 
-					# beta, potential function
-					option1AsStr = option1AsStr or python_minifier.minify(str(option1))
-					lengthOption1 = getLengthOption(option1AsStr)
+						cache_consecutiveGroup_addMe[consecutiveGroup] = addMe
 
-					option2AsStr = option2AsStr or python_minifier.minify(str(option2))
-					lengthOption2 = getLengthOption(option2AsStr)
+					arraySliceAsList += addMe
 
-					if lengthOption1 < lengthOption2:
-						addMe = option1
+				listRangeAndTuple: list[int | range | tuple[int | range, int]] = []
+				cache_malkovichGrouped_addMe: dict[tuple[int | range, int], list[tuple[int | range, int]] | list[int | range]] = {}
+				for malkovichGrouped in more_itertools.run_length.encode(arraySliceAsList):
+					if malkovichGrouped in cache_malkovichGrouped_addMe:
+						addMe = cache_malkovichGrouped_addMe[malkovichGrouped]
 					else:
-						addMe = option2
+						lengthMalkovich = malkovichGrouped[-1]
+						malkovichAsList = list(more_itertools.run_length.decode([malkovichGrouped]))
+						malkovichMalkovich = f"[{malkovichGrouped[0]}]*{lengthMalkovich}"
 
-					cache_malkovichGrouped_addMe[malkovichGrouped] = addMe
+						option1 = [malkovichGrouped]
+						option1AsStr = malkovichMalkovich
+						option2 = malkovichAsList
+						option2AsStr = None
 
-				listRangeAndTuple += addMe
+						# beta, potential function
+						option1AsStr = option1AsStr or python_minifier.minify(str(option1))
+						lengthOption1 = getLengthOption(option1AsStr)
 
-			return listRangeAndTuple
-		return arraySlice
+						option2AsStr = option2AsStr or python_minifier.minify(str(option2))
+						lengthOption2 = getLengthOption(option2AsStr)
 
-	arrayAsNestedLists = sliceNDArrayToNestedLists(arrayTarget)
+						if lengthOption1 < lengthOption2:
+							addMe = option1
+						else:
+							addMe = option2
 
-	arrayAsStr = python_minifier.minify(str(arrayAsNestedLists))
+						cache_malkovichGrouped_addMe[malkovichGrouped] = addMe
 
-	patternRegex = regex.compile(
-		"(?<!rang)(?:"
-		# Pattern 1: Comma ahead, bracket behind  # noqa: ERA001
-		"(?P<joinAhead>,)\\((?P<malkovich>\\d+),(?P<multiply>\\d+)\\)(?P<bracketBehind>])|"
-		# Pattern 2: Bracket or start ahead, comma behind  # noqa: ERA001
-		"(?P<bracketOrStartAhead>\\[|^.)\\((?P<malkovichMalkovich>\\d+),(?P<multiplyIDK>\\d+)\\)(?P<joinBehind>,)|"
-		# Pattern 3: Bracket ahead, bracket behind  # noqa: ERA001
-		"(?P<bracketAhead>\\[)\\((?P<malkovichMalkovichMalkovich>\\d+),(?P<multiply_whatever>\\d+)\\)(?P<bracketBehindBracketBehind>])|"
-		# Pattern 4: Comma ahead, comma behind  # noqa: ERA001
-		"(?P<joinAheadJoinAhead>,)\\((?P<malkovichMalkovichMalkovichMalkovich>\\d+),(?P<multiplyOrSomething>\\d+)\\)(?P<joinBehindJoinBehind>,)"
-		")"
-	)
+					listRangeAndTuple += addMe
 
-	def replacementByContext(match: regex.Match[str]) -> str:
-		"""Generate replacement string based on context patterns."""
-		elephino = match.groupdict()
-		joinAhead = elephino.get('joinAhead') or elephino.get('joinAheadJoinAhead')
-		malkovich = elephino.get('malkovich') or elephino.get('malkovichMalkovich') or elephino.get('malkovichMalkovichMalkovich') or elephino.get('malkovichMalkovichMalkovichMalkovich')
-		multiply = elephino.get('multiply') or elephino.get('multiplyIDK') or elephino.get('multiply_whatever') or elephino.get('multiplyOrSomething')
-		joinBehind = elephino.get('joinBehind') or elephino.get('joinBehindJoinBehind')
+				return listRangeAndTuple
+			return arraySlice
 
-		replaceAhead = "]+[" if joinAhead == "," else "["
+		arrayAsNestedLists = sliceNDArrayToNestedLists(arrayTarget)
 
-		replaceBehind = "+[" if joinBehind == "," else ""
+		arrayAsStr = python_minifier.minify(str(arrayAsNestedLists))
 
-		return f"{replaceAhead}{malkovich}]*{multiply}{replaceBehind}"
+		patternRegex = regex.compile(
+			"(?<!rang)(?:"
+			# Pattern 1: Comma ahead, bracket behind  # noqa: ERA001
+			"(?P<joinAhead>,)\\((?P<malkovich>\\d+),(?P<multiply>\\d+)\\)(?P<bracketBehind>])|"
+			# Pattern 2: Bracket or start ahead, comma behind  # noqa: ERA001
+			"(?P<bracketOrStartAhead>\\[|^.)\\((?P<malkovichMalkovich>\\d+),(?P<multiplyIDK>\\d+)\\)(?P<joinBehind>,)|"
+			# Pattern 3: Bracket ahead, bracket behind  # noqa: ERA001
+			"(?P<bracketAhead>\\[)\\((?P<malkovichMalkovichMalkovich>\\d+),(?P<multiply_whatever>\\d+)\\)(?P<bracketBehindBracketBehind>])|"
+			# Pattern 4: Comma ahead, comma behind  # noqa: ERA001
+			"(?P<joinAheadJoinAhead>,)\\((?P<malkovichMalkovichMalkovichMalkovich>\\d+),(?P<multiplyOrSomething>\\d+)\\)(?P<joinBehindJoinBehind>,)"
+			")"
+		)
 
-	arrayAsStr = patternRegex.sub(replacementByContext, arrayAsStr)
-	arrayAsStr = patternRegex.sub(replacementByContext, arrayAsStr)
+		def replacementByContext(match: regex.Match[str]) -> str:
+			"""Generate replacement string based on context patterns."""
+			elephino = match.groupdict()
+			joinAhead = elephino.get('joinAhead') or elephino.get('joinAheadJoinAhead')
+			malkovich = elephino.get('malkovich') or elephino.get('malkovichMalkovich') or elephino.get('malkovichMalkovichMalkovich') or elephino.get('malkovichMalkovichMalkovichMalkovich')
+			multiply = elephino.get('multiply') or elephino.get('multiplyIDK') or elephino.get('multiply_whatever') or elephino.get('multiplyOrSomething')
+			joinBehind = elephino.get('joinBehind') or elephino.get('joinBehindJoinBehind')
 
-	# Replace `range(0,stop)` syntax with `range(stop)` syntax.  # noqa: ERA001
-	# Add unpack operator `*` for automatic decoding when evaluated.
-	return arrayAsStr.replace('range(0,', 'range(').replace('range', '*range')
+			replaceAhead = "]+[" if joinAhead == "," else "["
+
+			replaceBehind = "+[" if joinBehind == "," else ""
+
+			return f"{replaceAhead}{malkovich}]*{multiply}{replaceBehind}"
+
+		arrayAsStr = patternRegex.sub(replacementByContext, arrayAsStr)
+		arrayAsStr = patternRegex.sub(replacementByContext, arrayAsStr)
+
+		# Replace `range(0,stop)` syntax with `range(stop)` syntax.  # noqa: ERA001
+		# Add unpack operator `*` for automatic decoding when evaluated.
+		return arrayAsStr.replace('range(0,', 'range(').replace('range', '*range')
 
 def stringItUp(*scrapPile: Any) -> list[str]:  # noqa: C901
 	"""Convert, if possible, every element in the input data structure to a string.

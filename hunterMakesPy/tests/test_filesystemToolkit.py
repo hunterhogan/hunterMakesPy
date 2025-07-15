@@ -1,6 +1,6 @@
 # pyright: standard
 from hunterMakesPy import importLogicalPath2Identifier, importPathFilename2Identifier, makeDirsSafely, writeStringToHere
-from tests.conftest import uniformTestFailureMessage
+from hunterMakesPy.tests.conftest import uniformTestFailureMessage
 import io
 import math
 import os
@@ -31,7 +31,10 @@ def testImportLogicalPath2Identifier(moduleName: str, identifier: str, expectedT
 	imported = importLogicalPath2Identifier(moduleName, identifier)
 	assert isinstance(imported, expectedType), uniformTestFailureMessage(expectedType, type(imported), "testImportLogicalPath2Identifier", (moduleName, identifier))
 
-@pytest.mark.parametrize( "source, identifier, expected", [ ("def fibonacciNumber():\n    return 13\n", "fibonacciNumber", 13), ("prime = 17\n", "prime", 17), ] )
+@pytest.mark.parametrize(
+	"source, identifier, expected"
+	, [("def fibonacciNumber():\n    return 13\n", "fibonacciNumber", 13)
+	, ("prime = 17\n", "prime", 17)])
 def testImportPathFilename2Identifier(tmp_path: pathlib.Path, source: str, identifier: str, expected: object) -> None:
 	filePath = tmp_path / "moduleTest.py"
 	filePath.write_text(source)

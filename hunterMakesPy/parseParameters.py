@@ -9,18 +9,16 @@ import multiprocessing
 class ErrorMessageContext:
 	"""Context information for constructing error messages.
 
-	(AI generated docstring)
-
 	Parameters
 	----------
 	parameterValue : Any = None
-		(parameter2value) The value that caused the error.
+		The value that caused the error.
 	parameterValueType : str | None = None
-		(parameter2value2type) The type name of the parameter value.
+		The name of the type of the parameter value.
 	containerType : str | None = None
-		(container2type) The type name of the container holding the parameter.
+		The name of the type of the container holding the parameter.
 	isElement : bool = False
-		(is2element) Whether the parameter is an element within a container.
+		Whether the parameter is an element within a container.
 
 	"""
 
@@ -32,7 +30,8 @@ class ErrorMessageContext:
 def _constructErrorMessage(context: ErrorMessageContext, parameterName: str, parameterType: type[Any] | None) -> str:
 	"""Construct error message from available context using template.
 
-	I received ["value" | a value | `None`] [of type `type` | `None`] [as an element in | `None`] [a `containerType` type | `None`] but `parameterName` must have integers [in type(s) `parameterType` | `None`].
+	I received ["value" | a value | `None`] [of type `type` | `None`] [as an element in | `None`] [a `containerType` type |
+	`None`] but `parameterName` must have integers [in type(s) `parameterType` | `None`].
 
 	Hypothetically, this is a prototype that can be generalized to other functions. In this package and a few of my other
 	packages, I have developed standardized error messages, but those are quite different from this. I will certainly continue to
@@ -41,16 +40,16 @@ def _constructErrorMessage(context: ErrorMessageContext, parameterName: str, par
 	Parameters
 	----------
 	context : ErrorMessageContext
-		(context) The error context containing parameter value, type, and container information.
+		The error context containing parameter value, type, and container information.
 	parameterName : str
-		(parameter2name) The name of the parameter that caused the error.
+		The name of the parameter that caused the error.
 	parameterType : type[Any] | None
-		(parameter2type) The expected type of the parameter, used in error messages.
+		The expected type of the parameter, used in error messages.
 
 	Returns
 	-------
 	errorMessage : str
-		(error2message) The constructed error message string.
+		The constructed error message string.
 
 	"""
 	messageParts = ["I received "]
@@ -79,7 +78,8 @@ def _constructErrorMessage(context: ErrorMessageContext, parameterName: str, par
 def defineConcurrencyLimit(*, limit: bool | float | int | None, cpuTotal: int = multiprocessing.cpu_count()) -> int:  # noqa: C901, PYI041
 	"""Determine the concurrency limit based on the provided parameter.
 
-	This package has Pytest tests you can import and run on this function. `from hunterMakesPy.pytest_parseParameters import makeTestSuiteConcurrencyLimit`
+	Tests for this function can be run with:
+	`from hunterMakesPy.tests.test_parseParameters import PytestFor_defineConcurrencyLimit`
 
 	Parameters
 	----------
@@ -92,12 +92,12 @@ def defineConcurrencyLimit(*, limit: bool | float | int | None, cpuTotal: int = 
 	Returns
 	-------
 	concurrencyLimit : int
-		(concurrency2limit) The calculated concurrency limit, ensuring it is at least 1.
+		The calculated concurrency limit, ensuring it is at least 1.
 
 	Notes
 	-----
-	If you want to be extra nice to your users, consider using `hunterMakesPy.oopsieKwargsie()` to handle
-	malformed inputs. For example:
+	If you want to be extra nice to your users, consider using `hunterMakesPy.oopsieKwargsie()` to handle malformed inputs. For
+	example:
 
 	```
 	if not (CPUlimit is None or isinstance(CPUlimit, (bool, int, float))):
@@ -163,23 +163,25 @@ def defineConcurrencyLimit(*, limit: bool | float | int | None, cpuTotal: int = 
 def intInnit(listInt_Allegedly: Iterable[Any], parameterName: str | None = None, parameterType: type[Any] | None = None) -> list[int]:  # noqa: C901, PLR0912, PLR0915
 	"""Validate and convert input values to a `list` of integers.
 
-	Accepts various numeric types and attempts to convert them into integers while providing descriptive error messages.
+	Accepts various numeric types and attempts to convert them into integers while providing descriptive error messages. This
+	package includes Pytest tests that can be imported and run: `from hunterMakesPy.tests.test_parseParameters import
+	PytestFor_intInnit`.
 
 	Parameters
 	----------
 	listInt_Allegedly : Iterable[Any]
-		(list2int2allegedly) The input sequence that should contain integer-compatible values.
-		Accepts integers, strings, floats, complex numbers, and binary data.
-		Rejects boolean values and non-integer numeric values.
+		The input sequence that should contain integer-compatible values. Accepts integers, strings, floats, complex numbers, and
+		binary data. Rejects boolean values and non-integer numeric values.
 	parameterName : str | None = None
-		(parameter2name) Name of the parameter from your function for which this function is validating the input validated. If there is an error message, it provides context to your user. Defaults to 'the parameter'.
+		Name of the parameter from your function for which this function is validating the input validated. If there is an error
+		message, it provides context to your user. Defaults to 'the parameter'.
 	parameterType : type[Any] | None = None
-		(parameter2type) Expected type(s) of the parameter, used in error messages.
+		Expected type(s) of the parameter, used in error messages.
 
 	Returns
 	-------
 	listValidated : list[int]
-		(list2validated) A `list` containing validated integers.
+		A `list` containing validated integers.
 
 	Raises
 	------
@@ -192,9 +194,6 @@ def intInnit(listInt_Allegedly: Iterable[Any], parameterName: str | None = None,
 
 	Notes
 	-----
-	This package includes Pytest tests that can be imported and run:
-	`from hunterMakesPy.pytest_parseParameters import makeTestSuiteIntInnit`
-
 	The function performs strict validation and follows fail-early principles to catch potential issues before they become catastrophic.
 
 	"""
@@ -284,19 +283,20 @@ def intInnit(listInt_Allegedly: Iterable[Any], parameterName: str | None = None,
 def oopsieKwargsie(huh: Any) -> bool | None | str:
 	"""Interpret a `str` as `True`, `False`, or `None` to avoid an `Exception`.
 
-	If a calling function passes a `str` to a parameter that shouldn't receive a `str`, `oopsieKwargsie()` might help you avoid an `Exception`. It tries to interpret the string as `True`, `False`, or `None`. This package has Pytest tests you can import and run on this function.
-	`from hunterMakesPy.pytest_parseParameters import makeTestSuiteOopsieKwargsie`
+	If a calling function passes a `str` to a parameter that shouldn't receive a `str`, `oopsieKwargsie()` might help you avoid an
+	`Exception`. It tries to interpret the string as `True`, `False`, or `None`.
+
+	Tests for this function can be run with: `from hunterMakesPy.tests.test_parseParameters import PytestFor_oopsieKwargsie`.
 
 	Parameters
 	----------
 	huh : Any
 		(huh) The input string to be parsed.
 
-
 	Returns
 	-------
 	interpretedValue : bool | None | str
-		(interpreted2value) The reserved keyword `True`, `False`, or `None` or the original string, `huh`.
+		The reserved keyword `True`, `False`, or `None` or the original string, `huh`.
 
 	"""
 	if not isinstance(huh, str):

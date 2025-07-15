@@ -7,6 +7,7 @@ This package provides:
 - Utilities for string extraction from nested data structures and merging dictionaries of lists.
 
 """
+# pyright: reportUnusedImport=false
 from hunterMakesPy.theTypes import identifierDotAttribute as identifierDotAttribute
 
 from hunterMakesPy.coping import PackageSettings as PackageSettings, raiseIfNone as raiseIfNone
@@ -18,7 +19,11 @@ from hunterMakesPy.filesystemToolkit import (importLogicalPath2Identifier as imp
 	importPathFilename2Identifier as importPathFilename2Identifier, makeDirsSafely as makeDirsSafely,
 	writeStringToHere as writeStringToHere)
 
-from hunterMakesPy.dataStructures import (autoDecodingRLE as autoDecodingRLE, stringItUp as stringItUp,
-	updateExtendPolishDictionaryLists as updateExtendPolishDictionaryLists)
+from hunterMakesPy.dataStructures import stringItUp as stringItUp, updateExtendPolishDictionaryLists as updateExtendPolishDictionaryLists
+
+import sys
+
+if sys.version_info < (3, 14):
+    from hunterMakesPy.dataStructures import autoDecodingRLE as autoDecodingRLE
 
 from hunterMakesPy._theSSOT import settingsPackage

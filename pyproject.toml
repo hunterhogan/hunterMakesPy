@@ -1,6 +1,6 @@
 [project]
 name = "hunterMakesPy"
-version = "0.1.2"
+version = "0.2.0"
 description = "Easy Python functions making making functional Python functions easier."
 readme = "README.md"
 requires-python = ">=3.11"
@@ -40,6 +40,7 @@ classifiers = [
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
   "Programming Language :: Python :: Implementation :: CPython",
   "Topic :: Software Development :: Libraries :: Python Modules",
   "Topic :: Utilities",
@@ -50,7 +51,7 @@ dependencies = [
   "charset_normalizer",
   "more_itertools",
   "numpy",
-  "python_minifier",
+  "python_minifier; python_version < '3.14'",
 ]
 optional-dependencies = { development = [
   "mypy",
@@ -75,15 +76,16 @@ run = { branch = true, concurrency = [
   "multiprocessing",
 ], data_file = "tests/coverage/.coverage", omit = [
   "tests/*",
+  "hunterMakesPy/tests/*",
+  "hunterMakesPy/pytestForYourUse.py",
 ], parallel = true, source = [
   ".",
 ] }
-xml = { output = "tests/coverage/coverage.xml" }
 
 [tool.pytest.ini_options]
 addopts = ["--color=auto"]
 log_auto_indent = true
-testpaths = ["tests"]
+testpaths = ["hunterMakesPy/tests"]
 
 [tool.setuptools]
 package-data = { "*" = ["py.typed"] }

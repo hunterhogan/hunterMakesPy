@@ -1,7 +1,7 @@
 from hunterMakesPy import PackageSettings, raiseIfNone
 from hunterMakesPy.coping import getIdentifierPackagePACKAGING, getPathPackageINSTALLING
+from hunterMakesPy.tests.conftest import uniformTestFailureMessage
 from pathlib import Path
-from tests.conftest import uniformTestFailureMessage
 import pytest
 
 @pytest.mark.parametrize(
