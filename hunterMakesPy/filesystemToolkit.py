@@ -1,6 +1,6 @@
 """File system and module import utilities.
 
-This module provides basic file I/O utilities such as importing callables from modules, and safely creating directories.
+This module provides basic file I/O utilities such as importing callables from modules, safely creating directories, and writing to files or streams (pipes).
 
 """
 
@@ -97,17 +97,25 @@ def makeDirsSafely(pathFilename: Any) -> None:
 		with contextlib.suppress(OSError):
 			Path(pathFilename).parent.mkdir(parents=True, exist_ok=True)
 
-def writeStringToHere(this: str, pathFilename: PathLike[Any] | PurePath) -> None:
-	"""Write a string to a file, creating parent directories as needed.
+def writeStringToHere(this: str, pathFilename: PathLike[Any] | PurePath | io.TextIOBase) -> None:
+	"""Write a string to a file or text stream.
+
+	This function writes a string to either a file path or an open text stream. For file paths, it creates parent directories as
+	needed and writes with UTF-8 encoding. For text streams, it writes directly to the stream and flushes the buffer.
 
 	Parameters
 	----------
 	this : str
-		The string content to write to the file.
-	pathFilename : PathLike[Any] | PurePath
-		The path and filename where the string will be written.
+		The string content to write.
+	pathFilename : PathLike[Any] | PurePath | io.TextIOBase
+		The target destination: either a file path or an open text stream.
 
 	"""
-	pathFilename = Path(pathFilename)
-	makeDirsSafely(pathFilename)
-	pathFilename.write_text(str(this), encoding='utf-8')
+	if isinstance(pathFilename, io.TextIOBase):
+		pathFilename.write(str(this))
+		pathFilename.flush()
+	else:
+		pathFilename = Path(pathFilename)
+		makeDirsSafely(pathFilename)
+		pathFilename.write_text(str(this), encoding='utf-8')
+

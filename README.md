@@ -28,7 +28,7 @@ def findConfiguration(configName: str) -> dict[str, str] | None:
 
 config = raiseIfNone(
     findConfiguration("database"),
-    "Configuration 'database' is required but not found"
+    "I could not find Configuration 'database', but I need it to continue."
 )
 ```
 
@@ -37,19 +37,19 @@ config = raiseIfNone(
 Parameter validation, integer parsing, and concurrency handling.
 
 ```python
-from hunterMakesPy import defineConcurrencyLimit, intInnit, oopsieKwargsie
+import hunterMakesPy as humpy
 
 # Smart concurrency limit calculation
-cpuLimit = defineConcurrencyLimit(limit=0.75)  # Use 75% of available CPUs
-cpuLimit = defineConcurrencyLimit(limit=True)  # Use exactly 1 CPU
-cpuLimit = defineConcurrencyLimit(limit=4)     # Use exactly 4 CPUs
+cpuLimit = humpy.defineConcurrencyLimit(limit=0.75)  # Use 75% of available CPUs
+cpuLimit = humpy.defineConcurrencyLimit(limit=True)  # Use exactly 1 CPU
+cpuLimit = humpy.defineConcurrencyLimit(limit=4)     # Use exactly 4 CPUs
 
 # Robust integer validation
-validatedIntegers = intInnit([1, "2", 3.0, "4"], "port_numbers")
+validatedIntegers = humpy.intInnit([1, "2", 3.0, "4"], "port_numbers")
 
 # String-to-boolean conversion for configuration
 userInput = "True"
-booleanValue = oopsieKwargsie(userInput)  # Returns True
+booleanValue = humpy.oopsieKwargsie(userInput)  # Returns True
 ```
 
 ## File System Utilities
@@ -57,20 +57,15 @@ booleanValue = oopsieKwargsie(userInput)  # Returns True
 Safe file operations and dynamic module importing.
 
 ```python
-from hunterMakesPy import (
-    importLogicalPath2Identifier,
-    importPathFilename2Identifier,
-    makeDirsSafely,
-    writeStringToHere
-)
+import hunterMakesPy as humpy
 
 # Dynamic imports
-gcdFunction = importLogicalPath2Identifier("math", "gcd")
-customFunction = importPathFilename2Identifier("path/to/module.py", "functionName")
+gcdFunction = humpy.importLogicalPath2Identifier("math", "gcd")
+customFunction = humpy.importPathFilename2Identifier("path/to/module.py", "functionName")
 
 # Safe file operations
 pathFilename = Path("deep/nested/directory/file.txt")
-writeStringToHere("content", pathFilename)  # Creates directories automatically
+humpy.writeStringToHere("content", pathFilename)  # Creates directories automatically
 ```
 
 ## Data Structure Manipulation
@@ -78,21 +73,21 @@ writeStringToHere("content", pathFilename)  # Creates directories automatically
 Utilities for string extraction, data flattening, and array compression.
 
 ```python
-from hunterMakesPy import stringItUp, updateExtendPolishDictionaryLists, autoDecodingRLE
+import hunterMakesPy as humpy
 import numpy
 
 # Extract all strings from nested data structures
 nestedData = {"config": [1, "host", {"port": 8080}], "users": ["alice", "bob"]}
-allStrings = stringItUp(nestedData)  # ['config', 'host', 'port', 'users', 'alice', 'bob']
+allStrings = humpy.stringItUp(nestedData)  # ['config', 'host', 'port', 'users', 'alice', 'bob']
 
 # Merge dictionaries containing lists
-dictionaryAlpha = {"servers": ["web1", "web2"], "databases": ["db1"]}
-dictionaryBeta = {"servers": ["web3"], "databases": ["db2", "db3"]}
-merged = updateExtendPolishDictionaryLists(dictionaryAlpha, dictionaryBeta, destroyDuplicates=True)
+dictionaryAlpha = {"servers": ["chicago", "tokyo"], "databases": ["elm"]}
+dictionaryBeta = {"servers": ["mumbai"], "databases": ["oak", "cedar"]}
+merged = humpy.updateExtendPolishDictionaryLists(dictionaryAlpha, dictionaryBeta, destroyDuplicates=True)
 
 # Compress NumPy arrays with run-length encoding
 arrayData = numpy.array([1, 2, 3, 4, 5, 5, 5, 6, 7, 8, 9])
-compressed = autoDecodingRLE(arrayData)  # "[1,*range(2,6)]+[5]*2+[*range(6,10)]"
+compressed = humpy.autoDecodingRLE(arrayData)  # "[1,*range(2,6)]+[5]*2+[*range(6,10)]"
 ```
 
 ## Testing
@@ -100,7 +95,7 @@ compressed = autoDecodingRLE(arrayData)  # "[1,*range(2,6)]+[5]*2+[*range(6,10)]
 The package includes comprehensive test suites that you can import and run:
 
 ```python
-from hunterMakesPy.pytestForYourUse import (
+from hunterMakesPy.tests.test_parseParameters import (
     PytestFor_defineConcurrencyLimit,
     PytestFor_intInnit,
     PytestFor_oopsieKwargsie
@@ -112,8 +107,9 @@ for nameOfTest, callablePytest in listOfTests:
     callablePytest()
 
 # Or test your own compatible functions
-@pytest.mark.parametrize("nameOfTest,callablePytest",
-                        PytestFor_intInnit(callableToTest=myFunction))
+@pytest.mark.parametrize(
+  "nameOfTest,callablePytest"
+  , PytestFor_intInnit(callableToTest=myFunction))
 def test_myFunction(nameOfTest, callablePytest):
     callablePytest()
 ```
