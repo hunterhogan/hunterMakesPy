@@ -11,7 +11,7 @@ import sys
 if sys.version_info < (3, 14):
 	import python_minifier
 
-	def autoDecodingRLE(arrayTarget: NDArray[integer[Any]], *, assumeAddSpaces: bool = False) -> str:  # noqa: C901, PLR0915
+	def autoDecodingRLE(arrayTarget: NDArray[integer[Any]], *, assumeAddSpaces: bool = False) -> str:
 		"""Transform a NumPy array into a compact, self-decoding run-length encoded string representation.
 
 		This function converts a NumPy array into a string that, when evaluated as Python code,
@@ -159,7 +159,7 @@ if sys.version_info < (3, 14):
 		# Add unpack operator `*` for automatic decoding when evaluated.
 		return arrayAsStr.replace('range(0,', 'range(').replace('range', '*range')
 
-def stringItUp(*scrapPile: Any) -> list[str]:  # noqa: C901
+def stringItUp(*scrapPile: Any) -> list[str]:
 	"""Convert, if possible, every element in the input data structure to a string.
 
 	Order is not preserved or readily predictable.
@@ -178,7 +178,7 @@ def stringItUp(*scrapPile: Any) -> list[str]:  # noqa: C901
 	scrap = None
 	listStrungUp: list[str] = []
 
-	def drill(KitKat: Any) -> None:  # noqa: C901, PLR0912
+	def drill(KitKat: Any) -> None:
 		match KitKat:
 			case str():
 				listStrungUp.append(KitKat)
@@ -204,7 +204,7 @@ def stringItUp(*scrapPile: Any) -> list[str]:  # noqa: C901
 					except TypeError:  # "The error traceback provided indicates that there is an issue when calling the __str__ method on an object that does not have this method properly defined, leading to a TypeError."
 						pass
 					except:
-						print(f"\nWoah! I received '{repr(KitKat)}'.\nTheir report card says, 'Plays well with others: Needs improvement.'\n")  # noqa: RUF010, T201
+						print(f"\nWoah! I received '{repr(KitKat)}'.\nTheir report card says, 'Plays well with others: Needs improvement.'\n")  # noqa: T201
 						raise
 	try:
 		for scrap in scrapPile:

@@ -75,7 +75,7 @@ def _constructErrorMessage(context: ErrorMessageContext, parameterName: str, par
 
 	return "".join(messageParts)
 
-def defineConcurrencyLimit(*, limit: bool | float | int | None, cpuTotal: int = multiprocessing.cpu_count()) -> int:  # noqa: C901, PYI041
+def defineConcurrencyLimit(*, limit: bool | float | int | None, cpuTotal: int = multiprocessing.cpu_count()) -> int:
 	"""Determine the concurrency limit based on the provided parameter.
 
 	Tests for this function can be run with:
@@ -84,8 +84,7 @@ def defineConcurrencyLimit(*, limit: bool | float | int | None, cpuTotal: int = 
 	Parameters
 	----------
 	limit : bool | float | int | None
-		Whether and how to limit CPU usage. Accepts `True`/`False`, an integer count, or a fraction of total CPUs. Positive and
-		negative values have different behaviors, see code for details.
+		Whether and how to limit CPU usage. See notes and examples for details how to describe the options to your users.
 	cpuTotal : int = multiprocessing.cpu_count()
 		The total number of CPUs available in the system. Default is `multiprocessing.cpu_count()`.
 
@@ -96,35 +95,40 @@ def defineConcurrencyLimit(*, limit: bool | float | int | None, cpuTotal: int = 
 
 	Notes
 	-----
-	If you want to be extra nice to your users, consider using `hunterMakesPy.oopsieKwargsie()` to handle malformed inputs. For
-	example:
+	Consider using `hunterMakesPy.oopsieKwargsie()` to handle malformed inputs. For example:
 
 	```
 	if not (CPUlimit is None or isinstance(CPUlimit, (bool, int, float))):
 		CPUlimit = oopsieKwargsie(CPUlimit)
 	```
 
-	Examples
-	--------
-	Example parameters:
-		CPUlimit: bool | float | int | None
-		CPUlimit: bool | float | int | None = None
+	Example parameters
+	------------------
+	```python
+	CPUlimit: bool | float | int | None
+	CPUlimit: bool | float | int | None = None
+	```
 
-	Example docstring:
-		```python
+	Example docstring
+	-----------------
+	```python
 
-		Arguments:
-			CPUlimit: bool | float | int | None
-				whether and how to limit the CPU usage. See notes for details.
+	Arguments
+	---------
+	CPUlimit: bool | float | int | None
+		Whether and how to limit the the number of available processors used by the function. See notes for details.
 
-		Limits on CPU usage `CPUlimit`:
-			- `False`, `None`, or `0`: No limits on CPU usage; uses all available CPUs. All other values will potentially limit CPU usage.
-			- `True`: Yes, limit the CPU usage; limits to 1 CPU.
-			- Integer `>= 1`: Limits usage to the specified number of CPUs.
-			- Decimal value (`float`) between 0 and 1: Fraction of total CPUs to use.
-			- Decimal value (`float`) between -1 and 0: Fraction of CPUs to *not* use.
-			- Integer `<= -1`: Subtract the absolute value from total CPUs.
-		```
+	Notes
+	-----
+	Limits on CPU usage, `CPUlimit`:
+		- `False`, `None`, or `0`: No limits on processor usage; uses all available processors. All other values will potentially limit processor usage.
+		- `True`: Yes, limit the processor usage; limits to 1 processor.
+		- `int >= 1`: The maximum number of available processors to use.
+		- `0 < float < 1`: The maximum number of processors to use expressed as a fraction of available processors.
+		- `-1 < float < 0`: The number of processors to *not* use expressed as a fraction of available processors.
+		- `int <= -1`: The number of available processors to *not* use.
+		- If the value of `CPUlimit` is a `float` greater than 1 or less than -1, the function truncates the value to an `int` with the same sign as the `float`.
+	```
 
 	"""
 	concurrencyLimit = cpuTotal
@@ -160,7 +164,7 @@ def defineConcurrencyLimit(*, limit: bool | float | int | None, cpuTotal: int = 
 	return max(int(concurrencyLimit), 1)
 
 # ruff: noqa: TRY301
-def intInnit(listInt_Allegedly: Iterable[Any], parameterName: str | None = None, parameterType: type[Any] | None = None) -> list[int]:  # noqa: C901, PLR0912, PLR0915
+def intInnit(listInt_Allegedly: Iterable[Any], parameterName: str | None = None, parameterType: type[Any] | None = None) -> list[int]:
 	"""Validate and convert input values to a `list` of integers.
 
 	Accepts various numeric types and attempts to convert them into integers while providing descriptive error messages. This
