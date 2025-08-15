@@ -2,7 +2,7 @@
 from collections.abc import Callable, Iterable, Iterator
 from decimal import Decimal
 from fractions import Fraction
-from hunterMakesPy import stringItUp, updateExtendPolishDictionaryLists
+from hunterMakesPy import autoDecodingRLE, stringItUp, updateExtendPolishDictionaryLists
 from hunterMakesPy.tests.conftest import standardizedEqualTo
 from numpy.typing import NDArray
 from typing import Any, Literal
@@ -10,9 +10,6 @@ import datetime
 import numpy
 import pytest
 import sys
-
-if sys.version_info < (3, 14):
-	from hunterMakesPy import autoDecodingRLE
 
 class CustomIterable:
 	def __init__(self, items: Iterable[Any]) -> None: self.items = items
@@ -99,27 +96,26 @@ def testUpdateExtendPolishDictionaryLists(description: str, value_dictionaryList
 
 # ruff: noqa: RUF005
 
-if sys.version_info < (3, 14):
-	@pytest.mark.parametrize("description,value_arrayTarget,expected", [
-		("One range", numpy.array(list(range(50,60))), "[*range(50,60)]"),
-		("Value, range", numpy.array([123]+list(range(71,81))), "[123,*range(71,81)]"),
-		("range, value", numpy.array(list(range(91,97))+[101]), "[*range(91,97),101]"),
-		("Value, range, value", numpy.array([151]+list(range(163,171))+[181]), "[151,*range(163,171),181]"),
-		("Repeat values", numpy.array([191, 191, 191]), "[191]*3"),
-		("Value with repeat", numpy.array([211, 223, 223, 223]), "[211]+[223]*3"),
-		("Range with repeat", numpy.array(list(range(251,257))+[271, 271, 271]), "[*range(251,257)]+[271]*3"),
-		("Value, range, repeat", numpy.array([281]+list(range(291,297))+[307, 307]), "[281,*range(291,297)]+[307]*2"),
-		("repeat, value", numpy.array([313, 313, 313, 331, 331, 349]), "[313]*3+[331]*2+[349]"),
-		("repeat, range", numpy.array([373, 373, 373]+list(range(383,389))), "[373]*3+[*range(383,389)]"),
-		("repeat, range, value", numpy.array(7*[401]+list(range(409,415))+[421]), "[401]*7+[*range(409,415),421]"),
-		("Repeated primes", numpy.array([431, 431, 431, 443, 443, 457]), "[431]*3+[443]*2+[457]"),
-		("Two Ranges", numpy.array(list(range(461,471))+list(range(479,487))), "[*range(461,471),*range(479,487)]"),
-		("2D array primes", numpy.array([[491, 499, 503], [509, 521, 523]]), "[[491,499,503],[509,521,523]]"),
-		("3D array primes", numpy.array([[[541, 547], [557, 563]], [[569, 571], [577, 587]]]), "[[[541,547],[557,563]],[[569,571],[577,587]]]"),
-	], ids=lambda x: x if isinstance(x, str) else "")
-	def testAutoDecodingRLE(description: str, value_arrayTarget: NDArray[numpy.integer[Any]], expected: str) -> None:
-		"""Test autoDecodingRLE with various input arrays."""
-		standardizedEqualTo(expected, autoDecodingRLE, value_arrayTarget)
+@pytest.mark.parametrize("description,value_arrayTarget,expected", [
+	("One range", numpy.array(list(range(50,60))), "[*range(50,60)]"),
+	("Value, range", numpy.array([123]+list(range(71,81))), "[123,*range(71,81)]"),
+	("range, value", numpy.array(list(range(91,97))+[101]), "[*range(91,97),101]"),
+	("Value, range, value", numpy.array([151]+list(range(163,171))+[181]), "[151,*range(163,171),181]"),
+	("Repeat values", numpy.array([191, 191, 191]), "[191]*3"),
+	("Value with repeat", numpy.array([211, 223, 223, 223]), "[211]+[223]*3"),
+	("Range with repeat", numpy.array(list(range(251,257))+[271, 271, 271]), "[*range(251,257)]+[271]*3"),
+	("Value, range, repeat", numpy.array([281]+list(range(291,297))+[307, 307]), "[281,*range(291,297)]+[307]*2"),
+	("repeat, value", numpy.array([313, 313, 313, 331, 331, 349]), "[313]*3+[331]*2+[349]"),
+	("repeat, range", numpy.array([373, 373, 373]+list(range(383,389))), "[373]*3+[*range(383,389)]"),
+	("repeat, range, value", numpy.array(7*[401]+list(range(409,415))+[421]), "[401]*7+[*range(409,415),421]"),
+	("Repeated primes", numpy.array([431, 431, 431, 443, 443, 457]), "[431]*3+[443]*2+[457]"),
+	("Two Ranges", numpy.array(list(range(461,471))+list(range(479,487))), "[*range(461,471),*range(479,487)]"),
+	("2D array primes", numpy.array([[491, 499, 503], [509, 521, 523]]), "[[491,499,503],[509,521,523]]"),
+	("3D array primes", numpy.array([[[541, 547], [557, 563]], [[569, 571], [577, 587]]]), "[[[541,547],[557,563]],[[569,571],[577,587]]]"),
+], ids=lambda x: x if isinstance(x, str) else "")
+def testAutoDecodingRLE(description: str, value_arrayTarget: NDArray[numpy.integer[Any]], expected: str) -> None:
+	"""Test autoDecodingRLE with various input arrays."""
+	standardizedEqualTo(expected, autoDecodingRLE, value_arrayTarget)
 
 # Helper functions for generating RLE test data
 def generateCartesianMapping(dimensions: tuple[int, int], formula: Callable[[int, int], int]) -> NDArray[Any]:
@@ -228,98 +224,97 @@ def generateAlternatingColumns(dimensions: tuple[int, int], blockSize: int = 1) 
 
 	return generateCartesianMapping(dimensions, columnFormula)
 
-if sys.version_info < (3, 14):
-	@pytest.mark.parametrize("description,value_arrayTarget", [
-		# Basic test cases with simple patterns
-		("Simple range", numpy.array(list(range(50,60)))),
+@pytest.mark.parametrize("description,value_arrayTarget", [
+	# Basic test cases with simple patterns
+	("Simple range", numpy.array(list(range(50,60)))),
 
-		# Chessboard patterns
-		("Small chessboard", generateChessboard((8, 8))),
+	# Chessboard patterns
+	("Small chessboard", generateChessboard((8, 8))),
 
-		# Alternating columns - creates patterns with good RLE opportunities
-		("Alternating columns", generateAlternatingColumns((5, 20), 2)),
+	# Alternating columns - creates patterns with good RLE opportunities
+	("Alternating columns", generateAlternatingColumns((5, 20), 2)),
 
-		# Step pattern - creates horizontal runs
-		("Step pattern", generateStepPattern((6, 30), 3)),
+	# Step pattern - creates horizontal runs
+	("Step pattern", generateStepPattern((6, 30), 3)),
 
-		# Repeating zones - creates horizontal bands
-		("Repeating zones", generateRepeatingZones((40, 40), 8)),
+	# Repeating zones - creates horizontal bands
+	("Repeating zones", generateRepeatingZones((40, 40), 8)),
 
-		# Tile pattern - creates complex repeating regions
-		("Tile pattern", generateTilePattern((15, 15), 5)),
+	# Tile pattern - creates complex repeating regions
+	("Tile pattern", generateTilePattern((15, 15), 5)),
 
-		# Signed quadratic function - includes negative values
-		("Signed quadratic", generateSignedQuadraticFunction((10, 10))),
+	# Signed quadratic function - includes negative values
+	("Signed quadratic", generateSignedQuadraticFunction((10, 10))),
 
-		# Prime modulo matrix - periodic patterns
-		("Prime modulo", generatePrimeModuloMatrix((12, 12), 7)),
+	# Prime modulo matrix - periodic patterns
+	("Prime modulo", generatePrimeModuloMatrix((12, 12), 7)),
 
-		# Wave pattern - smooth gradients
-		("Wave pattern", generateWavePattern((20, 20))),
+	# Wave pattern - smooth gradients
+	("Wave pattern", generateWavePattern((20, 20))),
 
-		# Spiral pattern - complex pattern with good RLE potential
-		("Spiral pattern", generateSpiralPattern((15, 15), 2)),
-	], ids=lambda x: x if isinstance(x, str) else "")
-	def testAutoDecodingRLEWithRealisticData(description: str, value_arrayTarget: NDArray[numpy.integer[Any]]) -> None:
-		"""Test autoDecodingRLE with more realistic data patterns."""
-		# Here we test the function behavior rather than expected string output
-		resultRLE = autoDecodingRLE(value_arrayTarget)
+	# Spiral pattern - complex pattern with good RLE potential
+	("Spiral pattern", generateSpiralPattern((15, 15), 2)),
+], ids=lambda x: x if isinstance(x, str) else "")
+def testAutoDecodingRLEWithRealisticData(description: str, value_arrayTarget: NDArray[numpy.integer[Any]]) -> None:
+	"""Test autoDecodingRLE with more realistic data patterns."""
+	# Here we test the function behavior rather than expected string output
+	resultRLE = autoDecodingRLE(value_arrayTarget)
 
-		# Test that the result is a valid string
-		assert isinstance(resultRLE, str)
+	# Test that the result is a valid string
+	assert isinstance(resultRLE, str)
 
-		# Test that the result contains the expected syntax elements
-		assert "[" in resultRLE, f"Result should contain list syntax: {resultRLE}"
-		assert "]" in resultRLE, f"Result should contain list syntax: {resultRLE}"
+	# Test that the result contains the expected syntax elements
+	assert "[" in resultRLE, f"Result should contain list syntax: {resultRLE}"
+	assert "]" in resultRLE, f"Result should contain list syntax: {resultRLE}"
 
-		# Check that the result is more compact than the raw string representation
-		rawStrLength = len(str(value_arrayTarget.tolist()))
-		encodedLength = len(resultRLE)
-		assert encodedLength <= rawStrLength, f"Encoded string ({encodedLength}) should be shorter than raw string ({rawStrLength})"
+	# Check that the result is more compact than the raw string representation
+	rawStrLength = len(str(value_arrayTarget.tolist()))
+	encodedLength = len(resultRLE)
+	assert encodedLength <= rawStrLength, f"Encoded string ({encodedLength}) should be shorter than raw string ({rawStrLength})"
 
-	@pytest.mark.parametrize("description,addSpaces", [
-		("With spaces", True),
-		("Without spaces", False),
-	], ids=lambda x: x if isinstance(x, str) else "")
-	def testAutoDecodingRLEWithSpaces(description: str, addSpaces: bool) -> None:
-		"""Test that the addSpaces parameter affects the internal comparison logic.
+@pytest.mark.parametrize("description,addSpaces", [
+	("With spaces", True),
+	("Without spaces", False),
+], ids=lambda x: x if isinstance(x, str) else "")
+def testAutoDecodingRLEWithSpaces(description: str, addSpaces: bool) -> None:
+	"""Test that the addSpaces parameter affects the internal comparison logic.
 
-		Note: addSpaces doesn't directly change the output format, it just changes
-		the comparison when measuring the length of the string representation.
-		The feature exists because `ast` inserts spaces in its string representation.
-		"""
-		# Create a pattern that has repeated sequences to trigger the RLE logic
-		arrayTarget = generateRepeatingZones((10, 10), 2)
+	Note: addSpaces doesn't directly change the output format, it just changes
+	the comparison when measuring the length of the string representation.
+	The feature exists because `ast` inserts spaces in its string representation.
+	"""
+	# Create a pattern that has repeated sequences to trigger the RLE logic
+	arrayTarget = generateRepeatingZones((10, 10), 2)
 
-		# Test both configurations
-		resultWithSpacesFlag = autoDecodingRLE(arrayTarget, assumeAddSpaces=addSpaces)
-		resultNoSpacesFlag = autoDecodingRLE(arrayTarget, assumeAddSpaces=False)
+	# Test both configurations
+	resultWithSpacesFlag = autoDecodingRLE(arrayTarget, assumeAddSpaces=addSpaces)
+	resultNoSpacesFlag = autoDecodingRLE(arrayTarget, assumeAddSpaces=False)
 
-		# When addSpaces=True, the internal length comparisons change
-		# but the actual output format doesn't necessarily differ
-		# Just verify the function runs without errors in both cases
-		assert isinstance(resultWithSpacesFlag, str)
-		assert isinstance(resultNoSpacesFlag, str)
+	# When addSpaces=True, the internal length comparisons change
+	# but the actual output format doesn't necessarily differ
+	# Just verify the function runs without errors in both cases
+	assert isinstance(resultWithSpacesFlag, str)
+	assert isinstance(resultNoSpacesFlag, str)
 
-	def testAutoDecodingRLELargeCartesianMapping() -> None:
-		"""Test autoDecodingRLE with a large (100x100) cartesian mapping."""
-		dimensions = (100, 100)
+def testAutoDecodingRLELargeCartesianMapping() -> None:
+	"""Test autoDecodingRLE with a large (100x100) cartesian mapping."""
+	dimensions = (100, 100)
 
-		# Generate a large cartesian mapping with a complex pattern
-		def complexFormula(x: int, y: int) -> int:
-			return ((x * 17) % 11 + (y * 13) % 7) % 10
+	# Generate a large cartesian mapping with a complex pattern
+	def complexFormula(x: int, y: int) -> int:
+		return ((x * 17) % 11 + (y * 13) % 7) % 10
 
-		arrayMapping = generateCartesianMapping(dimensions, complexFormula)
+	arrayMapping = generateCartesianMapping(dimensions, complexFormula)
 
-		# Verify the function works with large arrays
-		resultRLE = autoDecodingRLE(arrayMapping)
+	# Verify the function works with large arrays
+	resultRLE = autoDecodingRLE(arrayMapping)
 
-		# The result should be a valid string representation
-		assert isinstance(resultRLE, str)
-		assert "[" in resultRLE
-		assert "]" in resultRLE
+	# The result should be a valid string representation
+	assert isinstance(resultRLE, str)
+	assert "[" in resultRLE
+	assert "]" in resultRLE
 
-		# The RLE encoding should be more compact than the raw representation
-		rawStrLength = len(str(arrayMapping.tolist()))
-		encodedLength = len(resultRLE)
-		assert encodedLength <= rawStrLength, f"RLE encoded string ({encodedLength}) should be shorter than raw string ({rawStrLength})"
+	# The RLE encoding should be more compact than the raw representation
+	rawStrLength = len(str(arrayMapping.tolist()))
+	encodedLength = len(resultRLE)
+	assert encodedLength <= rawStrLength, f"RLE encoded string ({encodedLength}) should be shorter than raw string ({rawStrLength})"

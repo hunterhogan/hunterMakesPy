@@ -36,14 +36,14 @@ class PackageSettings:
 	package identifiers and installation paths if they are not passed to the `class` constructor. Python `dataclasses` are easy to
 	subtype and extend.
 
-	Parameters
+	Attributes
 	----------
 	identifierPackageFALLBACK : str = ''
 		Fallback package identifier used only during initialization when automatic discovery fails.
-	pathPackage : Path = Path()
-		Absolute path to the installed package directory. Automatically resolved from `identifierPackage` if not provided.
 	identifierPackage : str = ''
-		Canonical name of the package. Automatically extracted from `pyproject.toml`.
+		Canonical name of the package. Automatically extracted from "pyproject.toml".
+	pathPackage : Path = getPathPackageINSTALLING(identifierPackage)
+		Absolute path to the installed package directory. Automatically resolved from `identifierPackage` if not provided.
 	fileExtension : str = '.py'
 		Default file extension.
 
@@ -85,34 +85,39 @@ class PackageSettings:
 		if self.pathPackage == Path() and self.identifierPackage:
 			self.pathPackage = getPathPackageINSTALLING(self.identifierPackage)
 
-def raiseIfNone(returnTarget: TypeSansNone | None, errorMessage: str | None = None) -> TypeSansNone:
-	"""Raise a `ValueError` if the target value is `None`, otherwise return the value: tell the type checker that the return value is not `None`.
+def raiseIfNone(expression: TypeSansNone | None, errorMessage: str | None = None) -> TypeSansNone:
+	"""Convert the `expression` return annotation from '`cerPytainty | None`' to '`cerPytainty`' because `expression` cannot be `None`; `raise` an `Exception` if you're wrong.
 
-	(AI generated docstring)
-
-	This is a defensive programming function that converts unexpected `None` values into explicit errors with context. It is useful for asserting that functions that might return `None` have actually returned a meaningful value.
+	The Python interpreter evaluates `expression` to a value: think of a function call or an attribute access. You can use
+	`raiseIfNone` for fail early defensive programming. I use it, however, to cure type-checker-nihilism: that's when "or `None`"
+	return types cause your type checker to repeatedly say, "You can't do that because the value might be `None`."
 
 	Parameters
 	----------
-	returnTarget : TypeSansNone | None
-		The value to check for `None`. If not `None`, this value is returned unchanged.
-	errorMessage : str | None = None
-		Custom error message to include in the `ValueError`. If `None`, a default message with debugging hints is used.
+	expression : TypeSansNone | None
+		Python code with a return type that is a `union` of `None` and `TypeSansNone`, which is a stand-in for one or more other types.
+	errorMessage : str | None = 'A function unexpectedly returned `None`. Hint: look at the traceback immediately before `raiseIfNone`.'
+		Custom error message for the `ValueError` `Exception` if `expression` is `None`.
 
 	Returns
 	-------
-	returnTarget : TypeSansNone
-		The original `returnTarget` value, guaranteed to not be `None`.
+	contentment : TypeSansNone
+		The value returned by `expression`, but guaranteed to not be `None`.
 
 	Raises
 	------
 	ValueError
-		If `returnTarget` is `None`.
+		If the value returned by `expression` is `None`.
 
 	Examples
 	--------
-	Ensure a function result is not `None`:
+	Basic usage with attribute access:
+	```python
+	annotation = raiseIfNone(ast_arg.annotation)
+	# Raises ValueError if ast_arg.annotation is None
+	```
 
+	Function return value validation:
 	```python
 	def findFirstMatch(listItems: list[str], pattern: str) -> str | None:
 		for item in listItems:
@@ -122,28 +127,27 @@ def raiseIfNone(returnTarget: TypeSansNone | None, errorMessage: str | None = No
 
 	listFiles = ['document.txt', 'image.png', 'data.csv']
 	filename = raiseIfNone(findFirstMatch(listFiles, '.txt'))
-	# Returns 'document.txt'
+	# Returns 'document.txt' when match exists
 	```
 
-	Handle dictionary lookups with custom error messages:
-
+	Dictionary value retrieval with custom message:
 	```python
 	configurationMapping = {'host': 'localhost', 'port': 8080}
 	host = raiseIfNone(configurationMapping.get('host'),
 					"Configuration must include 'host' setting")
-	# Returns 'localhost'
+	# Returns 'localhost' when key exists
 
 	# This would raise ValueError with custom message:
 	# database = raiseIfNone(configurationMapping.get('database'),
-	#                       "Configuration must include 'database' setting")
+	#                      "Configuration must include 'database' setting")
 	```
 
 	Thanks
 	------
-	sobolevn, https://github.com/sobolevn, for the seed of the function. https://github.com/python/typing/discussions/1997#discussioncomment-13108399
+	sobolevn, https://github.com/sobolevn, for the seed of this function. https://github.com/python/typing/discussions/1997#discussioncomment-13108399
 
 	"""
-	if returnTarget is None:
+	if expression is None:
 		message = errorMessage or 'A function unexpectedly returned `None`. Hint: look at the traceback immediately before `raiseIfNone`.'
 		raise ValueError(message)
-	return returnTarget
+	return expression
