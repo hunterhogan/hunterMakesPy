@@ -17,13 +17,10 @@ from hunterMakesPy.parseParameters import (defineConcurrencyLimit as defineConcu
 
 from hunterMakesPy.filesystemToolkit import (importLogicalPath2Identifier as importLogicalPath2Identifier,
 	importPathFilename2Identifier as importPathFilename2Identifier, makeDirsSafely as makeDirsSafely,
-	writeStringToHere as writeStringToHere)
+	writePython as writePython, writeStringToHere as writeStringToHere)
 
 from hunterMakesPy.dataStructures import stringItUp as stringItUp, updateExtendPolishDictionaryLists as updateExtendPolishDictionaryLists
 
-import sys
-
-if sys.version_info < (3, 14):
-    from hunterMakesPy.dataStructures import autoDecodingRLE as autoDecodingRLE
+from hunterMakesPy.dataStructures import autoDecodingRLE as autoDecodingRLE
 
 from hunterMakesPy._theSSOT import settingsPackage

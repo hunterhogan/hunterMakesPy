@@ -8,12 +8,7 @@ import more_itertools
 import re as regex
 
 def removeExtraWhitespace(text: str) -> str:
-	"""Remove extra whitespace from string representation of Python data structures.
-
-	This function replaces python_minifier.minify() for the specific use case of
-	minimizing string representations of lists, tuples, ranges, etc. It removes
-	spaces after commas, around brackets and parentheses.
-	"""
+	"""Remove extra whitespace from string representation of Python data structures."""
 	# Remove spaces after commas
 	text = regex.sub(r',\s+', ',', text)
 	# Remove spaces after opening brackets/parens

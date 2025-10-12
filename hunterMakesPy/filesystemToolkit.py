@@ -3,8 +3,9 @@
 This module provides basic file I/O utilities such as importing callables from modules, safely creating directories, and writing to files or streams (pipes).
 
 """
-
+from autoflake import fix_code as autoflake_fix_code
 from hunterMakesPy import identifierDotAttribute
+from isort import code as isort_code
 from os import PathLike
 from pathlib import Path, PurePath
 from typing import Any, TYPE_CHECKING, TypeVar
@@ -96,6 +97,59 @@ def makeDirsSafely(pathFilename: Any) -> None:
 	if not isinstance(pathFilename, io.IOBase):
 		with contextlib.suppress(OSError):
 			Path(pathFilename).parent.mkdir(parents=True, exist_ok=True)
+
+settings_autoflakeDEFAULT: dict[str, list[str] | bool] = {
+	'additional_imports': [],
+	'expand_star_imports': True,
+	'remove_all_unused_imports': True,
+	'remove_duplicate_keys': False,
+	'remove_unused_variables': False,
+}
+
+settings_isortDEFAULT: dict[str, int | str | list[str]] = {
+	"combine_as_imports": True,
+	"force_alphabetical_sort_within_sections": True,
+	"from_first": True,
+	"honor_noqa": True,
+	"indent": "\t",
+	"line_length": 120,
+	"lines_after_imports": 1,
+	"lines_between_types": 0,
+	"multi_line_output": 4,
+	"no_sections": True,
+	"skip": ["__init__.py"], # TODO think
+	"use_parentheses": True,
+}
+
+def writePython(pythonSource: str, pathFilename: PathLike[Any] | PurePath | io.TextIOBase, settings: dict[str, dict[str, Any]] | None = None) -> None:
+	"""Format and write Python source code to a file or text stream.
+
+	(AI generated docstring)
+
+	This function processes Python source code through autoflake and isort formatters before writing to the specified destination.
+	The formatters remove unused imports, sort imports, and apply consistent code style according to the provided or default
+	settings.
+
+	Parameters
+	----------
+	pythonSource : str
+		The Python source code to format and write.
+	pathFilename : PathLike[Any] | PurePath | io.TextIOBase
+		The target destination: either a file path or an open text stream.
+	settings : dict[str, dict[str, Any]] | None = None
+		Configuration for the formatters. Keys are `'autoflake'` and `'isort'`, each mapping to a dictionary of formatter-specific
+		settings. If `None`, default settings are used for both formatters.
+
+	"""
+	if settings is None:
+		settings = {}
+
+	settings_autoflake: dict[str, Any] = settings.get('autoflake', settings_autoflakeDEFAULT)
+	pythonSource = autoflake_fix_code(pythonSource, **settings_autoflake)
+
+	settings_isort: dict[str, Any] = settings.get('isort', settings_isortDEFAULT)
+	pythonSource = isort_code(pythonSource, **settings_isort)
+	writeStringToHere(pythonSource + '\n', pathFilename)
 
 def writeStringToHere(this: str, pathFilename: PathLike[Any] | PurePath | io.TextIOBase) -> None:
 	"""Write a string to a file or text stream.

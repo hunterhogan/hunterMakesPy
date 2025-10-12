@@ -1,5 +1,6 @@
 # pyright: standard
-from hunterMakesPy import importLogicalPath2Identifier, importPathFilename2Identifier, makeDirsSafely, writeStringToHere
+from hunterMakesPy import (
+	importLogicalPath2Identifier, importPathFilename2Identifier, makeDirsSafely, writePython, writeStringToHere)
 from hunterMakesPy.tests.conftest import standardizedEqualTo
 import io
 import math
@@ -259,5 +260,190 @@ def testImportPathFilename2IdentifierWithValidFileInvalidIdentifier(
 		importPathFilename2Identifier,
 		pathFilenameModule,
 		identifierTarget
+	)
+
+
+@pytest.mark.parametrize(
+	"pythonSourceTarget, expectedFormattedContent",
+	[
+		(
+			"import sys\nimport os\nimport math\n\ndef fibonacciFunction():\n    return 13\n",
+			"\ndef fibonacciFunction():\n    return 13\n\n"
+		),
+		(
+			"from pathlib import Path\nimport sys\nimport os\n\ndef primeFunction():\n    return 17\n",
+			"\ndef primeFunction():\n    return 17\n\n"
+		),
+		(
+			"import unused\nimport sys\n\nvalueCardinal = sys.version\n",
+			"import sys\n\nvalueCardinal = sys.version\n\n"
+		),
+		(
+			"import math\n\nvalueFibonacci = math.sqrt(21)\n",
+			"import math\n\nvalueFibonacci = math.sqrt(21)\n\n"
+		),
+	]
+)
+def testWritePythonFormatsAndWritesToFile(
+	pathTmpTesting: pathlib.Path,
+	pythonSourceTarget: str,
+	expectedFormattedContent: str
+) -> None:
+	"""Test that writePython formats Python source code and writes it to files."""
+	pathFilenameTarget = pathTmpTesting / "formattedModule.py"
+	writePython(pythonSourceTarget, pathFilenameTarget)
+
+	assert pathFilenameTarget.exists(), (
+		f"\nTesting: `writePython(..., {pathFilenameTarget})`\n"
+		f"Expected: File {pathFilenameTarget} to exist\n"
+		f"Got: exists={pathFilenameTarget.exists()}"
+	)
+
+	contentActual = pathFilenameTarget.read_text(encoding="utf-8")
+	assert contentActual == expectedFormattedContent, (
+		f"\nTesting: `writePython(...)`\n"
+		f"Expected content:\n{repr(expectedFormattedContent)}\n"
+		f"Got content:\n{repr(contentActual)}"
+	)
+
+
+@pytest.mark.parametrize(
+	"pythonSourceTarget, expectedFormattedContent",
+	[
+		(
+			"import sys\nimport unused\n\ndef cardinalFunction():\n    return sys.version\n",
+			"import sys\n\ndef cardinalFunction():\n    return sys.version\n\n"
+		),
+		(
+			"from pathlib import Path\nfrom os import getcwd\nimport math\n\nvalueSequence = getcwd()\n",
+			"from os import getcwd\n\nvalueSequence = getcwd()\n\n"
+		),
+	]
+)
+def testWritePythonFormatsAndWritesToStream(
+	pythonSourceTarget: str,
+	expectedFormattedContent: str
+) -> None:
+	"""Test that writePython formats Python source code and writes it to IO streams."""
+	streamMemory = io.StringIO()
+	writePython(pythonSourceTarget, streamMemory)
+
+	contentActual = streamMemory.getvalue()
+	assert contentActual == expectedFormattedContent, (
+		f"\nTesting: `writePython(..., StringIO)`\n"
+		f"Expected content:\n{repr(expectedFormattedContent)}\n"
+		f"Got content:\n{repr(contentActual)}"
+	)
+
+
+@pytest.mark.parametrize(
+	"pythonSourceTarget, settingsCustom, expectedFormattedContent",
+	[
+		(
+			"import math\nimport unused\n\nvalueFibonacci = 34\n\ndef fibonacciFunction():\n    return math.sqrt(13)\n",
+			{'autoflake': {'remove_all_unused_imports': True, 'remove_unused_variables': False}},
+			"import math\n\nvalueFibonacci = 34\n\ndef fibonacciFunction():\n    return math.sqrt(13)\n\n"
+		),
+		(
+			"from pathlib import Path\nimport sys\n\nvaluePrime = Path.cwd()\n",
+			{'isort': {'force_alphabetical_sort_within_sections': False, 'from_first': False}},
+			"from pathlib import Path\n\nvaluePrime = Path.cwd()\n\n"
+		),
+	]
+)
+def testWritePythonWithCustomSettings(
+	pathTmpTesting: pathlib.Path,
+	pythonSourceTarget: str,
+	settingsCustom: dict[str, dict[str, object]],
+	expectedFormattedContent: str
+) -> None:
+	"""Test that writePython respects custom formatter settings."""
+	pathFilenameTarget = pathTmpTesting / "customFormattedModule.py"
+	writePython(pythonSourceTarget, pathFilenameTarget, settingsCustom)
+
+	contentActual = pathFilenameTarget.read_text(encoding="utf-8")
+	assert contentActual == expectedFormattedContent, (
+		f"\nTesting: `writePython(..., custom settings)`\n"
+		f"Expected content:\n{repr(expectedFormattedContent)}\n"
+		f"Got content:\n{repr(contentActual)}"
+	)
+
+
+@pytest.mark.parametrize(
+	"pythonSourceTarget",
+	[
+		"import math\nimport sys\n\nvalueFibonacci = 34\n",
+		"from pathlib import Path\n\nvalueCardinal = 'SW'\n",
+		"def primeFunction():\n    return 37\n",
+	]
+)
+def testWritePythonCreatesNestedDirectories(
+	pathTmpTesting: pathlib.Path,
+	pythonSourceTarget: str
+) -> None:
+	"""Test that writePython creates nested directories when writing to files."""
+	pathFilenameTarget = pathTmpTesting / "nested" / "directories" / "module.py"
+	writePython(pythonSourceTarget, pathFilenameTarget)
+
+	assert pathFilenameTarget.exists(), (
+		f"\nTesting: `writePython(..., {pathFilenameTarget})`\n"
+		f"Expected: File {pathFilenameTarget} to exist\n"
+		f"Got: exists={pathFilenameTarget.exists()}"
+	)
+
+	assert pathFilenameTarget.parent.exists(), (
+		f"\nTesting: `writePython(..., {pathFilenameTarget})`\n"
+		f"Expected: Parent directory {pathFilenameTarget.parent} to exist\n"
+		f"Got: exists={pathFilenameTarget.parent.exists()}"
+	)
+
+
+@pytest.mark.parametrize(
+	"pythonSourceTarget, expectedContainsImport",
+	[
+		("import math\n\nvaluePrime = math.sqrt(41)\n", "import math"),
+		("from os import getcwd\n\nvalueSequence = getcwd()\n", "from os import getcwd"),
+		("import sys\n\nvalueFibonacci = sys.version\n", "import sys"),
+	]
+)
+def testWritePythonPreservesUsedImports(
+	pathTmpTesting: pathlib.Path,
+	pythonSourceTarget: str,
+	expectedContainsImport: str
+) -> None:
+	"""Test that writePython preserves imports that are actually used in the code."""
+	pathFilenameTarget = pathTmpTesting / "preservedImports.py"
+	writePython(pythonSourceTarget, pathFilenameTarget)
+
+	contentActual = pathFilenameTarget.read_text(encoding="utf-8")
+	assert expectedContainsImport in contentActual, (
+		f"\nTesting: `writePython(...)` preserves used imports\n"
+		f"Expected content to contain: {expectedContainsImport}\n"
+		f"Got content:\n{contentActual}"
+	)
+
+
+@pytest.mark.parametrize(
+	"pythonSourceTarget, expectedNotContainsImport",
+	[
+		("import math\nimport unused\n\nvaluePrime = 43\n", "import unused"),
+		("from os import getcwd, unused\n\nvalueSequence = getcwd()\n", "unused"),
+		("import sys\nimport collections\n\nvalueFibonacci = sys.version\n", "import collections"),
+	]
+)
+def testWritePythonRemovesUnusedImports(
+	pathTmpTesting: pathlib.Path,
+	pythonSourceTarget: str,
+	expectedNotContainsImport: str
+) -> None:
+	"""Test that writePython removes imports that are not used in the code."""
+	pathFilenameTarget = pathTmpTesting / "removedImports.py"
+	writePython(pythonSourceTarget, pathFilenameTarget)
+
+	contentActual = pathFilenameTarget.read_text(encoding="utf-8")
+	assert expectedNotContainsImport not in contentActual, (
+		f"\nTesting: `writePython(...)` removes unused imports\n"
+		f"Expected content to NOT contain: {expectedNotContainsImport}\n"
+		f"Got content:\n{contentActual}"
 	)
 

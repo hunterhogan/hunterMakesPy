@@ -1,6 +1,6 @@
 [project]
 name = "hunterMakesPy"
-version = "0.2.4"
+version = "0.3.0"
 description = "Easy Python functions making making functional Python functions easier."
 readme = "README.md"
 requires-python = ">=3.11"
@@ -27,7 +27,7 @@ keywords = [
   "test utilities",
 ]
 classifiers = [
-  "Development Status :: 4 - Beta",
+  "Development Status :: 5 - Production/Stable",
   "Environment :: Console",
   "Framework :: Pytest",
   "Intended Audience :: Developers",
@@ -48,13 +48,13 @@ classifiers = [
 ]
 urls = { Donate = "https://www.patreon.com/integrated", Homepage = "https://github.com/hunterhogan/hunterMakesPy", Issues = "https://github.com/hunterhogan/hunterMakesPy/issues", Repository = "https://github.com/hunterhogan/hunterMakesPy" }
 dependencies = [
+  "autoflake",
   "charset_normalizer",
+  "isort",
   "more_itertools",
   "numpy",
 ]
 optional-dependencies = { development = [
-  "mypy",
-  "pyupgrade",
   "setuptools-scm",
 ], testing = [
   "pytest",
