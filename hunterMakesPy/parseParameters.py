@@ -1,9 +1,12 @@
 """Provides parameter and input validation, integer parsing, and concurrency handling utilities."""
 from collections.abc import Iterable, Sized
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, TYPE_CHECKING
 import charset_normalizer
 import multiprocessing
+
+if TYPE_CHECKING:
+	from charset_normalizer.models import CharsetMatch
 
 @dataclass
 class ErrorMessageContext:
@@ -52,7 +55,7 @@ def _constructErrorMessage(context: ErrorMessageContext, parameterName: str, par
 		The constructed error message string.
 
 	"""
-	messageParts = ["I received "]
+	messageParts: list[str] = ["I received "]
 
 	if context.parameterValue is not None and not isinstance(context.parameterValue, (bytes, bytearray, memoryview)):
 		messageParts.append(f'"{context.parameterValue}"')
@@ -131,15 +134,15 @@ def defineConcurrencyLimit(*, limit: bool | float | int | None, cpuTotal: int = 
 	```
 
 	"""
-	concurrencyLimit = cpuTotal
+	concurrencyLimit: int = cpuTotal
 
 	if isinstance(limit, str):
-		limitFromString = oopsieKwargsie(limit)
+		limitFromString: bool | None | str = oopsieKwargsie(limit)
 		if isinstance(limitFromString, str):
 			try:
 				limit = float(limitFromString)
 			except ValueError as ERRORmessage:
-				message = f"I received '{limitFromString}', but it must be a number, `True`, `False`, or `None`."
+				message: str = f"I received '{limitFromString}', but it must be a number, `True`, `False`, or `None`."
 				raise ValueError(message) from ERRORmessage
 		else:
 			limit = limitFromString
@@ -208,19 +211,19 @@ def intInnit(listInt_Allegedly: Iterable[Any], parameterName: str | None = None,
 		message = f"I did not receive a value for {parameterName}, but it is required."
 		raise ValueError(message)
 
-	# Be nice: assume the input container is valid and every element is valid.  # noqa: ERA001
+	# Be nice, and assume the input container is valid and every element is valid.
 	# Nevertheless, this is a "fail-early" step, so reject ambiguity and try to induce errors now that could be catastrophic later.
 	try:
 		iter(listInt_Allegedly)
-		lengthInitial = None
+		lengthInitial: int | None = None
 		if isinstance(listInt_Allegedly, Sized):
 			lengthInitial = len(listInt_Allegedly)
 
 		listValidated: list[int] = []
 
 		for allegedInt in listInt_Allegedly:
-# ruff: noqa: PLW2901
-			errorMessageContext = ErrorMessageContext(
+
+			errorMessageContext: ErrorMessageContext = ErrorMessageContext(
 				parameterValue = allegedInt,
 				parameterValueType = type(allegedInt).__name__,
 				isElement = True
@@ -237,7 +240,7 @@ def intInnit(listInt_Allegedly: Iterable[Any], parameterName: str | None = None,
 				errorMessageContext.parameterValue = None  # Don't expose potentially garbled binary data in error messages
 				if isinstance(allegedInt, memoryview):
 					allegedInt = allegedInt.tobytes()
-				decodedString = charset_normalizer.from_bytes(allegedInt).best()
+				decodedString: CharsetMatch | None = charset_normalizer.from_bytes(allegedInt).best()
 				if not decodedString:
 					raise ValueError(errorMessageContext)
 				allegedInt = errorMessageContext.parameterValue = str(decodedString)
@@ -308,7 +311,7 @@ def oopsieKwargsie(huh: Any) -> bool | None | str:
 			huh = str(huh)
 		except BaseException:  # noqa: BLE001
 			return huh
-	formatted = huh.strip().title()
+	formatted: str = huh.strip().title()
 	if formatted == str(True):
 		return True
 	if formatted == str(False):

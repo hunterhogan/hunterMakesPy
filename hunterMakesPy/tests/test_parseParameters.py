@@ -8,7 +8,7 @@ import pytest
 parameters = ParamSpec('parameters')
 returnType = TypeVar('returnType')
 
-def PytestFor_defineConcurrencyLimit(callableToTest: Callable[..., int] = defineConcurrencyLimit, cpuCount: int = 8) -> list[tuple[str, Callable[[], None]]]:  # noqa: C901
+def PytestFor_defineConcurrencyLimit(callableToTest: Callable[..., int] = defineConcurrencyLimit, cpuCount: int = 8) -> list[tuple[str, Callable[[], None]]]:
 	"""Return a list of test functions to validate concurrency limit behavior.
 
 	This function provides a comprehensive test suite for validating concurrency limit parsing
@@ -80,15 +80,17 @@ def PytestFor_defineConcurrencyLimit(callableToTest: Callable[..., int] = define
 	@patch('multiprocessing.cpu_count', return_value=cpuCount)
 	def testBooleanTrue(_mockCpu: Mock) -> None:
 		assert callableToTest(limit=True, cpuTotal=cpuCount) == 1
-		assert callableToTest(limit='True', cpuTotal=cpuCount) == 1  # pyright: ignore[reportArgumentType]
-		assert callableToTest(limit='TRUE', cpuTotal=cpuCount) == 1 # pyright: ignore[reportArgumentType]
-		assert callableToTest(limit=' true ', cpuTotal=cpuCount) == 1 # pyright: ignore[reportArgumentType]
+# pyright: reportArgumentType=false
+		assert callableToTest(limit='True', cpuTotal=cpuCount) == 1
+		assert callableToTest(limit='TRUE', cpuTotal=cpuCount) == 1
+		assert callableToTest(limit=' true ', cpuTotal=cpuCount) == 1
+# pyright: reportArgumentType=true
 
 	@patch('multiprocessing.cpu_count', return_value=cpuCount)
 	def testInvalidStrings(_mockCpu: Mock) -> None:
 		for stringInput in ["invalid", "True but not quite", "None of the above"]:
 			with pytest.raises(ValueError, match="must be a number, `True`, `False`, or `None`"):
-				callableToTest(limit=stringInput, cpuTotal=cpuCount) # pyright: ignore[reportArgumentType]
+				callableToTest(limit=stringInput, cpuTotal=cpuCount)
 
 	@patch('multiprocessing.cpu_count', return_value=cpuCount)
 	def testStringNumbers(_mockCpu: Mock) -> None:
@@ -100,7 +102,7 @@ def PytestFor_defineConcurrencyLimit(callableToTest: Callable[..., int] = define
 			("-0.25", 6),
 		]
 		for stringNumber, expectedLimit in testCases:
-			assert callableToTest(limit=stringNumber, cpuTotal=cpuCount) == expectedLimit # pyright: ignore[reportArgumentType]
+			assert callableToTest(limit=stringNumber, cpuTotal=cpuCount) == expectedLimit
 
 	return [
 		('testDefaults', testDefaults),
@@ -112,7 +114,7 @@ def PytestFor_defineConcurrencyLimit(callableToTest: Callable[..., int] = define
 		('testStringNumbers', testStringNumbers)
 	]
 
-def PytestFor_intInnit(callableToTest: Callable[[Iterable[int], str | None, type[Any] | None], list[int]] = intInnit) -> list[tuple[str, Callable[[], None]]]:  # noqa: C901
+def PytestFor_intInnit(callableToTest: Callable[[Iterable[int], str | None, type[Any] | None], list[int]] = intInnit) -> list[tuple[str, Callable[[], None]]]:
 	"""Return a list of test functions to validate integer initialization behavior.
 
 	This function provides a comprehensive test suite for validating integer parsing
@@ -156,64 +158,64 @@ def PytestFor_intInnit(callableToTest: Callable[[Iterable[int], str | None, type
 	"""
 	def testHandlesValidIntegers() -> None:
 		assert callableToTest([2, 3, 5, 8], 'test', None) == [2, 3, 5, 8]
-		assert callableToTest([13.0, 21.0, 34.0], 'test', None) == [13, 21, 34] # pyright: ignore[reportArgumentType]
-		assert callableToTest(['55', '89', '144'], 'test', None) == [55, 89, 144] # pyright: ignore[reportArgumentType]
-		assert callableToTest([' 233 ', '377', '-610'], 'test', None) == [233, 377, -610] # pyright: ignore[reportArgumentType]
+		assert callableToTest([13.0, 21.0, 34.0], 'test', None) == [13, 21, 34]
+		assert callableToTest(['55', '89', '144'], 'test', None) == [55, 89, 144]
+		assert callableToTest([' 233 ', '377', '-610'], 'test', None) == [233, 377, -610]
 
 	def testRejectsNonWholeNumbers() -> None:
 		listInvalidNumbers: list[float] = [13.7, 21.5, 34.8, -55.9]
 		for invalidNumber in listInvalidNumbers:
 			with pytest.raises(ValueError):
-				callableToTest([invalidNumber], 'test', None) # pyright: ignore[reportArgumentType]
+				callableToTest([invalidNumber], 'test', None)
+
+	def testRejectsInvalidStrings() -> None:
+		for invalidString in ['NW', '', ' ', 'SE.SW']:
+			with pytest.raises(ValueError):
+				callableToTest([invalidString], 'test', None)
+
+	def testHandlesMixedValidTypes() -> None:
+		assert callableToTest([13, '21', 34.0], 'test', None) == [13, 21, 34]
 
 	def testRejectsBooleans() -> None:
 		with pytest.raises(TypeError):
 			callableToTest([True, False], 'test', None)
 
-	def testRejectsInvalidStrings() -> None:
-		for invalidString in ['NW', '', ' ', 'SE.SW']:
-			with pytest.raises(ValueError):
-				callableToTest([invalidString], 'test', None) # pyright: ignore[reportArgumentType]
-
 	def testRejectsEmptyList() -> None:
 		with pytest.raises(ValueError):
 			callableToTest([], 'test', None)
-
-	def testHandlesMixedValidTypes() -> None:
-		assert callableToTest([13, '21', 34.0], 'test', None) == [13, 21, 34] # pyright: ignore[reportArgumentType]
 
 	def testHandlesBytes() -> None:
 		validCases: list[tuple[list[bytes], str, list[int]]] = [
 			([b'123'], '123', [123]),
 		]
 		for inputData, testName, expected in validCases:
-			assert callableToTest(inputData, testName, None) == expected # pyright: ignore[reportArgumentType]
+			assert callableToTest(inputData, testName, None) == expected
 
 		extendedCases: list[tuple[list[bytes], str, list[int]]] = [
 			([b'123456789'], '123456789', [123456789]),
 		]
 		for inputData, testName, expected in extendedCases:
-			assert callableToTest(inputData, testName, None) == expected # pyright: ignore[reportArgumentType]
+			assert callableToTest(inputData, testName, None) == expected
 
 		invalidCases: list[list[bytes]] = [[b'\x00']]
 		for inputData in invalidCases:
 			with pytest.raises(ValueError):
-				callableToTest(inputData, 'test', None) # pyright: ignore[reportArgumentType]
+				callableToTest(inputData, 'test', None)
 
 	def testHandlesMemoryview() -> None:
 		validCases: list[tuple[list[memoryview], str, list[int]]] = [
 			([memoryview(b'123')], '123', [123]),
 		]
 		for inputData, testName, expected in validCases:
-			assert callableToTest(inputData, testName, None) == expected # pyright: ignore[reportArgumentType]
+			assert callableToTest(inputData, testName, None) == expected
 
 		largeMemoryviewCase: list[memoryview] = [memoryview(b'9999999999')]
-		assert callableToTest(largeMemoryviewCase, 'test', None) == [9999999999] # pyright: ignore[reportArgumentType]
+		assert callableToTest(largeMemoryviewCase, 'test', None) == [9999999999]
 
 		invalidMemoryviewCases: list[list[memoryview]] = [[memoryview(b'\x00')]]
 		for inputData in invalidMemoryviewCases:
 			with pytest.raises(ValueError):
-				callableToTest(inputData, 'test', None) # pyright: ignore[reportArgumentType]
+				callableToTest(inputData, 'test', None)
 
 	def testRejectsMutableSequence() -> None:
 		class MutableList(list[int]):
@@ -229,12 +231,12 @@ def PytestFor_intInnit(callableToTest: Callable[[Iterable[int], str | None, type
 			([21+0j, 34+0j], [21, 34])
 		]
 		for inputData, expected in testCases:
-			assert callableToTest(inputData, 'test', None) == expected # pyright: ignore[reportArgumentType]
+			assert callableToTest(inputData, 'test', None) == expected
 
 	def testRejectsInvalidComplex() -> None:
 		for invalidComplex in [13+1j, 21+0.5j, 34.5+0j]:
 			with pytest.raises(ValueError):
-				callableToTest([invalidComplex], 'test', None) # pyright: ignore[reportArgumentType]
+				callableToTest([invalidComplex], 'test', None)
 
 	return [
 		('testHandlesValidIntegers', testHandlesValidIntegers),
@@ -250,7 +252,7 @@ def PytestFor_intInnit(callableToTest: Callable[[Iterable[int], str | None, type
 		('testRejectsInvalidComplex', testRejectsInvalidComplex)
 	]
 
-def PytestFor_oopsieKwargsie(callableToTest: Callable[[str], bool | None | str] = oopsieKwargsie) -> list[tuple[str, Callable[[], None]]]:  # noqa: C901
+def PytestFor_oopsieKwargsie(callableToTest: Callable[[str], bool | None | str] = oopsieKwargsie) -> list[tuple[str, Callable[[], None]]]:
 	"""Return a list of test functions to validate string-to-boolean/None conversion behavior.
 
 	This function provides a comprehensive test suite for validating string parsing and conversion
@@ -312,10 +314,10 @@ def PytestFor_oopsieKwargsie(callableToTest: Callable[[str], bool | None | str] 
 				message = "Cannot be stringified"
 				raise TypeError(message)
 
-		assert callableToTest(123) == "123" # pyright: ignore[reportArgumentType]
+		assert callableToTest(123) == "123"
 
 		neverGonnaStringIt = NeverGonnaStringIt()
-		result = callableToTest(neverGonnaStringIt) # pyright: ignore[reportArgumentType]
+		result = callableToTest(neverGonnaStringIt)
 		assert result is neverGonnaStringIt
 
 	return [

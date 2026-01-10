@@ -1,11 +1,14 @@
 """Provides utilities for string extraction from nested data structures and merges multiple dictionaries containing lists into one dictionary."""
 
-from collections.abc import Iterator, Mapping
+from collections.abc import Mapping
 from numpy import integer
 from numpy.typing import NDArray
-from typing import Any
+from typing import Any, Protocol, TYPE_CHECKING, TypeVar
 import more_itertools
 import re as regex
+
+if TYPE_CHECKING:
+	from collections.abc import Iterator
 
 def removeExtraWhitespace(text: str) -> str:
 	"""Remove extra whitespace from string representation of Python data structures."""
@@ -188,13 +191,13 @@ def stringItUp(*scrapPile: Any) -> list[str]:
 			case str():
 				listStrungUp.append(KitKat)
 			case bool() | bytearray() | bytes() | complex() | float() | int() | memoryview() | None:
-				listStrungUp.append(str(KitKat)) # pyright: ignore [reportUnknownArgumentType]
+				listStrungUp.append(str(KitKat))
 			case dict():
-				for broken, piece in KitKat.items(): # pyright: ignore [reportUnknownVariableType]
+				for broken, piece in KitKat.items():
 					drill(broken)
 					drill(piece)
 			case list() | tuple() | set() | frozenset() | range():
-				for kit in KitKat: # pyright: ignore [reportUnknownVariableType]
+				for kit in KitKat:
 					drill(kit)
 			case _:
 				if hasattr(KitKat, '__iter__'):  # Unpack other iterables
@@ -218,38 +221,50 @@ def stringItUp(*scrapPile: Any) -> list[str]:
 		listStrungUp.append(repr(scrap))
 	return listStrungUp
 
-def updateExtendPolishDictionaryLists(*dictionaryLists: Mapping[str, list[Any] | set[Any] | tuple[Any, ...]], destroyDuplicates: bool = False, reorderLists: bool = False, killErroneousDataTypes: bool = False) -> dict[str, list[Any]]:
-	"""Merge multiple dictionaries containing `list` into a single dictionary.
+class Ordinals(Protocol):
+	"""Protocol for types that support ordering comparisons."""
 
-	With options to handle duplicates, `list` ordering, and erroneous data types.
+	def __le__(self, other: "Ordinals", /) -> bool:
+		"""Less than or equal to comparison."""
+		...
+	def __ge__(self, other: "Ordinals", /) -> bool:
+		"""Greater than or equal to comparison."""
+		...
+
+小于 = TypeVar('小于', bound=Ordinals)
+
+def updateExtendPolishDictionaryLists(*dictionaryLists: Mapping[str, list[小于] | set[小于] | tuple[小于, ...]], destroyDuplicates: bool = False, reorderLists: bool = False, killErroneousDataTypes: bool = False) -> dict[str, list[小于]]:
+	"""Merge multiple dictionaries with `list` values into a single dictionary with the `list` values merged.
+
+	Plus options to destroy duplicates, sort `list` values, and handle erroneous data types.
 
 	Parameters
 	----------
 	*dictionaryLists : Mapping[str, list[Any] | set[Any] | tuple[Any, ...]]
-		(dictionary2lists) Variable number of dictionaries to be merged. If only one dictionary is passed, it will be processed based on the provided options.
+		Variable number of dictionaries to be merged. If only one dictionary is passed, it will be "polished".
 	destroyDuplicates : bool = False
-		(destroy2duplicates) If `True`, removes duplicate elements from the `list`. Defaults to `False`.
+		If `True`, removes duplicate elements from the `list`. Defaults to `False`.
 	reorderLists : bool = False
-		(reorder2lists) If `True`, sorts the `list`. Defaults to `False`.
+		If `True`, sorts each `list` value. Defaults to `False`. The elements must be comparable; otherwise, a `TypeError` will be raised.
 	killErroneousDataTypes : bool = False
-		(kill2erroneous2data2types) If `True`, skips dictionary keys or dictionary values that cause a `TypeError` during merging. Defaults to `False`.
+		If `True`, suppresses any `TypeError` `Exception` and omits the dictionary key or value that caused the `Exception`.
+		Defaults to `False`.
 
 	Returns
 	-------
 	ePluribusUnum : dict[str, list[Any]]
-		(e2pluribus2unum) A single dictionary with merged `list` based on the provided options. If only one dictionary is passed,
-		it will be cleaned up based on the options.
+		A single dictionary with merged and optionally "polished" `list` values.
 
 	Notes
 	-----
 	The returned value, `ePluribusUnum`, is a so-called primitive dictionary (`dict`). Furthermore, every dictionary key is a
-	so-called primitive string (cf. `str()`) and every dictionary value is a so-called primitive `list` (`list`). If
+	so-called primitive string (*cf.* `str()`) and every dictionary value is a so-called primitive `list` (`list`). If
 	`dictionaryLists` has other data types, the data types will not be preserved. That could have unexpected consequences.
 	Conversion from the original data type to a `list`, for example, may not preserve the order even if you want the order to be
 	preserved.
 
 	"""
-	ePluribusUnum: dict[str, list[Any]] = {}
+	ePluribusUnum: dict[str, list[小于]] = {}
 
 	for dictionaryListTarget in dictionaryLists:
 		for keyName, keyValue in dictionaryListTarget.items():
@@ -267,7 +282,7 @@ def updateExtendPolishDictionaryLists(*dictionaryLists: Mapping[str, list[Any] |
 		for ImaStr, ImaList in ePluribusUnum.items():
 			ePluribusUnum[ImaStr] = list(dict.fromkeys(ImaList))
 	if reorderLists:
-		for ImaStr, ImaList in ePluribusUnum.items():
-			ePluribusUnum[ImaStr] = sorted(ImaList)
+		for ImaStr, ImaRichComparisonSupporter in ePluribusUnum.items():
+			ePluribusUnum[ImaStr] = sorted(ImaRichComparisonSupporter)
 
 	return ePluribusUnum

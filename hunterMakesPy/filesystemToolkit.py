@@ -15,6 +15,7 @@ import importlib.util
 import io
 
 if TYPE_CHECKING:
+	from importlib.machinery import ModuleSpec
 	from types import ModuleType
 
 归个 = TypeVar('归个')
@@ -72,9 +73,9 @@ def importPathFilename2Identifier(pathFilename: PathLike[Any] | PurePath, identi
 	"""
 	pathFilename = Path(pathFilename)
 
-	importlibSpecification = importlib.util.spec_from_file_location(moduleIdentifier or pathFilename.stem, pathFilename)
+	importlibSpecification: ModuleSpec | None = importlib.util.spec_from_file_location(moduleIdentifier or pathFilename.stem, pathFilename)
 	if importlibSpecification is None or importlibSpecification.loader is None:
-		message = f"I received\n\t`{pathFilename = }`,\n\t`{identifier = }`, and\n\t`{moduleIdentifier = }`.\n\tAfter loading, \n\t`importlibSpecification` {'is `None`' if importlibSpecification is None else 'has a value'} and\n\t`importlibSpecification.loader` is unknown."
+		message: str = f"I received\n\t`{pathFilename = }`,\n\t`{identifier = }`, and\n\t`{moduleIdentifier = }`.\n\tAfter loading, \n\t`importlibSpecification` {'is `None`' if importlibSpecification is None else 'has a value'} and\n\t`importlibSpecification.loader` is unknown."
 		raise ImportError(message)
 
 	moduleImported_jk_hahaha: ModuleType = importlib.util.module_from_spec(importlibSpecification)
@@ -106,7 +107,7 @@ settings_autoflakeDEFAULT: dict[str, list[str] | bool] = {
 	'remove_unused_variables': False,
 }
 
-settings_isortDEFAULT: dict[str, int | str | list[str]] = {
+settings_isortDEFAULT: dict[str, bool | int | str | list[str]] = {
 	"combine_as_imports": True,
 	"force_alphabetical_sort_within_sections": True,
 	"from_first": True,

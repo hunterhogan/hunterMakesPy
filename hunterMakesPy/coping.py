@@ -22,7 +22,7 @@ def getPathPackageINSTALLING(identifierPackage: str) -> Path:
 	try:
 		moduleSpecification: ModuleSpec | None = find_spec(identifierPackage)
 		if moduleSpecification and moduleSpecification.origin:
-			pathFilename = Path(moduleSpecification.origin)
+			pathFilename: Path = Path(moduleSpecification.origin)
 			return pathFilename.parent if pathFilename.is_file() else pathFilename
 	except ModuleNotFoundError:
 		pass
@@ -148,6 +148,6 @@ def raiseIfNone(expression: TypeSansNone | None, errorMessage: str | None = None
 
 	"""
 	if expression is None:
-		message = errorMessage or 'A function unexpectedly returned `None`. Hint: look at the traceback immediately before `raiseIfNone`.'
+		message: str = errorMessage or 'A function unexpectedly returned `None`. Hint: look at the traceback immediately before `raiseIfNone`.'
 		raise ValueError(message)
 	return expression
