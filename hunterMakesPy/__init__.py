@@ -9,7 +9,7 @@ This package provides:
 """
 
 # isort: split
-from hunterMakesPy.theTypes import identifierDotAttribute as identifierDotAttribute
+from hunterMakesPy.theTypes import identifierDotAttribute as identifierDotAttribute, Ordinals as Ordinals
 
 # isort: split
 from hunterMakesPy.coping import PackageSettings as PackageSettings, raiseIfNone as raiseIfNone
@@ -26,10 +26,8 @@ from hunterMakesPy.filesystemToolkit import (
 
 # isort: split
 from hunterMakesPy.dataStructures import (
-	stringItUp as stringItUp, updateExtendPolishDictionaryLists as updateExtendPolishDictionaryLists)
-
-# isort: split
-from hunterMakesPy.dataStructures import autoDecodingRLE as autoDecodingRLE
+	autoDecodingRLE as autoDecodingRLE, stringItUp as stringItUp,
+	updateExtendPolishDictionaryLists as updateExtendPolishDictionaryLists)
 
 # isort: split
 from hunterMakesPy._theSSOT import settingsPackage  # pyright: ignore[reportUnusedImport]

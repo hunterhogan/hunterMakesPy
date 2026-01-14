@@ -1,6 +1,6 @@
 [project]
 name = "hunterMakesPy"
-version = "0.3.1"
+version = "0.3.2"
 description = "Easy Python functions making making functional Python functions easier."
 readme = "README.md"
 requires-python = ">=3.11"

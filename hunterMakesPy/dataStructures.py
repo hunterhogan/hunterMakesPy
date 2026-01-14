@@ -1,11 +1,14 @@
 """Provides utilities for string extraction from nested data structures and merges multiple dictionaries containing lists into one dictionary."""
-
+from charset_normalizer import CharsetMatch
 from collections.abc import Mapping
+from hunterMakesPy import Ordinals
 from numpy import integer
 from numpy.typing import NDArray
-from typing import Any, Protocol, TYPE_CHECKING, TypeVar
+from typing import Any, cast, TYPE_CHECKING, TypeVar
+import charset_normalizer
 import more_itertools
 import re as regex
+import sys
 
 if TYPE_CHECKING:
 	from collections.abc import Iterator
@@ -187,49 +190,43 @@ def stringItUp(*scrapPile: Any) -> list[str]:
 	listStrungUp: list[str] = []
 
 	def drill(KitKat: Any) -> None:
-		match KitKat:
-			case str():
-				listStrungUp.append(KitKat)
-			case bool() | bytearray() | bytes() | complex() | float() | int() | memoryview() | None:
-				listStrungUp.append(str(KitKat))
-			case dict():
-				for broken, piece in KitKat.items():
-					drill(broken)
-					drill(piece)
-			case list() | tuple() | set() | frozenset() | range():
-				for kit in KitKat:
-					drill(kit)
-			case _:
-				if hasattr(KitKat, '__iter__'):  # Unpack other iterables
-					for kat in KitKat:
-						drill(kat)
-				else:
-					try:
-						sharingIsCaring = KitKat.__str__()
-						listStrungUp.append(sharingIsCaring)
-					except AttributeError:
-						pass
-					except TypeError:  # "The error traceback provided indicates that there is an issue when calling the __str__ method on an object that does not have this method properly defined, leading to a TypeError."
-						pass
-					except:
-						print(f"\nWoah! I received '{repr(KitKat)}'.\nTheir report card says, 'Plays well with others: Needs improvement.'\n")  # noqa: T201
-						raise
+		if isinstance(KitKat, str):
+			listStrungUp.append(KitKat)
+		elif (KitKat is None) or (isinstance(KitKat, (bool, bytearray, bytes, complex, float, int))):
+			listStrungUp.append(str(KitKat))
+		elif isinstance(KitKat, memoryview):
+			decodedString: CharsetMatch | None = charset_normalizer.from_bytes(KitKat.tobytes()).best()
+			if decodedString:
+				listStrungUp.append(str(decodedString))
+		elif isinstance(KitKat, dict):
+			DictDact: dict[Any, Any] = cast(dict[Any, Any], KitKat)
+			for broken, piece in DictDact.items():
+				drill(broken)
+				drill(piece)
+		elif isinstance(KitKat, (list, tuple, set, frozenset, range)):
+			for kit in KitKat: # pyright: ignore[reportUnknownVariableType]
+				drill(kit)
+		elif hasattr(KitKat, '__iter__'):  # Unpack other iterables
+			for kat in KitKat:
+				drill(kat)
+		else:
+			try:
+				sharingIsCaring: str = KitKat.__str__()
+				listStrungUp.append(sharingIsCaring)
+			except AttributeError:
+				pass
+			except TypeError:  # "The error traceback provided indicates that there is an issue when calling the __str__ method on an object that does not have this method properly defined, leading to a TypeError."
+				pass
+			except:
+				message: str = (f"\nWoah! I received '{repr(KitKat)}'.\nTheir report card says, 'Plays well with others: Needs improvement.'\n")
+				sys.stderr.write(message)
+				raise
 	try:
 		for scrap in scrapPile:
 			drill(scrap)
 	except RecursionError:
 		listStrungUp.append(repr(scrap))
 	return listStrungUp
-
-class Ordinals(Protocol):
-	"""Protocol for types that support ordering comparisons."""
-
-	def __le__(self, other: "Ordinals", /) -> bool:
-		"""Less than or equal to comparison."""
-		...
-	def __ge__(self, other: "Ordinals", /) -> bool:
-		"""Greater than or equal to comparison."""
-		...
 
 小于 = TypeVar('小于', bound=Ordinals)
 
