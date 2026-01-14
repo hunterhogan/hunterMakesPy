@@ -8,10 +8,14 @@ identifierDotAttribute: TypeAlias = str
 
 """
 
-
 class Ordinals(Protocol):
-	"""Any Python `object` `type` that may be ordered before or after a comparable `object` `type` using a less-than-or-equal-to comparison."""
+	"""Any Python `object` `type` that may be ordered before or after a comparable `object` `type` by comparison operators."""
 
 	def __le__(self, not_self_selfButSelfSelf_youKnow: Self, /) -> bool:
 		"""Comparison by "***l***ess than or ***e***qual to"."""
 		...
+
+	def __lt__(self, not_self_selfButSelfSelf_youKnow: Self, /) -> bool:
+		"""Comparison by "***l***ess ***t***han"."""
+		...
+

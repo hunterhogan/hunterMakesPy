@@ -267,7 +267,7 @@ def updateExtendPolishDictionaryLists(*dictionaryLists: Mapping[str, list[小于
 		for keyName, keyValue in dictionaryListTarget.items():
 			try:
 				ImaStr = str(keyName)
-				ImaList = list(keyValue)
+				ImaList: list[小于] = list(keyValue)
 				ePluribusUnum.setdefault(ImaStr, []).extend(ImaList)
 			except TypeError:
 				if killErroneousDataTypes:

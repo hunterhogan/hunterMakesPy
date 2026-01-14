@@ -148,21 +148,18 @@ def defineConcurrencyLimit(*, limit: bool | float | int | None, cpuTotal: int = 
 			limit = limitFromString
 	if isinstance(limit, float) and abs(limit) >= 1:
 		limit = round(limit)
-	match limit:
-		case None | False | 0:
-			pass
-		case True:
-			concurrencyLimit = 1
-		case _ if limit >= 1:
-			concurrencyLimit = int(limit)
-		case _ if 0 < limit < 1:
-			concurrencyLimit = round(limit * cpuTotal)
-		case _ if -1 < limit < 0:
-			concurrencyLimit = cpuTotal - abs(round(limit * cpuTotal))
-		case _ if limit <= -1:
-			concurrencyLimit = cpuTotal - abs(int(limit))
-		case _:
-			pass
+	if limit is None or limit is False or limit == 0:
+		pass
+	elif limit is True:
+		concurrencyLimit = 1
+	elif limit >= 1:
+		concurrencyLimit = int(limit)
+	elif 0 < limit < 1:
+		concurrencyLimit = round(limit * cpuTotal)
+	elif -1 < limit < 0:
+		concurrencyLimit = cpuTotal - abs(round(limit * cpuTotal))
+	elif limit <= -1:
+		concurrencyLimit = cpuTotal - abs(int(limit))
 
 	return max(int(concurrencyLimit), 1)
 
@@ -208,7 +205,7 @@ def intInnit(listInt_Allegedly: Iterable[Any], parameterName: str | None = None,
 	parameterType = parameterType or list
 
 	if not listInt_Allegedly:
-		message = f"I did not receive a value for {parameterName}, but it is required."
+		message: str = f"I did not receive a value for {parameterName}, but it is required."
 		raise ValueError(message)
 
 	# Be nice, and assume the input container is valid and every element is valid.
@@ -319,11 +316,3 @@ def oopsieKwargsie(huh: Any) -> bool | None | str:
 	if formatted == str(None):
 		return None
 	return huh
-
-if __name__ == '__main__':
-	# Frankly, I cannot remember the precise reason I put this in some modules. It solved a concurrency problem I was having at the time,
-	# but it felt like a hack at the time and it feels even more like a hack now. I suspect I will eventually learn enough so that I can
-	# come full circle: know why I added it, know how I already fixed the real issue, and know that I can safely remove this.  # noqa: ERA001
-	multiprocessing.set_start_method('spawn')
-
-	# Well, actually, I don't want to be programming for so long that I learn that much. I want to heal and do things in my areas of competency.

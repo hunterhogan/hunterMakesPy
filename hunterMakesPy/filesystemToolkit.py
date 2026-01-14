@@ -118,7 +118,6 @@ settings_isortDEFAULT: dict[str, bool | int | str | list[str]] = {
 	"lines_between_types": 0,
 	"multi_line_output": 4,
 	"no_sections": True,
-	"skip": ["__init__.py"], # TODO think
 	"use_parentheses": True,
 }
 
