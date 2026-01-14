@@ -9,12 +9,12 @@ authors:
   family-names: Hogan
   email: HunterHogan@pm.me
 cff-version: 1.2.0
-commit: dde15c2b7416ddb8fb7257b1268f32d4f2557c1c
-date-released: '2026-01-10'
+commit: 269c3ce200c7ae5d8275694a492f3e9d0637b8bf
+date-released: '2026-01-14'
 identifiers:
 - type: url
-  value: https://github.com/hunterhogan/hunterMakesPy/releases/tag/0.3.1
-  description: The URL for hunterMakesPy 0.3.1.
+  value: https://github.com/hunterhogan/hunterMakesPy/releases/tag/0.3.2
+  description: The URL for hunterMakesPy 0.3.2.
 keywords:
 - attribute loading
 - concurrency limit
@@ -37,8 +37,8 @@ keywords:
 license: CC-BY-NC-4.0
 message: Cite this software with the metadata in this file.
 repository: https://github.com/hunterhogan/hunterMakesPy
-repository-artifact: https://pypi.org/project/huntermakespy/0.3.1/
-repository-code: https://github.com/hunterhogan/hunterMakesPy/releases/tag/0.3.1
+repository-artifact: https://pypi.org/project/huntermakespy/0.3.2/
+repository-code: https://github.com/hunterhogan/hunterMakesPy/releases/tag/0.3.2
 title: hunterMakesPy
 url: https://github.com/hunterhogan/hunterMakesPy
-version: 0.3.1
+version: 0.3.2
