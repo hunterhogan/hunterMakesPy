@@ -5,7 +5,7 @@ from fractions import Fraction
 from hunterMakesPy import autoDecodingRLE, stringItUp, updateExtendPolishDictionaryLists
 from hunterMakesPy.tests.conftest import standardizedEqualTo
 from numpy.typing import NDArray
-from typing import Any, Literal
+from typing import Any
 import datetime
 import numpy
 import pytest
@@ -35,6 +35,7 @@ class CustomIterable:
 	# Binary data - accepting either representation
 	("Prime bytes", [b'\x0B', b'\x0D', b'\x11'], [repr(b'\x0b'), repr(b'\x0d'), repr(b'\x11')]),  # Let Python choose representation
 	("Custom bytearray", [bytearray(b"DEADBEEF")], ["bytearray(b'DEADBEEF')"]),
+	("Memory view decoded", memoryview(b"DEADBEEF"), ["DEADBEEF"]),
 	# Nested structures with unique values
 	("Nested dictionary", {'phi': 1.618, 'euler': 2.718}, ['phi', '1.618', 'euler', '2.718']),
 	("Mixed nesting", [{'NE': 37}, {'SW': 41}], ['NE', '37', 'SW', '41']),
@@ -58,14 +59,6 @@ class CustomIterable:
 def testStringItUp(description: str, value_scrapPile: list[Any], expected: list[str] | type[Exception]) -> None:
 	"""Test stringItUp with various inputs."""
 	standardizedEqualTo(expected, stringItUp, value_scrapPile)
-
-@pytest.mark.parametrize("description,value_scrapPile,expected", [
-	("Memory view", memoryview(b"DEADBEEF"), ["<memory at 0x"]),  # Special handling for memoryview
-], ids=lambda x: x if isinstance(x, str) else "")
-def testStringItUpErrorCases(description: Literal['Memory view'], value_scrapPile: memoryview, expected: list[str]) -> None:
-	result = stringItUp(value_scrapPile)
-	assert len(result) == 1
-	assert result[0].startswith(expected[0])
 
 @pytest.mark.parametrize("description,value_dictionaryLists,keywordArguments,expected", [
 	("Mixed value types", ({'ne': [11, 'prime'], 'sw': [True, None]}, {'ne': [3.141, 'golden'], 'sw': [False, 'void']}), {'destroyDuplicates': False, 'reorderLists': False}, {'ne': [11, 'prime', 3.141, 'golden'], 'sw': [True, None, False, 'void']}),
