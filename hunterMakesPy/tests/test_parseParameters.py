@@ -1,3 +1,11 @@
+"""Tests for parameter parsing and validation utilities.
+
+(AI generated docstring)
+
+This module provides test suites for concurrency limits, integer initialization,
+and string-based boolean parsing.
+
+"""
 # pyright: standard
 from collections.abc import Callable, Iterable, Iterator
 from hunterMakesPy import defineConcurrencyLimit, intInnit, oopsieKwargsie
@@ -66,7 +74,7 @@ def PytestFor_defineConcurrencyLimit(callableToTest: Callable[..., int] = define
 		testCases: dict[float, int] = {
 			0.5: cpuCount // 2,
 			0.25: cpuCount // 4,
-			0.75: int(cpuCount * 0.75)
+			0.75: int(cpuCount * 0.75),
 		}
 		for limit, expected in testCases.items():
 			assert callableToTest(limit=limit, cpuTotal=cpuCount) == expected
@@ -114,7 +122,7 @@ def PytestFor_defineConcurrencyLimit(callableToTest: Callable[..., int] = define
 		('testStringNumbers', testStringNumbers)
 	]
 
-def PytestFor_intInnit(callableToTest: Callable[[Iterable[int], str | None, type[Any] | None], list[int]] = intInnit) -> list[tuple[str, Callable[[], None]]]:
+def PytestFor_intInnit(callableToTest: Callable[[Iterable[Any], str | None, type[Any] | None], list[int]] = intInnit) -> list[tuple[str, Callable[[], None]]]:
 	"""Return a list of test functions to validate integer initialization behavior.
 
 	This function provides a comprehensive test suite for validating integer parsing
@@ -222,7 +230,7 @@ def PytestFor_intInnit(callableToTest: Callable[[Iterable[int], str | None, type
 			def __iter__(self) -> Iterator[int]:
 				self.append(89)
 				return super().__iter__()
-		with pytest.raises(RuntimeError, match=".*modified during iteration.*"):
+		with pytest.raises(RuntimeError, match=r".*modified during iteration.*"):
 			callableToTest(MutableList([13, 21, 34]), 'test', None)
 
 	def testHandlesComplexIntegers() -> None:
@@ -252,7 +260,7 @@ def PytestFor_intInnit(callableToTest: Callable[[Iterable[int], str | None, type
 		('testRejectsInvalidComplex', testRejectsInvalidComplex)
 	]
 
-def PytestFor_oopsieKwargsie(callableToTest: Callable[[str], bool | None | str] = oopsieKwargsie) -> list[tuple[str, Callable[[], None]]]:
+def PytestFor_oopsieKwargsie(callableToTest: Callable[[Any], object] = oopsieKwargsie) -> list[tuple[str, Callable[[], None]]]:
 	"""Return a list of test functions to validate string-to-boolean/None conversion behavior.
 
 	This function provides a comprehensive test suite for validating string parsing and conversion
@@ -311,13 +319,13 @@ def PytestFor_oopsieKwargsie(callableToTest: Callable[[str], bool | None | str] 
 	def testHandlesNonStringObjects() -> None:
 		class NeverGonnaStringIt:
 			def __str__(self) -> NoReturn:
-				message = "Cannot be stringified"
+				message: str = "Cannot be stringified"
 				raise TypeError(message)
 
 		assert callableToTest(123) == "123"
 
-		neverGonnaStringIt = NeverGonnaStringIt()
-		result = callableToTest(neverGonnaStringIt)
+		neverGonnaStringIt: NeverGonnaStringIt = NeverGonnaStringIt()
+		result: object = callableToTest(neverGonnaStringIt)
 		assert result is neverGonnaStringIt
 
 	return [
@@ -330,12 +338,60 @@ def PytestFor_oopsieKwargsie(callableToTest: Callable[[str], bool | None | str] 
 
 @pytest.mark.parametrize("nameOfTest,aPytest", PytestFor_defineConcurrencyLimit())
 def testConcurrencyLimit(nameOfTest: str, aPytest: Callable[parameters, returnType], *arguments: parameters.args, **keywordArguments: parameters.kwargs) -> None:
+	"""Execute generated tests for concurrency limit definitions.
+
+	(AI generated docstring)
+
+	Parameters
+	----------
+	nameOfTest : str
+		Name of the test case.
+	aPytest : Callable[..., Any]
+		The callable test function to execute.
+	*arguments : Any
+		Positional arguments for the test function.
+	**keywordArguments : Any
+		Keyword arguments for the test function.
+
+	"""
 	aPytest(*arguments, **keywordArguments)
 
 @pytest.mark.parametrize("nameOfTest,aPytest", PytestFor_intInnit())
 def testIntInnit(nameOfTest: str, aPytest: Callable[parameters, returnType], *arguments: parameters.args, **keywordArguments: parameters.kwargs) -> None:
+	"""Execute generated tests for integer initialization.
+
+	(AI generated docstring)
+
+	Parameters
+	----------
+	nameOfTest : str
+		Name of the test case.
+	aPytest : Callable[..., Any]
+		The callable test function to execute.
+	*arguments : Any
+		Positional arguments for the test function.
+	**keywordArguments : Any
+		Keyword arguments for the test function.
+
+	"""
 	aPytest(*arguments, **keywordArguments)
 
 @pytest.mark.parametrize("nameOfTest,aPytest", PytestFor_oopsieKwargsie())
 def testOopsieKwargsie(nameOfTest: str, aPytest: Callable[parameters, returnType], *arguments: parameters.args, **keywordArguments: parameters.kwargs) -> None:
+	"""Execute generated tests for boolean string parsing.
+
+	(AI generated docstring)
+
+	Parameters
+	----------
+	nameOfTest : str
+		Name of the test case.
+	aPytest : Callable[..., Any]
+		The callable test function to execute.
+	*arguments : Any
+		Positional arguments for the test function.
+	**keywordArguments : Any
+		Keyword arguments for the test function.
+
+	"""
 	aPytest(*arguments, **keywordArguments)

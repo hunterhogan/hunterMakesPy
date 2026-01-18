@@ -6,5 +6,4 @@ Note: These test functions are now in `hunterMakesPy.tests` with all other tests
 """
 
 from hunterMakesPy.tests.test_parseParameters import (
-	PytestFor_defineConcurrencyLimit as PytestFor_defineConcurrencyLimit, PytestFor_intInnit as PytestFor_intInnit,
-	PytestFor_oopsieKwargsie as PytestFor_oopsieKwargsie)
+	PytestFor_defineConcurrencyLimit, PytestFor_intInnit, PytestFor_oopsieKwargsie)

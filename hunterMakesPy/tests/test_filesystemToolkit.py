@@ -1,4 +1,12 @@
 # pyright: standard
+"""Tests for filesystem toolkit utilities.
+
+(AI generated docstring)
+
+This module validates the behavior of file and directory operations,
+including safe directory creation, file writing, and dynamic importing.
+
+"""
 from hunterMakesPy import (
 	importLogicalPath2Identifier, importPathFilename2Identifier, makeDirsSafely, writePython, writeStringToHere)
 from hunterMakesPy.tests.conftest import standardizedEqualTo
@@ -18,21 +26,28 @@ import sys
 		('sys', 'version', None, type(sys.version)),
 	]
 )
-def testImportLogicalPath2IdentifierWithAbsolutePaths(
-	logicalPathModuleTarget: str,
-	identifierTarget: str,
-	packageIdentifierIfRelativeTarget: str | None,
-	expectedType: type
-) -> None:
-	"""Test importing identifiers from modules using absolute logical paths."""
-	identifierImported = importLogicalPath2Identifier(logicalPathModuleTarget, identifierTarget, packageIdentifierIfRelativeTarget)
+def testImportLogicalPath2IdentifierWithAbsolutePaths(logicalPathModuleTarget: str, identifierTarget: str, packageIdentifierIfRelativeTarget: str | None, expectedType: type) -> None:
+	"""Test importing identifiers from modules using absolute logical paths.
+
+	Parameters
+	----------
+	logicalPathModuleTarget : str
+		The logical path of the module (e.g., 'os.path').
+	identifierTarget : str
+		The identifier (function/class) to import.
+	packageIdentifierIfRelativeTarget : str | None
+		Expected to be None for absolute paths.
+	expectedType : type
+		The expected type of the imported object.
+
+	"""
+	identifierImported: object = importLogicalPath2Identifier(logicalPathModuleTarget, identifierTarget, packageIdentifierIfRelativeTarget)
 
 	assert isinstance(identifierImported, expectedType), (
 		f"\nTesting: `importLogicalPath2Identifier({logicalPathModuleTarget}, {identifierTarget}, {packageIdentifierIfRelativeTarget})`\n"
 		f"Expected type: {expectedType}\n"
 		f"Got type: {type(identifierImported)}"
 	)
-
 
 @pytest.mark.parametrize(
 	"pythonSourceTarget, identifierTarget, moduleIdentifierTarget, expectedValueWhenCalled",
@@ -43,22 +58,33 @@ def testImportLogicalPath2IdentifierWithAbsolutePaths(
 		("def fibonacciSequence():\n    return 21\n", "fibonacciSequence", "moduleEast", 21),
 	]
 )
-def testImportPathFilename2IdentifierWithCallables(
-	pathTmpTesting: pathlib.Path,
-	pythonSourceTarget: str,
-	identifierTarget: str,
-	moduleIdentifierTarget: str | None,
-	expectedValueWhenCalled: object
-) -> None:
-	"""Test importing callable identifiers from Python files."""
-	pathFilenameModule = pathTmpTesting / f"moduleTest{hash(pythonSourceTarget) % 89}.py"  # Use prime number 89
+def testImportPathFilename2IdentifierWithCallables(pathTmpTesting: pathlib.Path, pythonSourceTarget: str, identifierTarget: str, moduleIdentifierTarget: str | None, expectedValueWhenCalled: object) -> None:
+	"""Test importing callable identifiers from Python files.
+
+	Parameters
+	----------
+	pathTmpTesting : pathlib.Path
+		Temporary directory fixture.
+	pythonSourceTarget : str
+		Source code to write to the temporary file.
+	identifierTarget : str
+		The callable identifier to import.
+	moduleIdentifierTarget : str | None
+		Optional module name hint.
+	expectedValueWhenCalled : object
+		The expected return value when calling the imported object.
+
+	"""
+	pathFilenameModule: pathlib.Path = pathTmpTesting / f"moduleTest{hash(pythonSourceTarget) % 89}.py"  # Use prime number 89
 	pathFilenameModule.write_text(pythonSourceTarget)
+
+	def callImportedIdentifier() -> object:
+		return importPathFilename2Identifier(pathFilenameModule, identifierTarget, moduleIdentifierTarget)()
 
 	standardizedEqualTo(
 		expectedValueWhenCalled,
-		lambda: importPathFilename2Identifier(pathFilenameModule, identifierTarget, moduleIdentifierTarget)(),
+		callImportedIdentifier,
 	)
-
 
 @pytest.mark.parametrize(
 	"pythonSourceTarget, identifierTarget, moduleIdentifierTarget, expectedValue",
@@ -69,15 +95,24 @@ def testImportPathFilename2IdentifierWithCallables(
 		("sequenceValue = 55\n", "sequenceValue", "moduleSouthWest", 55),
 	]
 )
-def testImportPathFilename2IdentifierWithVariables(
-	pathTmpTesting: pathlib.Path,
-	pythonSourceTarget: str,
-	identifierTarget: str,
-	moduleIdentifierTarget: str | None,
-	expectedValue: object
-) -> None:
-	"""Test importing variable identifiers from Python files."""
-	pathFilenameModule = pathTmpTesting / f"moduleTest{hash(pythonSourceTarget) % 97}.py"  # Use prime number 97
+def testImportPathFilename2IdentifierWithVariables(pathTmpTesting: pathlib.Path, pythonSourceTarget: str, identifierTarget: str, moduleIdentifierTarget: str | None, expectedValue: object) -> None:
+	"""Test importing variable identifiers from Python files.
+
+	Parameters
+	----------
+	pathTmpTesting : pathlib.Path
+		Temporary directory fixture.
+	pythonSourceTarget : str
+		Source code to write to the temporary file.
+	identifierTarget : str
+		The variable identifier to import.
+	moduleIdentifierTarget : str | None
+		Optional module name hint.
+	expectedValue : object
+		The expected value of the imported variable.
+
+	"""
+	pathFilenameModule: pathlib.Path = pathTmpTesting / f"moduleTest{hash(pythonSourceTarget) % 97}.py"  # Use prime number 97
 	pathFilenameModule.write_text(pythonSourceTarget)
 
 	standardizedEqualTo(
@@ -88,7 +123,6 @@ def testImportPathFilename2IdentifierWithVariables(
 		moduleIdentifierTarget
 	)
 
-
 @pytest.mark.parametrize(
 	"listDirectoryComponents, filenameTarget",
 	[
@@ -98,17 +132,24 @@ def testImportPathFilename2IdentifierWithVariables(
 		(['cardinal', 'directions', 'multiple'], 'prime23.txt'),
 	]
 )
-def testMakeDirsSafelyCreatesNestedDirectories(
-	pathTmpTesting: pathlib.Path,
-	listDirectoryComponents: list[str],
-	filenameTarget: str
-) -> None:
-	"""Test that makeDirsSafely creates nested parent directories."""
-	pathDirectoryNested = pathTmpTesting
+def testMakeDirsSafelyCreatesNestedDirectories(pathTmpTesting: pathlib.Path, listDirectoryComponents: list[str], filenameTarget: str) -> None:
+	"""Test that makeDirsSafely creates nested parent directories.
+
+	Parameters
+	----------
+	pathTmpTesting : pathlib.Path
+		Temporary directory fixture.
+	listDirectoryComponents : list[str]
+		List of nested directory names.
+	filenameTarget : str
+		Name of the target file inside the nested directories.
+
+	"""
+	pathDirectoryNested: pathlib.Path = pathTmpTesting
 	for directoryComponent in listDirectoryComponents:
 		pathDirectoryNested = pathDirectoryNested / directoryComponent
 
-	pathFilenameTarget = pathDirectoryNested / filenameTarget
+	pathFilenameTarget: pathlib.Path = pathDirectoryNested / filenameTarget
 	makeDirsSafely(pathFilenameTarget)
 
 	assert pathDirectoryNested.exists() and pathDirectoryNested.is_dir(), (
@@ -116,7 +157,6 @@ def testMakeDirsSafelyCreatesNestedDirectories(
 		f"Expected: Directory {pathDirectoryNested} to exist and be a directory\n"
 		f"Got: exists={pathDirectoryNested.exists()}, is_dir={pathDirectoryNested.is_dir() if pathDirectoryNested.exists() else False}"
 	)
-
 
 @pytest.mark.parametrize(
 	"streamTypeTarget",
@@ -126,13 +166,19 @@ def testMakeDirsSafelyCreatesNestedDirectories(
 	]
 )
 def testMakeDirsSafelyWithIOStreamDoesNotRaise(streamTypeTarget: io.IOBase) -> None:
-	"""Test that makeDirsSafely handles IO streams without raising exceptions."""
+	"""Test that makeDirsSafely handles IO streams without raising exceptions.
+
+	Parameters
+	----------
+	streamTypeTarget : io.IOBase
+		The IO stream object to test.
+
+	"""
 	# This test verifies that no exception is raised
 	makeDirsSafely(streamTypeTarget)
 
 	# If we reach this point, no exception was raised
 	assert True
-
 
 @pytest.mark.parametrize(
 	"listDirectoryComponents, filenameTarget, contentTarget",
@@ -143,18 +189,26 @@ def testMakeDirsSafelyWithIOStreamDoesNotRaise(streamTypeTarget: io.IOBase) -> N
 		(['west', 'sequence'], 'test23.txt', 'sequence value 23'),
 	]
 )
-def testWriteStringToHereCreatesFileAndDirectories(
-	pathTmpTesting: pathlib.Path,
-	listDirectoryComponents: list[str],
-	filenameTarget: str,
-	contentTarget: str
-) -> None:
-	"""Test that writeStringToHere creates directories and writes content to files."""
-	pathDirectoryNested = pathTmpTesting
+def testWriteStringToHereCreatesFileAndDirectories(pathTmpTesting: pathlib.Path, listDirectoryComponents: list[str], filenameTarget: str, contentTarget: str) -> None:
+	"""Test that writeStringToHere creates directories and writes content to files.
+
+	Parameters
+	----------
+	pathTmpTesting : pathlib.Path
+		Temporary directory fixture.
+	listDirectoryComponents : list[str]
+		Nested directory names.
+	filenameTarget : str
+		Target filename.
+	contentTarget : str
+		Content to write to the file.
+
+	"""
+	pathDirectoryNested: pathlib.Path = pathTmpTesting
 	for directoryComponent in listDirectoryComponents:
 		pathDirectoryNested = pathDirectoryNested / directoryComponent
 
-	pathFilenameTarget = pathDirectoryNested / filenameTarget
+	pathFilenameTarget: pathlib.Path = pathDirectoryNested / filenameTarget
 	writeStringToHere(contentTarget, pathFilenameTarget)
 
 	assert pathFilenameTarget.exists(), (
@@ -163,13 +217,12 @@ def testWriteStringToHereCreatesFileAndDirectories(
 		f"Got: exists={pathFilenameTarget.exists()}"
 	)
 
-	contentActual = pathFilenameTarget.read_text(encoding="utf-8")
+	contentActual: str = pathFilenameTarget.read_text(encoding="utf-8")
 	assert contentActual == contentTarget, (
 		f"\nTesting: `writeStringToHere({contentTarget}, {pathFilenameTarget})`\n"
 		f"Expected content: {contentTarget}\n"
 		f"Got content: {contentActual}"
 	)
-
 
 @pytest.mark.parametrize(
 	"contentTarget",
@@ -181,17 +234,23 @@ def testWriteStringToHereCreatesFileAndDirectories(
 	]
 )
 def testWriteStringToHereWithIOStream(contentTarget: str) -> None:
-	"""Test that writeStringToHere writes content to IO streams."""
-	streamMemory = io.StringIO()
+	"""Test that writeStringToHere writes content to IO streams.
+
+	Parameters
+	----------
+	contentTarget : str
+		Content to write to the stream.
+
+	"""
+	streamMemory: io.StringIO = io.StringIO()
 	writeStringToHere(contentTarget, streamMemory)
 
-	contentActual = streamMemory.getvalue()
+	contentActual: str = streamMemory.getvalue()
 	assert contentActual == contentTarget, (
 		f"\nTesting: `writeStringToHere({contentTarget}, StringIO)`\n"
 		f"Expected content: {contentTarget}\n"
 		f"Got content: {contentActual}"
 	)
-
 
 @pytest.mark.parametrize(
 	"logicalPathModuleTarget, identifierTarget, expectedExceptionType",
@@ -206,14 +265,19 @@ def testImportLogicalPath2IdentifierWithInvalidInputs(
 	identifierTarget: str,
 	expectedExceptionType: type[Exception]
 ) -> None:
-	"""Test that importLogicalPath2Identifier raises appropriate exceptions for invalid inputs."""
-	standardizedEqualTo(
-		expectedExceptionType,
-		importLogicalPath2Identifier,
-		logicalPathModuleTarget,
-		identifierTarget
-	)
+	"""Test that importLogicalPath2Identifier raises appropriate exceptions for invalid inputs.
 
+	Parameters
+	----------
+	logicalPathModuleTarget : str
+		Invalid module path.
+	identifierTarget : str
+		Identifier to import.
+	expectedExceptionType : type[Exception]
+		The expected exception type.
+
+	"""
+	standardizedEqualTo( expectedExceptionType, importLogicalPath2Identifier, logicalPathModuleTarget, identifierTarget )
 
 @pytest.mark.parametrize(
 	"pathFilenameTarget, identifierTarget, expectedExceptionType",
@@ -221,22 +285,24 @@ def testImportLogicalPath2IdentifierWithInvalidInputs(
 		('nonexistent.py', 'anyIdentifier', FileNotFoundError),
 	]
 )
-def testImportPathFilename2IdentifierWithInvalidInputs(
-	pathTmpTesting: pathlib.Path,
-	pathFilenameTarget: str,
-	identifierTarget: str,
-	expectedExceptionType: type[Exception]
-) -> None:
-	"""Test that importPathFilename2Identifier raises appropriate exceptions for invalid inputs."""
-	pathFilenameNonexistent = pathTmpTesting / pathFilenameTarget
+def testImportPathFilename2IdentifierWithInvalidInputs(pathTmpTesting: pathlib.Path, pathFilenameTarget: str, identifierTarget: str, expectedExceptionType: type[Exception]) -> None:
+	"""Test that importPathFilename2Identifier raises appropriate exceptions for invalid inputs.
 
-	standardizedEqualTo(
-		expectedExceptionType,
-		importPathFilename2Identifier,
-		pathFilenameNonexistent,
-		identifierTarget
-	)
+	Parameters
+	----------
+	pathTmpTesting : pathlib.Path
+		Temporary directory fixture.
+	pathFilenameTarget : str
+		Invalid or nonexistent filename.
+	identifierTarget : str
+		Identifier to import.
+	expectedExceptionType : type[Exception]
+		The expected exception type.
 
+	"""
+	pathFilenameNonexistent: pathlib.Path = pathTmpTesting / pathFilenameTarget
+
+	standardizedEqualTo( expectedExceptionType, importPathFilename2Identifier, pathFilenameNonexistent, identifierTarget )
 
 @pytest.mark.parametrize(
 	"pythonSourceTarget, identifierTarget, expectedExceptionType",
@@ -251,17 +317,24 @@ def testImportPathFilename2IdentifierWithValidFileInvalidIdentifier(
 	identifierTarget: str,
 	expectedExceptionType: type[Exception]
 ) -> None:
-	"""Test that importPathFilename2Identifier raises AttributeError for nonexistent identifiers in valid files."""
-	pathFilenameModule = pathTmpTesting / f"moduleTest{hash(pythonSourceTarget) % 101}.py"  # Use prime number 101
+	"""Test that importPathFilename2Identifier raises AttributeError for nonexistent identifiers.
+
+	Parameters
+	----------
+	pathTmpTesting : pathlib.Path
+		Temporary directory fixture.
+	pythonSourceTarget : str
+		Valid python source code.
+	identifierTarget : str
+		Identifier that does not exist in the source.
+	expectedExceptionType : type[Exception]
+		Expected exception (usually AttributeError).
+
+	"""
+	pathFilenameModule: pathlib.Path = pathTmpTesting / f"moduleTest{hash(pythonSourceTarget) % 101}.py"  # Use prime number 101
 	pathFilenameModule.write_text(pythonSourceTarget)
 
-	standardizedEqualTo(
-		expectedExceptionType,
-		importPathFilename2Identifier,
-		pathFilenameModule,
-		identifierTarget
-	)
-
+	standardizedEqualTo( expectedExceptionType, importPathFilename2Identifier, pathFilenameModule, identifierTarget )
 
 @pytest.mark.parametrize(
 	"pythonSourceTarget, expectedFormattedContent",
@@ -284,13 +357,20 @@ def testImportPathFilename2IdentifierWithValidFileInvalidIdentifier(
 		),
 	]
 )
-def testWritePythonFormatsAndWritesToFile(
-	pathTmpTesting: pathlib.Path,
-	pythonSourceTarget: str,
-	expectedFormattedContent: str
-) -> None:
-	"""Test that writePython formats Python source code and writes it to files."""
-	pathFilenameTarget = pathTmpTesting / "formattedModule.py"
+def testWritePythonFormatsAndWritesToFile(pathTmpTesting: pathlib.Path, pythonSourceTarget: str, expectedFormattedContent: str) -> None:
+	"""Test that writePython formats Python source code and writes it to files.
+
+	Parameters
+	----------
+	pathTmpTesting : pathlib.Path
+		Temporary directory fixture.
+	pythonSourceTarget : str
+		Unformatted python source.
+	expectedFormattedContent : str
+		Expected formatted content.
+
+	"""
+	pathFilenameTarget: pathlib.Path = pathTmpTesting / "formattedModule.py"
 	writePython(pythonSourceTarget, pathFilenameTarget)
 
 	assert pathFilenameTarget.exists(), (
@@ -299,13 +379,12 @@ def testWritePythonFormatsAndWritesToFile(
 		f"Got: exists={pathFilenameTarget.exists()}"
 	)
 
-	contentActual = pathFilenameTarget.read_text(encoding="utf-8")
+	contentActual: str = pathFilenameTarget.read_text(encoding="utf-8")
 	assert contentActual == expectedFormattedContent, (
 		f"\nTesting: `writePython(...)`\n"
 		f"Expected content:\n{repr(expectedFormattedContent)}\n"
 		f"Got content:\n{repr(contentActual)}"
 	)
-
 
 @pytest.mark.parametrize(
 	"pythonSourceTarget, expectedFormattedContent",
@@ -320,21 +399,26 @@ def testWritePythonFormatsAndWritesToFile(
 		),
 	]
 )
-def testWritePythonFormatsAndWritesToStream(
-	pythonSourceTarget: str,
-	expectedFormattedContent: str
-) -> None:
-	"""Test that writePython formats Python source code and writes it to IO streams."""
-	streamMemory = io.StringIO()
+def testWritePythonFormatsAndWritesToStream(pythonSourceTarget: str, expectedFormattedContent: str) -> None:
+	"""Test that writePython formats Python source code and writes it to IO streams.
+
+	Parameters
+	----------
+	pythonSourceTarget : str
+		Unformatted python source.
+	expectedFormattedContent : str
+		Expected formatted content.
+
+	"""
+	streamMemory: io.StringIO = io.StringIO()
 	writePython(pythonSourceTarget, streamMemory)
 
-	contentActual = streamMemory.getvalue()
+	contentActual: str = streamMemory.getvalue()
 	assert contentActual == expectedFormattedContent, (
 		f"\nTesting: `writePython(..., StringIO)`\n"
 		f"Expected content:\n{repr(expectedFormattedContent)}\n"
 		f"Got content:\n{repr(contentActual)}"
 	)
-
 
 @pytest.mark.parametrize(
 	"pythonSourceTarget, settingsCustom, expectedFormattedContent",
@@ -357,17 +441,29 @@ def testWritePythonWithCustomSettings(
 	settingsCustom: dict[str, dict[str, object]],
 	expectedFormattedContent: str
 ) -> None:
-	"""Test that writePython respects custom formatter settings."""
-	pathFilenameTarget = pathTmpTesting / "customFormattedModule.py"
+	"""Test that writePython respects custom formatter settings.
+
+	Parameters
+	----------
+	pathTmpTesting : pathlib.Path
+		Temporary directory fixture.
+	pythonSourceTarget : str
+		Unformatted python source.
+	settingsCustom : dict[str, dict[str, object]]
+		Dictionary of formatter settings.
+	expectedFormattedContent : str
+		Expected formatted content.
+
+	"""
+	pathFilenameTarget: pathlib.Path = pathTmpTesting / "customFormattedModule.py"
 	writePython(pythonSourceTarget, pathFilenameTarget, settingsCustom)
 
-	contentActual = pathFilenameTarget.read_text(encoding="utf-8")
+	contentActual: str = pathFilenameTarget.read_text(encoding="utf-8")
 	assert contentActual == expectedFormattedContent, (
 		f"\nTesting: `writePython(..., custom settings)`\n"
 		f"Expected content:\n{repr(expectedFormattedContent)}\n"
 		f"Got content:\n{repr(contentActual)}"
 	)
-
 
 @pytest.mark.parametrize(
 	"pythonSourceTarget",
@@ -377,12 +473,18 @@ def testWritePythonWithCustomSettings(
 		"def primeFunction():\n    return 37\n",
 	]
 )
-def testWritePythonCreatesNestedDirectories(
-	pathTmpTesting: pathlib.Path,
-	pythonSourceTarget: str
-) -> None:
-	"""Test that writePython creates nested directories when writing to files."""
-	pathFilenameTarget = pathTmpTesting / "nested" / "directories" / "module.py"
+def testWritePythonCreatesNestedDirectories(pathTmpTesting: pathlib.Path, pythonSourceTarget: str) -> None:
+	"""Test that writePython creates nested directories when writing to files.
+
+	Parameters
+	----------
+	pathTmpTesting : pathlib.Path
+		Temporary directory fixture.
+	pythonSourceTarget : str
+		Python source code.
+
+	"""
+	pathFilenameTarget: pathlib.Path = pathTmpTesting / "nested" / "directories" / "module.py"
 	writePython(pythonSourceTarget, pathFilenameTarget)
 
 	assert pathFilenameTarget.exists(), (
@@ -397,7 +499,6 @@ def testWritePythonCreatesNestedDirectories(
 		f"Got: exists={pathFilenameTarget.parent.exists()}"
 	)
 
-
 @pytest.mark.parametrize(
 	"pythonSourceTarget, expectedContainsImport",
 	[
@@ -406,22 +507,28 @@ def testWritePythonCreatesNestedDirectories(
 		("import sys\n\nvalueFibonacci = sys.version\n", "import sys"),
 	]
 )
-def testWritePythonPreservesUsedImports(
-	pathTmpTesting: pathlib.Path,
-	pythonSourceTarget: str,
-	expectedContainsImport: str
-) -> None:
-	"""Test that writePython preserves imports that are actually used in the code."""
-	pathFilenameTarget = pathTmpTesting / "preservedImports.py"
+def testWritePythonPreservesUsedImports(pathTmpTesting: pathlib.Path, pythonSourceTarget: str, expectedContainsImport: str) -> None:
+	"""Test that writePython preserves imports that are actually used in the code.
+
+	Parameters
+	----------
+	pathTmpTesting : pathlib.Path
+		Temporary directory fixture.
+	pythonSourceTarget : str
+		Python source with used imports.
+	expectedContainsImport : str
+		Import string that should remain.
+
+	"""
+	pathFilenameTarget: pathlib.Path = pathTmpTesting / "preservedImports.py"
 	writePython(pythonSourceTarget, pathFilenameTarget)
 
-	contentActual = pathFilenameTarget.read_text(encoding="utf-8")
+	contentActual: str = pathFilenameTarget.read_text(encoding="utf-8")
 	assert expectedContainsImport in contentActual, (
 		f"\nTesting: `writePython(...)` preserves used imports\n"
 		f"Expected content to contain: {expectedContainsImport}\n"
 		f"Got content:\n{contentActual}"
 	)
-
 
 @pytest.mark.parametrize(
 	"pythonSourceTarget, expectedNotContainsImport",
@@ -431,16 +538,23 @@ def testWritePythonPreservesUsedImports(
 		("import sys\nimport collections\n\nvalueFibonacci = sys.version\n", "import collections"),
 	]
 )
-def testWritePythonRemovesUnusedImports(
-	pathTmpTesting: pathlib.Path,
-	pythonSourceTarget: str,
-	expectedNotContainsImport: str
-) -> None:
-	"""Test that writePython removes imports that are not used in the code."""
-	pathFilenameTarget = pathTmpTesting / "removedImports.py"
+def testWritePythonRemovesUnusedImports(pathTmpTesting: pathlib.Path, pythonSourceTarget: str, expectedNotContainsImport: str) -> None:
+	"""Test that writePython removes imports that are not used in the code.
+
+	Parameters
+	----------
+	pathTmpTesting : pathlib.Path
+		Temporary directory fixture.
+	pythonSourceTarget : str
+		Python source with unused imports.
+	expectedNotContainsImport : str
+		Import string that should be removed.
+
+	"""
+	pathFilenameTarget: pathlib.Path = pathTmpTesting / "removedImports.py"
 	writePython(pythonSourceTarget, pathFilenameTarget)
 
-	contentActual = pathFilenameTarget.read_text(encoding="utf-8")
+	contentActual: str = pathFilenameTarget.read_text(encoding="utf-8")
 	assert expectedNotContainsImport not in contentActual, (
 		f"\nTesting: `writePython(...)` removes unused imports\n"
 		f"Expected content to NOT contain: {expectedNotContainsImport}\n"
