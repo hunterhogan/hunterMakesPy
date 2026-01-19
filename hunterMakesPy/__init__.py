@@ -8,15 +8,21 @@ This package provides:
 
 """
 
+# isort: split
 from hunterMakesPy.theTypes import identifierDotAttribute as identifierDotAttribute, Ordinals as Ordinals
 
+# isort: split
 from hunterMakesPy.coping import PackageSettings as PackageSettings, raiseIfNone as raiseIfNone
 
+# isort: split
 from hunterMakesPy.parseParameters import defineConcurrencyLimit, intInnit, oopsieKwargsie
 
+# isort: split
 from hunterMakesPy.filesystemToolkit import (
 	importLogicalPath2Identifier, importPathFilename2Identifier, makeDirsSafely, writePython, writeStringToHere)
 
+# isort: split
 from hunterMakesPy.dataStructures import autoDecodingRLE, stringItUp, updateExtendPolishDictionaryLists
 
+# isort: split
 from hunterMakesPy._theSSOT import settingsPackage  # pyright: ignore[reportUnusedImport]
