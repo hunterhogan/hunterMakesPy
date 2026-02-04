@@ -9,7 +9,8 @@ This package provides:
 """
 
 # isort: split
-from hunterMakesPy.theTypes import identifierDotAttribute as identifierDotAttribute, Ordinals as Ordinals
+from hunterMakesPy.theTypes import (
+	CallableFunction as CallableFunction, identifierDotAttribute as identifierDotAttribute, Ordinals as Ordinals)
 
 # isort: split
 from hunterMakesPy.coping import PackageSettings as PackageSettings, raiseIfNone as raiseIfNone

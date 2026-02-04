@@ -1,7 +1,8 @@
 """I type, you type, we all `type` for `theTypes`."""
-from typing import Protocol, Self, TypeAlias
+from hunterMakesPy.Z0Z_CallableFunction import CallableFunction as CallableFunction
+from typing import Protocol, Self
 
-identifierDotAttribute: TypeAlias = str
+type identifierDotAttribute = str
 """`str` (***str***ing) representing a dotted attribute identifier.
 
 `TypeAlias` for a `str` `object` using dot notation to access an attribute, such as 'scipy.signal.windows'.

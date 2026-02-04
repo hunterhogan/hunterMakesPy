@@ -5,13 +5,11 @@
 This module validates comparison semantics and sorting consistency across built-in and custom comparables using `pytest`.
 
 """
-
-from __future__ import annotations
-
 from dataclasses import dataclass
+from hunterMakesPy import CallableFunction, Ordinals
 from hunterMakesPy.tests.conftest import uniformTestFailureMessage
-from hunterMakesPy.theTypes import Ordinals
 from typing import Self, TYPE_CHECKING, TypeVar
+import functools
 import inspect
 import pytest
 
@@ -107,10 +105,7 @@ class ComparableCardinal:
 
 @pytest.mark.parametrize(
 	'floor, ceiling, comparand, expected'
-	, [
-		(13, 34, 21, True)
-		, (13, 34, 8, False)
-	]
+	, [ (13, 34, 21, True) , (227, 695, 88, False) ]
 )
 def testOrdinalsBetweenWorksForInt(floor: int, ceiling: int, comparand: int, expected: bool) -> None:
 	"""Verify `between` handles `int` operands.
@@ -135,20 +130,11 @@ def testOrdinalsBetweenWorksForInt(floor: int, ceiling: int, comparand: int, exp
 
 	"""
 	actual: bool = between(floor, ceiling, comparand)
-	assert actual == expected, uniformTestFailureMessage(
-		expected
-		, actual
-		, 'between'
-		, floor
-		, ceiling
-		, comparand
-	)
+	assert actual == expected, uniformTestFailureMessage( expected , actual , 'between' , floor , ceiling , comparand )
 
 @pytest.mark.parametrize(
 	'values, expected'
-	, [
-		([21, 13, 34, 8], [8, 13, 21, 34])
-	]
+	, [ ([21, 13, 34, 8], [8, 13, 21, 34]) ]
 )
 def testOrdinalsSortingWorksForInt(values: list[int], expected: list[int]) -> None:
 	"""Verify sorting uses ordinal ordering for `int` values.
@@ -169,19 +155,11 @@ def testOrdinalsSortingWorksForInt(values: list[int], expected: list[int]) -> No
 
 	"""
 	actual: list[int] = sorted(values)
-	assert actual == expected, uniformTestFailureMessage(
-		expected
-		, actual
-		, 'sorted'
-		, values
-	)
+	assert actual == expected, uniformTestFailureMessage( expected , actual , 'sorted' , values )
 
 @pytest.mark.parametrize(
 	'floor, ceiling, comparand, expected'
-	, [
-		('fibonacci', 'prime', 'omega', True)
-		, ('fibonacci', 'prime', 'tango', False)
-	]
+	, [ ('fibonacci', 'prime', 'omega', True) , ('fibonacci', 'prime', 'tango', False) ]
 )
 def testOrdinalsBetweenWorksForStr(floor: str, ceiling: str, comparand: str, expected: bool) -> None:
 	"""Verify `between` handles `str` operands.
@@ -206,20 +184,11 @@ def testOrdinalsBetweenWorksForStr(floor: str, ceiling: str, comparand: str, exp
 
 	"""
 	actual: bool = between(floor, ceiling, comparand)
-	assert actual == expected, uniformTestFailureMessage(
-		expected
-		, actual
-		, 'between'
-		, floor
-		, ceiling
-		, comparand
-	)
+	assert actual == expected, uniformTestFailureMessage( expected , actual , 'between' , floor , ceiling , comparand )
 
 @pytest.mark.parametrize(
 	'values, expected'
-	, [
-		(['prime', 'fibonacci', 'omega'], ['fibonacci', 'omega', 'prime'])
-	]
+	, [ (['prime', 'fibonacci', 'omega'], ['fibonacci', 'omega', 'prime']) ]
 )
 def testOrdinalsSortingWorksForStr(values: list[str], expected: list[str]) -> None:
 	"""Verify sorting uses ordinal ordering for `str` values.
@@ -240,19 +209,11 @@ def testOrdinalsSortingWorksForStr(values: list[str], expected: list[str]) -> No
 
 	"""
 	actual: list[str] = sorted(values)
-	assert actual == expected, uniformTestFailureMessage(
-		expected
-		, actual
-		, 'sorted'
-		, values
-	)
+	assert actual == expected, uniformTestFailureMessage( expected , actual , 'sorted' , values )
 
 @pytest.mark.parametrize(
 	'floor, ceiling, comparand, expected'
-	, [
-		((13, 17), (21, 2), (13, 19), True)
-		, ((13, 17), (21, 2), (8, 34), False)
-	]
+	, [ ((13, 17), (21, 2), (13, 19), True) , ((13, 17), (21, 2), (8, 34), False) ]
 )
 def testOrdinalsBetweenWorksForTuple(floor: tuple[int, int], ceiling: tuple[int, int], comparand: tuple[int, int], expected: bool) -> None:
 	"""Verify `between` handles `tuple[int, int]` operands.
@@ -277,24 +238,9 @@ def testOrdinalsBetweenWorksForTuple(floor: tuple[int, int], ceiling: tuple[int,
 
 	"""
 	actual: bool = between(floor, ceiling, comparand)
-	assert actual == expected, uniformTestFailureMessage(
-		expected
-		, actual
-		, 'between'
-		, floor
-		, ceiling
-		, comparand
-	)
+	assert actual == expected, uniformTestFailureMessage( expected , actual , 'between' , floor , ceiling , comparand )
 
-@pytest.mark.parametrize(
-	'values, expected'
-	, [
-		(
-			[(21, 2), (13, 19), (13, 17), (8, 34)]
-			, [(8, 34), (13, 17), (13, 19), (21, 2)]
-		),
-	],
-)
+@pytest.mark.parametrize( 'values, expected' , [ ( [(21, 2), (13, 19), (13, 17), (8, 34)] , [(8, 34), (13, 17), (13, 19), (21, 2)] ) ] )
 def testOrdinalsSortingWorksForTuple(values: list[tuple[int, int]], expected: list[tuple[int, int]]) -> None:
 	"""Verify sorting uses ordinal ordering for `tuple[int, int]` values.
 
@@ -314,12 +260,7 @@ def testOrdinalsSortingWorksForTuple(values: list[tuple[int, int]], expected: li
 
 	"""
 	actual: list[tuple[int, int]] = sorted(values)
-	assert actual == expected, uniformTestFailureMessage(
-		expected
-		, actual
-		, 'sorted'
-		, values
-	)
+	assert actual == expected, uniformTestFailureMessage( expected , actual , 'sorted' , values )
 
 @pytest.mark.parametrize(
 	'floor, ceiling, comparand, expected'
@@ -328,12 +269,7 @@ def testOrdinalsSortingWorksForTuple(values: list[tuple[int, int]], expected: li
 		, (ComparableCardinal(13), ComparableCardinal(34), ComparableCardinal(8), False)
 	]
 )
-def testOrdinalsBetweenWorksForCustomComparable(
-	floor: ComparableCardinal,
-	ceiling: ComparableCardinal,
-	comparand: ComparableCardinal,
-	expected: bool,
-) -> None:
+def testOrdinalsBetweenWorksForCustomComparable( floor: ComparableCardinal, ceiling: ComparableCardinal, comparand: ComparableCardinal, expected: bool ) -> None:
 	"""Verify `between` handles `ComparableCardinal` operands.
 
 	(AI generated docstring)
@@ -356,22 +292,9 @@ def testOrdinalsBetweenWorksForCustomComparable(
 
 	"""
 	actual: bool = between(floor, ceiling, comparand)
-	assert actual == expected, uniformTestFailureMessage(
-		expected
-		, actual
-		, 'between'
-		, floor
-		, ceiling
-		, comparand
-	)
+	assert actual == expected, uniformTestFailureMessage( expected , actual , 'between' , floor , ceiling , comparand )
 
-@pytest.mark.parametrize(
-	'comparisonMethodName'
-	, [
-		'__le__'
-		, '__lt__'
-	]
-)
+@pytest.mark.parametrize( 'comparisonMethodName' , [ '__le__' , '__lt__' ] )
 def testOrdinalsComparisonMethodsAcceptOtherOperand(comparisonMethodName: str) -> None:
 	"""Validate `Ordinals` comparison method signatures.
 
@@ -393,28 +316,44 @@ def testOrdinalsComparisonMethodsAcceptOtherOperand(comparisonMethodName: str) -
 	listParameters: list[inspect.Parameter] = list(signature.parameters.values())
 
 	assert len(listParameters) == 2, uniformTestFailureMessage(
-		2
-		, len(listParameters)
-		, 'Ordinals comparison parameter count'
-		, comparisonMethodName
-		, signature
-	)
+		2 , len(listParameters) , 'Ordinals comparison parameter count' , comparisonMethodName , signature )
 
 	listKinds: list[inspect._ParameterKind] = [parameter.kind for parameter in listParameters]
 	expectedKinds: list[inspect._ParameterKind] = [inspect.Parameter.POSITIONAL_ONLY, inspect.Parameter.POSITIONAL_ONLY]
 	assert listKinds == expectedKinds, uniformTestFailureMessage(
-		expectedKinds
-		, listKinds
-		, 'Ordinals comparison parameter kinds'
-		, comparisonMethodName
-		, signature
-	)
+		expectedKinds , listKinds , 'Ordinals comparison parameter kinds' , comparisonMethodName , signature )
 
 	actualReturnAnnotation: object = signature.return_annotation
 	assert actualReturnAnnotation is bool, uniformTestFailureMessage(
-		bool
-		, actualReturnAnnotation
-		, 'Ordinals comparison return annotation'
-		, comparisonMethodName
-		, signature
-	)
+		bool , actualReturnAnnotation , 'Ordinals comparison return annotation' , comparisonMethodName , signature )
+
+def _plainFunction() -> None:
+	"""A plain function for testing."""
+
+@functools.wraps(_plainFunction)
+def _wrappedFunction() -> None:
+	"""A wrapped function for testing."""
+
+_lambdaFunction = lambda: None  # noqa: E731
+
+@pytest.mark.parametrize( 'candidate, expected' , [ (_wrappedFunction, True), (_plainFunction, False), (_lambdaFunction, False)] )
+def testCallableFunctionIdentifiesCompatibleObjects(candidate: object, expected: bool) -> None:
+	"""Verify `CallableFunction` protocol matching.
+
+	(AI generated docstring)
+
+	Parameters
+	----------
+	candidate : object
+		The object to check against `CallableFunction`.
+	expected : bool
+		Expected result of `isinstance(candidate, CallableFunction)`.
+
+	Return
+	------
+	unusedReturnValue : None
+		Returns `None`.
+
+	"""
+	actual: bool = isinstance(candidate, CallableFunction)
+	assert actual == expected, uniformTestFailureMessage(expected, actual, 'isinstance', candidate)

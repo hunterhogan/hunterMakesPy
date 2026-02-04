@@ -2,13 +2,11 @@
 from importlib.util import find_spec
 from pathlib import Path
 from tomllib import loads as tomllib_loads
-from typing import TYPE_CHECKING, TypeVar
+from typing import TYPE_CHECKING
 import dataclasses
 
 if TYPE_CHECKING:
 	from importlib.machinery import ModuleSpec
-
-TypeSansNone = TypeVar('TypeSansNone')
 
 def getIdentifierPackagePACKAGING(identifierPackageFALLBACK: str) -> str:
 	"""Get package name from pyproject.toml or fallback to provided value."""
@@ -85,7 +83,7 @@ class PackageSettings:
 		if self.pathPackage == Path() and self.identifierPackage:
 			self.pathPackage = getPathPackageINSTALLING(self.identifierPackage)
 
-def raiseIfNone(expression: TypeSansNone | None, errorMessage: str | None = None) -> TypeSansNone:
+def raiseIfNone[TypeSansNone](expression: TypeSansNone | None, errorMessage: str | None = None) -> TypeSansNone:
 	"""Convert the `expression` return annotation from '`cerPytainty | None`' to '`cerPytainty`' because `expression` cannot be `None`; `raise` an `Exception` if you're wrong.
 
 	The Python interpreter evaluates `expression` to a value: think of a function call or an attribute access. You can use
