@@ -4,7 +4,7 @@ version = "0.4.0"
 description = "Easy Python functions making making functional Python functions easier."
 readme = "README.md"
 requires-python = ">=3.12"
-license = { 'text' = "CC-BY-NC-4.0" }
+license = "CC-BY-NC-4.0"
 authors = [{ name = "Hunter Hogan", email = "HunterHogan@pm.me" }]
 keywords = [
   "attribute loading",
@@ -53,16 +53,14 @@ dependencies = [
   "more_itertools",
   "numpy",
 ]
-optional-dependencies = { development = [
-  "setuptools-scm",
-], testing = [
+optional-dependencies = { testing = [
   "pytest",
   "pytest-cov",
   "pytest-xdist",
 ] }
 
 [build-system]
-requires = ["setuptools"]
+requires = ["setuptools", "setuptools-scm"]
 build-backend = "setuptools.build_meta"
 
 [tool.coverage]
