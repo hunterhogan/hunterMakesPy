@@ -1,117 +1,78 @@
 # hunterMakesPy
 
-A modular Python toolkit for defensive programming, parameter validation, file system utilities, and flexible data structure manipulation.
+Utilities for converting mixed input to integers, calculating CPU limits, handling None values, importing code dynamically, and manipulating nested data.
 
 [![pip install hunterMakesPy](https://img.shields.io/badge/pip%20install-hunterMakesPy-gray.svg?colorB=3b434b)](https://pypi.org/project/hunterMakesPy/)
-
-## Overview
-
-hunterMakesPy provides utilities for safe error handling, flexible input validation, dynamic module and attribute importing, and merging or transforming complex data structures. The package emphasizes clear identifiers, robust type handling, and reusable components for building reliable Python applications.
-
-## Installation
 
 ```bash
 pip install hunterMakesPy
 ```
 
-## Defensive Programming
+## What This Package Does
 
-Utilities for handling `None` values and defensive programming patterns.
+1. **Convert strings, floats, binary data to validated integers** — Accepts messy input like `["1", 2.0, b"3"]` and returns `[1, 2, 3]` or fails with descriptive errors.
 
-```python
-from hunterMakesPy import raiseIfNone
+2. **Calculate CPU/concurrency limits from flexible specifications** — Pass `0.75` for 75% of CPUs, `True` for 1 CPU, `4` for exactly 4 CPUs, or `-2` to reserve 2 CPUs.
 
-# Ensure a function result is not None
-def findConfiguration(configName: str) -> dict[str, str] | None:
-    # ... search logic ...
-    return None
+3. **Eliminate type checker warnings about None** — Convert `Type | None` returns to `Type` by validating at runtime that values are not None.
 
-config = raiseIfNone(
-    findConfiguration("database"),
-    "I could not find Configuration 'database', but I need it to continue."
-)
-```
+4. **Import Python code from dot-notation paths or file paths** — Load functions or classes from `"scipy.signal.windows"` or `"path/to/file.py"` without manual module loading.
 
-## Parameter Validation
+5. **Create nested directories without error handling** — Write to `"deep/nested/path/file.txt"` and parent directories are created automatically, existing directories are silently skipped.
 
-Parameter validation, integer parsing, and concurrency handling.
+6. **Format and write Python source code automatically** — Removes unused imports, sorts import statements, applies consistent formatting before writing files.
 
-```python
-import hunterMakesPy as humpy
+7. **Extract all strings from arbitrarily nested data** — Recursively traverse dictionaries, lists, tuples, sets and collect every string value into a flat list.
 
-# Smart concurrency limit calculation
-cpuLimit = humpy.defineConcurrencyLimit(limit=0.75)  # Use 75% of available CPUs
-cpuLimit = humpy.defineConcurrencyLimit(limit=True)  # Use exactly 1 CPU
-cpuLimit = humpy.defineConcurrencyLimit(limit=4)     # Use exactly 4 CPUs
+8. **Merge multiple dictionaries with list values** — Combine `{"a": [1, 2]}` and `{"a": [3], "b": [4]}` into `{"a": [1, 2, 3], "b": [4]}` with optional deduplication and sorting.
 
-# Robust integer validation
-validatedIntegers = humpy.intInnit([1, "2", 3.0, "4"], "port_numbers")
+9. **Compress NumPy arrays to compact string representations** — Encode repetitive patterns and sequences using run-length encoding and Python range syntax that evaluates back to the original data.
 
-# String-to-boolean conversion for configuration
-userInput = "True"
-booleanValue = humpy.oopsieKwargsie(userInput)  # Returns True
-```
+10. **Replace ambiguous numeric literals with semantic names** — Use `decreasing` instead of `-1`, `inclusive` for boundary adjustments, `zeroIndexed` for index conversions, making intent explicit.
 
-## File System Utilities
-
-Safe file operations and dynamic module importing.
+## Examples
 
 ```python
 import hunterMakesPy as humpy
+
+# Integer validation from mixed sources
+ports = humpy.intInnit(["8080", 443, "22"], "server_ports")
+
+# Flexible CPU limit calculation
+workers = humpy.defineConcurrencyLimit(limit=0.75)  # 6 CPUs on 8-core machine
+
+# None-checking without type errors
+config = humpy.raiseIfNone(getConfig(), "Missing configuration")
 
 # Dynamic imports
-gcdFunction = humpy.importLogicalPath2Identifier("math", "gcd")
-customFunction = humpy.importPathFilename2Identifier("path/to/module.py", "functionName")
+windowFunc = humpy.importLogicalPath2Identifier("scipy.signal.windows", "hann")
 
-# Safe file operations
-pathFilename = Path("deep/nested/directory/file.txt")
-humpy.writeStringToHere("content", pathFilename)  # Creates directories automatically
-```
+# Safe file writing
+humpy.writeStringToHere("content", "nested/dirs/file.txt")  # Creates dirs
 
-## Data Structure Manipulation
+# String extraction from nested data
+strings = humpy.stringItUp({"users": ["alice"], "config": {"host": "localhost"}})
+# Returns: ["users", "alice", "config", "host", "localhost"]
 
-Utilities for string extraction, data flattening, and array compression.
-
-```python
-import hunterMakesPy as humpy
-import numpy
-
-# Extract all strings from nested data structures
-nestedData = {"config": [1, "host", {"port": 8080}], "users": ["alice", "bob"]}
-allStrings = humpy.stringItUp(nestedData)  # ['config', 'host', 'port', 'users', 'alice', 'bob']
-
-# Merge dictionaries containing lists
-dictionaryAlpha = {"servers": ["chicago", "tokyo"], "databases": ["elm"]}
-dictionaryBeta = {"servers": ["mumbai"], "databases": ["oak", "cedar"]}
-merged = humpy.updateExtendPolishDictionaryLists(dictionaryAlpha, dictionaryBeta, destroyDuplicates=True)
-
-# Compress NumPy arrays with run-length encoding
-arrayData = numpy.array([1, 2, 3, 4, 5, 5, 5, 6, 7, 8, 9])
-compressed = humpy.autoDecodingRLE(arrayData)  # "[1,*range(2,6)]+[5]*2+[*range(6,10)]"
-```
-
-## Testing
-
-The package includes comprehensive test suites that you can import and run:
-
-```python
-from hunterMakesPy.tests.test_parseParameters import (
-    PytestFor_defineConcurrencyLimit,
-    PytestFor_intInnit,
-    PytestFor_oopsieKwargsie
+# Dictionary merging
+merged = humpy.updateExtendPolishDictionaryLists(
+    {"servers": ["chicago"]},
+    {"servers": ["tokyo", "chicago"]},
+    destroyDuplicates=True
 )
+# Returns: {"servers": ["chicago", "tokyo"]}
+```
 
-# Run tests on the built-in functions
-listOfTests = PytestFor_defineConcurrencyLimit()
-for nameOfTest, callablePytest in listOfTests:
-    callablePytest()
+## Testing Your Own Code
 
-# Or test your own compatible functions
-@pytest.mark.parametrize(
-  "nameOfTest,callablePytest"
-  , PytestFor_intInnit(callableToTest=myFunction))
-def test_myFunction(nameOfTest, callablePytest):
-    callablePytest()
+Import test suites to validate custom functions that match the expected signatures:
+
+```python
+from hunterMakesPy.tests.test_parseParameters import PytestFor_intInnit
+
+@pytest.mark.parametrize("test_name,test_func", PytestFor_intInnit(myFunction))
+def test_my_integer_validator(test_name, test_func):
+    test_func()
 ```
 
 ## My recovery

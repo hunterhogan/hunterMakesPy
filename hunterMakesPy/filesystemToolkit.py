@@ -1,6 +1,44 @@
-"""File system and module import utilities.
+"""Perform file system operations and dynamic module imports.
 
-This module provides basic file I/O utilities such as importing callables from modules, safely creating directories, and writing to files or streams (pipes).
+(AI generated docstring)
+
+You can use this module to import identifiers from modules by logical path or file path,
+safely create directories, format and write Python source code, and write strings to files
+or text streams. The module provides utilities for dynamic code loading, safe file operations,
+and automated Python source code formatting using autoflake [1] and isort [2].
+
+The import functions support both logical module paths using dot notation and direct file
+paths for loading Python modules. The directory creation function suppresses errors when
+directories already exist. The Python writing function automatically formats source code
+before writing, removing unused imports and sorting import statements according to
+configurable settings.
+
+Contents
+--------
+Functions
+	importLogicalPath2Identifier
+		Import an identifier from a module using its logical path.
+	importPathFilename2Identifier
+		Load an identifier from a Python file.
+	makeDirsSafely
+		Create parent directories for a given path safely.
+	writePython
+		Format and write Python source code to a file or text stream.
+	writeStringToHere
+		Write a string to a file or text stream.
+
+Module Constants
+	settings_autoflakeDEFAULT
+		Default configuration for autoflake formatter.
+	settings_isortDEFAULT
+		Default configuration for isort formatter.
+
+References
+----------
+[1] autoflake - Context7
+	https://github.com/PyCQA/autoflake
+[2] isort - Context7
+	https://pycqa.github.io/isort/
 
 """
 from autoflake import fix_code as autoflake_fix_code

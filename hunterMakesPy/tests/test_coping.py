@@ -270,7 +270,6 @@ def testPackageSettingsFallbackIgnoredWhenExplicitIdentifierProvided() -> None:
 		"explicit", packageSettings.identifierPackage, "PackageSettings fallback ignored"
 	)
 
-# Tests for helper functions
 @pytest.mark.parametrize(
 	"identifierPackageFALLBACK, expectedResult",
 	[

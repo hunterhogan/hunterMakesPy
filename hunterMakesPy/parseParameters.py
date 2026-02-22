@@ -1,4 +1,38 @@
-"""Provides parameter and input validation, integer parsing, and concurrency handling utilities."""
+"""Validate parameters and parse input with defensive error handling.
+
+(AI generated docstring)
+
+You can use this module to validate and convert input sequences to integers, determine
+concurrency limits based on flexible parameter specifications, and interpret string values
+as boolean or None types. The module provides strict validation functions that follow
+fail-early principles with descriptive error messages for debugging.
+
+The integer validation function accepts various numeric types including strings, floats,
+complex numbers, and binary data, converting them to integers while detecting ambiguous
+or incompatible values. The concurrency limit function interprets boolean, integer, and
+float values to compute processor counts with support for absolute limits, fractional
+allocation, and reserved-processor specifications. The string interpretation function
+attempts to parse string values as True, False, or None to handle parameter type mismatches
+gracefully.
+
+Contents
+--------
+Functions
+	defineConcurrencyLimit
+		Determine the concurrency limit based on flexible parameter specifications.
+	intInnit
+		Validate and convert input values to a list of integers.
+	oopsieKwargsie
+		Interpret a string as True, False, or None to avoid exceptions.
+
+References
+----------
+[1] multiprocessing - Context7
+	https://docs.python.org/3/library/multiprocessing.html
+[2] charset-normalizer - Context7
+	https://github.com/Ousret/charset_normalizer
+
+"""
 from collections.abc import Iterable, Sized
 from dataclasses import dataclass
 from typing import Any, TYPE_CHECKING
@@ -146,13 +180,13 @@ def defineConcurrencyLimit(*, limit: bool | float | int | None, cpuTotal: int = 
 				raise ValueError(message) from ERRORmessage
 		else:
 			limit = limitFromString
-	if isinstance(limit, float) and abs(limit) >= 1:
+	if isinstance(limit, float) and 1 <= abs(limit):
 		limit = round(limit)
 	if limit is None or limit is False or limit == 0:
 		pass
 	elif limit is True:
 		concurrencyLimit = 1
-	elif limit >= 1:
+	elif 1 <= limit:
 		concurrencyLimit = int(limit)
 	elif 0 < limit < 1:
 		concurrencyLimit = round(limit * cpuTotal)
@@ -263,7 +297,7 @@ def intInnit(listInt_Allegedly: Iterable[Any], parameterName: str | None = None,
 
 	except (TypeError, ValueError) as ERRORmessage:
 		if isinstance(ERRORmessage.args[0], ErrorMessageContext):
-			context = ERRORmessage.args[0]
+			context: ErrorMessageContext = ERRORmessage.args[0]
 			if not context.containerType:
 				context.containerType = type(listInt_Allegedly).__name__
 			message = _constructErrorMessage(context, parameterName, parameterType)
@@ -272,6 +306,7 @@ def intInnit(listInt_Allegedly: Iterable[Any], parameterName: str | None = None,
 		raise
 
 	except RuntimeError as ERRORruntime:
+		lengthCurrent: int
 		lengthInitial, lengthCurrent = ERRORruntime.args[0]
 		ERRORmessage = (
 			f"The input sequence {parameterName} was modified during iteration. "

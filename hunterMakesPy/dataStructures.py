@@ -1,4 +1,35 @@
-"""Provides utilities for string extraction from nested data structures and merges multiple dictionaries containing lists into one dictionary."""
+"""Manipulate data structures with encoding, extraction, and merging utilities.
+
+(AI generated docstring)
+
+You can use this module to transform NumPy arrays [1] into compact run-length encoded
+strings, extract strings from arbitrarily nested data structures, and merge multiple
+dictionaries with list values. The module provides specialized utilities for working with
+Cartesian mappings, heterogeneous nested data, and dictionary consolidation operations.
+
+The run-length encoding function produces self-decoding string representations optimized for
+large arrays with repetitive patterns. The string extraction function recursively traverses
+nested structures to collect all convertible string values. The dictionary merging function
+consolidates multiple dictionaries while offering optional deduplication and sorting.
+
+Contents
+--------
+Functions
+	removeExtraWhitespace
+		Remove extra whitespace from string representation of Python data structures.
+	autoDecodingRLE
+		Transform a NumPy array into a compact, self-decoding run-length encoded string representation.
+	stringItUp
+		Convert every element in input data structures to strings.
+	updateExtendPolishDictionaryLists
+		Merge multiple dictionaries with list values into a single dictionary.
+
+References
+----------
+[1] NumPy - Context7
+	https://numpy.org/doc/stable/reference/index.html
+
+"""
 from charset_normalizer import CharsetMatch
 from collections.abc import Mapping
 from hunterMakesPy import Ordinals
@@ -13,14 +44,12 @@ import sys
 if TYPE_CHECKING:
 	from collections.abc import Iterator
 
-def removeExtraWhitespace(text: str) -> str:
+def removeExtraWhitespace(string: str) -> str:
 	"""Remove extra whitespace from string representation of Python data structures."""
-	# Remove spaces after commas
-	text = regex.sub(r',\s+', ',', text)
-	# Remove spaces after opening brackets/parens
-	text = regex.sub(r'([\[\(])\s+', r'\1', text)
-	# Remove spaces before closing brackets/parens
-	return regex.sub(r'\s+([\]\)])', r'\1', text)
+	commas: str = regex.sub(r',\s+', ',', string)
+	bracketsOpening: str = regex.sub(r'([\[\(])\s+', r'\1', commas)
+	# Remove spaces before closing brackets/parentheses.
+	return regex.sub(r'\s+([\]\)])', r'\1', bracketsOpening)
 
 def autoDecodingRLE(arrayTarget: NDArray[integer[Any]], *, assumeAddSpaces: bool = False) -> str:
 	"""Transform a NumPy array into a compact, self-decoding run-length encoded string representation.
@@ -63,7 +92,7 @@ def autoDecodingRLE(arrayTarget: NDArray[integer[Any]], *, assumeAddSpaces: bool
 			"""`assumeAddSpaces` characters: `,` 1; `]*` 2."""
 			return assumeAddSpaces * (optionAsStr.count(',') + optionAsStr.count(']*') * 2) + len(optionAsStr)
 
-		if arraySlice.ndim > 1:
+		if 1 < arraySlice.ndim:
 			axisOfOperation = 0
 			return [sliceNDArrayToNestedLists(arraySlice[index]) for index in range(arraySlice.shape[axisOfOperation])]
 		if arraySlice.ndim == 1:
@@ -74,20 +103,20 @@ def autoDecodingRLE(arrayTarget: NDArray[integer[Any]], *, assumeAddSpaces: bool
 					addMe = cache_consecutiveGroup_addMe[consecutiveGroup]
 				else:
 					ImaSerious: list[int] = list(consecutiveGroup)
-					ImaRange = [range(ImaSerious[0], ImaSerious[-1] + 1)]
-					ImaRangeAsStr = removeExtraWhitespace(str(ImaRange)).replace('range(0,', 'range(').replace('range', '*range')
+					ImaRange: list[range] = [range(ImaSerious[0], ImaSerious[-1] + 1)]
+					ImaRangeAsStr: str = removeExtraWhitespace(str(ImaRange)).replace('range(0,', 'range(').replace('range', '*range')
 
 					option1 = ImaRange
 					option1AsStr = ImaRangeAsStr
 					option2 = ImaSerious
-					option2AsStr = None
+					option2AsStr: str | None = None
 
 					# alpha, potential function
-					option1AsStr = option1AsStr or removeExtraWhitespace(str(option1))
-					lengthOption1 = getLengthOption(option1AsStr)
+					option1AsStr: str = option1AsStr or removeExtraWhitespace(str(option1))
+					lengthOption1: int = getLengthOption(option1AsStr)
 
 					option2AsStr = option2AsStr or removeExtraWhitespace(str(option2))
-					lengthOption2 = getLengthOption(option2AsStr)
+					lengthOption2: int = getLengthOption(option2AsStr)
 
 					if lengthOption1 < lengthOption2:
 						addMe = option1
@@ -104,9 +133,9 @@ def autoDecodingRLE(arrayTarget: NDArray[integer[Any]], *, assumeAddSpaces: bool
 				if malkovichGrouped in cache_malkovichGrouped_addMe:
 					addMe = cache_malkovichGrouped_addMe[malkovichGrouped]
 				else:
-					lengthMalkovich = malkovichGrouped[-1]
-					malkovichAsList = list(more_itertools.run_length.decode([malkovichGrouped]))
-					malkovichMalkovich = f"[{malkovichGrouped[0]}]*{lengthMalkovich}"
+					lengthMalkovich: int = malkovichGrouped[-1]
+					malkovichAsList: list[int | range] = list(more_itertools.run_length.decode([malkovichGrouped]))
+					malkovichMalkovich: str = f"[{malkovichGrouped[0]}]*{lengthMalkovich}"
 
 					option1 = [malkovichGrouped]
 					option1AsStr = malkovichMalkovich
@@ -134,9 +163,9 @@ def autoDecodingRLE(arrayTarget: NDArray[integer[Any]], *, assumeAddSpaces: bool
 
 	arrayAsNestedLists = sliceNDArrayToNestedLists(arrayTarget)
 
-	arrayAsStr = removeExtraWhitespace(str(arrayAsNestedLists))
+	arrayAsStr: str = removeExtraWhitespace(str(arrayAsNestedLists))
 
-	patternRegex = regex.compile(
+	patternRegex: regex.Pattern[str] = regex.compile(
 		"(?<!rang)(?:"
 		# Pattern 1: Comma ahead, bracket behind  # noqa: ERA001
 		"(?P<joinAhead>,)\\((?P<malkovich>\\d+),(?P<multiply>\\d+)\\)(?P<bracketBehind>])|"
@@ -151,15 +180,15 @@ def autoDecodingRLE(arrayTarget: NDArray[integer[Any]], *, assumeAddSpaces: bool
 
 	def replacementByContext(match: regex.Match[str]) -> str:
 		"""Generate replacement string based on context patterns."""
-		elephino = match.groupdict()
-		joinAhead = elephino.get('joinAhead') or elephino.get('joinAheadJoinAhead')
-		malkovich = elephino.get('malkovich') or elephino.get('malkovichMalkovich') or elephino.get('malkovichMalkovichMalkovich') or elephino.get('malkovichMalkovichMalkovichMalkovich')
-		multiply = elephino.get('multiply') or elephino.get('multiplyIDK') or elephino.get('multiply_whatever') or elephino.get('multiplyOrSomething')
-		joinBehind = elephino.get('joinBehind') or elephino.get('joinBehindJoinBehind')
+		elephino: dict[str, str | None] = match.groupdict()
+		joinAhead: str | None = elephino.get('joinAhead') or elephino.get('joinAheadJoinAhead')
+		malkovich: str | None = elephino.get('malkovich') or elephino.get('malkovichMalkovich') or elephino.get('malkovichMalkovichMalkovich') or elephino.get('malkovichMalkovichMalkovichMalkovich')
+		multiply: str | None = elephino.get('multiply') or elephino.get('multiplyIDK') or elephino.get('multiply_whatever') or elephino.get('multiplyOrSomething')
+		joinBehind: str | None = elephino.get('joinBehind') or elephino.get('joinBehindJoinBehind')
 
-		replaceAhead = "]+[" if joinAhead == "," else "["
+		replaceAhead: str = "]+[" if joinAhead == "," else "["
 
-		replaceBehind = "+[" if joinBehind == "," else ""
+		replaceBehind: str = "+[" if joinBehind == "," else ""
 
 		return f"{replaceAhead}{malkovich}]*{multiply}{replaceBehind}"
 
@@ -186,7 +215,7 @@ def stringItUp(*scrapPile: Any) -> list[str]:
 		(list2strung2up) A `list` of string versions of all convertible elements.
 
 	"""
-	scrap = None
+	scrap: Any = None
 	listStrungUp: list[str] = []
 
 	def drill(KitKat: Any) -> None:

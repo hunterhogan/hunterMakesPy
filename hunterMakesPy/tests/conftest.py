@@ -3,7 +3,7 @@
 (AI generated docstring)
 
 This module provides shared fixtures and utility functions for the test suite,
-including data paths, source code samples, and standardized assertion helpers.
+including data paths, source code samples, and standardized assertion functions.
 
 """
 # pyright: standard

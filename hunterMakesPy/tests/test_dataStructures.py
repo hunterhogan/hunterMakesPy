@@ -154,7 +154,6 @@ def testAutoDecodingRLE(description: str, value_arrayTarget: NDArray[numpy.integ
 	"""
 	standardizedEqualTo(expected, autoDecodingRLE, value_arrayTarget)
 
-# Helper functions for generating RLE test data
 def generateCartesianMapping(dimensions: tuple[int, int], formula: Callable[[int, int], int]) -> NDArray[numpy.int32]:
 	"""Generate a 2D cartesian mapping based on a formula.
 

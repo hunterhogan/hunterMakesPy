@@ -7,7 +7,7 @@ import sys
 #======== Stolen, uh, I mean copied from typeshed:stdlib\_typeshed\__init__.pyi ========
 type AnnotationForm = Any
 
-if sys.version_info >= (3, 14):
+if (3, 14) <= sys.version_info:
 	from annotationlib import Format
 
 # NOTE These return annotations, which can be arbitrary objects
@@ -27,7 +27,7 @@ class CallableFunction[**P, R](Protocol):
 
 # NOTE: The eehhhh, IDK... section
 	__doc__: str | None
-	__wrapped__: Any  # For functools.wraps support
+	__wrapped__: Any  # Allegedly, for functools.wraps support
 # NOTE: End eehhhh, IDK... section
 
 	@property
@@ -44,7 +44,7 @@ class CallableFunction[**P, R](Protocol):
 	__name__: str
 	__qualname__: str
 	__annotations__: dict[str, AnnotationForm]
-	if sys.version_info >= (3, 14):
+	if (3, 14) <= sys.version_info:
 		__annotate__: AnnotateFunc | None
 	__kwdefaults__: dict[str, Any] | None
 	@property
