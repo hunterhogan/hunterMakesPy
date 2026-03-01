@@ -25,11 +25,6 @@ class CallableFunction[**P, R](Protocol):
 	Note: @runtime_checkable only validates attribute presence, not signatures.
 	"""
 
-# NOTE: The eehhhh, IDK... section
-	__doc__: str | None
-	__wrapped__: Any  # Allegedly, for functools.wraps support
-# NOTE: End eehhhh, IDK... section
-
 	@property
 	def __closure__(self) -> tuple[CellType, ...] | None:
 		"""Tuple of cells that contain bindings for the function's free variables."""
