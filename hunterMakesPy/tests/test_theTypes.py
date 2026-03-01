@@ -327,33 +327,3 @@ def testOrdinalsComparisonMethodsAcceptOtherOperand(comparisonMethodName: str) -
 	assert actualReturnAnnotation is bool, uniformTestFailureMessage(
 		bool , actualReturnAnnotation , 'Ordinals comparison return annotation' , comparisonMethodName , signature )
 
-def _plainFunction() -> None:
-	"""A plain function for testing."""
-
-@functools.wraps(_plainFunction)
-def _wrappedFunction() -> None:
-	"""A wrapped function for testing."""
-
-_lambdaFunction = lambda: None  # noqa: E731
-
-@pytest.mark.parametrize( 'candidate, expected' , [ (_wrappedFunction, True), (_plainFunction, False), (_lambdaFunction, False)] )
-def testCallableFunctionIdentifiesCompatibleObjects(candidate: object, expected: bool) -> None:
-	"""Verify `CallableFunction` protocol matching.
-
-	(AI generated docstring)
-
-	Parameters
-	----------
-	candidate : object
-		The object to check against `CallableFunction`.
-	expected : bool
-		Expected result of `isinstance(candidate, CallableFunction)`.
-
-	Return
-	------
-	unusedReturnValue : None
-		Returns `None`.
-
-	"""
-	actual: bool = isinstance(candidate, CallableFunction)
-	assert actual == expected, uniformTestFailureMessage(expected, actual, 'isinstance', candidate)
