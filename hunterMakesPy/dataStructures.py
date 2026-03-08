@@ -257,9 +257,7 @@ def stringItUp(*scrapPile: Any) -> list[str]:
 		listStrungUp.append(repr(scrap))
 	return listStrungUp
 
-小于 = TypeVar('小于', bound=Ordinals)
-
-def updateExtendPolishDictionaryLists(*dictionaryLists: Mapping[str, list[小于] | set[小于] | tuple[小于, ...]], destroyDuplicates: bool = False, reorderLists: bool = False, killErroneousDataTypes: bool = False) -> dict[str, list[小于]]:
+def updateExtendPolishDictionaryLists[小于: Ordinals](*dictionaryLists: Mapping[str, list[小于] | set[小于] | tuple[小于, ...]], destroyDuplicates: bool = False, reorderLists: bool = False, killErroneousDataTypes: bool = False) -> dict[str, list[小于]]:
 	"""Merge multiple dictionaries with `list` values into a single dictionary with the `list` values merged.
 
 	Plus options to destroy duplicates, sort `list` values, and handle erroneous data types.

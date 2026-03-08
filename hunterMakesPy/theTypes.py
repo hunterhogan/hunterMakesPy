@@ -1,5 +1,5 @@
 """I type, you type, we all `type` for `theTypes`."""
-from hunterMakesPy.Z0Z_CallableFunction import CallableFunction as CallableFunction
+from hunterMakesPy.theTypesCallableFunction import CallableFunction as CallableFunction
 from typing import Protocol, Self
 
 type identifierDotAttribute = str

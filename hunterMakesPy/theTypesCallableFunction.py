@@ -1,4 +1,4 @@
-"""Protocols for callable functions with full type safety."""
+"""Prototype for callable functions with full type safety."""
 from collections.abc import Callable
 from types import CellType, CodeType, MethodType
 from typing import Any, overload, ParamSpec, Protocol, runtime_checkable, Self, TypeVar, TypeVarTuple

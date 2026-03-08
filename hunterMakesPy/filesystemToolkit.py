@@ -46,7 +46,7 @@ from hunterMakesPy import identifierDotAttribute
 from isort import code as isort_code
 from os import PathLike
 from pathlib import Path, PurePath
-from typing import Any, TYPE_CHECKING, TypeVar
+from typing import Any, TYPE_CHECKING, TypeVar, overload
 import contextlib
 import importlib
 import importlib.util
@@ -56,9 +56,7 @@ if TYPE_CHECKING:
 	from importlib.machinery import ModuleSpec
 	from types import ModuleType
 
-归个 = TypeVar('归个')
-
-def importLogicalPath2Identifier(logicalPathModule: identifierDotAttribute, identifier: str, packageIdentifierIfRelative: str | None = None) -> 归个:
+def importLogicalPath2Identifier[归个](logicalPathModule: identifierDotAttribute, identifier: str, packageIdentifierIfRelative: str | None = None) -> 归个:
 	"""Import an `identifier`, such as a function or `class`, from a module using its logical path.
 
 	This function imports a module and retrieves a specific attribute (function, class, or other object) from that module.
@@ -81,7 +79,7 @@ def importLogicalPath2Identifier(logicalPathModule: identifierDotAttribute, iden
 	moduleImported: ModuleType = importlib.import_module(logicalPathModule, packageIdentifierIfRelative)
 	return getattr(moduleImported, identifier)
 
-def importPathFilename2Identifier(pathFilename: PathLike[Any] | PurePath, identifier: str, moduleIdentifier: str | None = None) -> 归个:
+def importPathFilename2Identifier[归个](pathFilename: PathLike[Any] | PurePath, identifier: str, moduleIdentifier: str | None = None) -> 归个:
 	"""Load an identifier from a Python file.
 
 	This function imports a specified Python file as a module, extracts an identifier from it by name, and returns that
@@ -120,6 +118,7 @@ def importPathFilename2Identifier(pathFilename: PathLike[Any] | PurePath, identi
 	importlibSpecification.loader.exec_module(moduleImported_jk_hahaha)
 	return getattr(moduleImported_jk_hahaha, identifier)
 
+# SEMIOTICS "Dirs"
 def makeDirsSafely(pathFilename: Any) -> None:
 	"""Create parent directories for a given path safely.
 
@@ -159,7 +158,11 @@ settings_isortDEFAULT: dict[str, bool | int | str | list[str]] = {
 	"use_parentheses": True,
 }
 
-def writePython(pythonSource: str, pathFilename: PathLike[Any] | PurePath | io.TextIOBase, settings: dict[str, dict[str, Any]] | None = None) -> None:
+@overload
+def writePython(pythonSource: str, pathFilename: PathLike[Any] | PurePath, settings: dict[str, dict[str, Any]] | None = None) -> Path: ...
+@overload
+def writePython(pythonSource: str, pathFilename: io.TextIOBase, settings: dict[str, dict[str, Any]] | None = None) ->  io.TextIOBase: ...
+def writePython(pythonSource: str, pathFilename: PathLike[Any] | PurePath | io.TextIOBase, settings: dict[str, dict[str, Any]] | None = None) -> Path | io.TextIOBase:
 	"""Format and write Python source code to a file or text stream.
 
 	(AI generated docstring)
@@ -187,9 +190,13 @@ def writePython(pythonSource: str, pathFilename: PathLike[Any] | PurePath | io.T
 
 	settings_isort: dict[str, Any] = settings.get('isort', settings_isortDEFAULT)
 	pythonSource = isort_code(pythonSource, **settings_isort)
-	writeStringToHere(pythonSource + '\n', pathFilename)
+	return writeStringToHere(pythonSource + '\n', pathFilename)
 
-def writeStringToHere(this: str, pathFilename: PathLike[Any] | PurePath | io.TextIOBase) -> None:
+@overload
+def writeStringToHere(this: str, pathFilename: PathLike[Any] | PurePath) -> Path: ...
+@overload
+def writeStringToHere(this: str, pathFilename: io.TextIOBase) -> io.TextIOBase: ...
+def writeStringToHere(this: str, pathFilename: PathLike[Any] | PurePath | io.TextIOBase) -> Path | io.TextIOBase:
 	"""Write a string to a file or text stream.
 
 	This function writes a string to either a file path or an open text stream. For file paths, it creates parent directories as
@@ -210,4 +217,4 @@ def writeStringToHere(this: str, pathFilename: PathLike[Any] | PurePath | io.Tex
 		pathFilename = Path(pathFilename)
 		makeDirsSafely(pathFilename)
 		pathFilename.write_text(str(this), encoding='utf-8')
-
+	return pathFilename
