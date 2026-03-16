@@ -8,4 +8,6 @@ frozensets
 kwdefaults
 leetspeak
 tobytes
+Transformee
+transformees
 Truncator

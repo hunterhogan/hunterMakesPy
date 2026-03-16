@@ -23,6 +23,12 @@ Example:
 See Also:
     toolz.functoolz.curry
 """
+from . import operator
+from .exceptions import merge, merge_with
+from humpy_toolz import (
+	apply, comp, complement, compose, compose_left, concat, concatv, count, curry, diff, first, flip, frequencies,
+	identity, interleave, isdistinct, isiterable, juxt, last, memoize, merge_sorted, peek, pipe, second, thread_first,
+	thread_last)
 import humpy_toolz
 
 accumulate = humpy_toolz.curry(humpy_toolz.accumulate)

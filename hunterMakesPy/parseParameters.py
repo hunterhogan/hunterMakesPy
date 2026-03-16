@@ -198,6 +198,7 @@ def defineConcurrencyLimit(*, limit: bool | float | int | None, cpuTotal: int = 
 	return max(int(concurrencyLimit), 1)
 
 # ruff: noqa: TRY301
+
 def intInnit(listInt_Allegedly: Iterable[Any], parameterName: str | None = None, parameterType: type[Any] | None = None) -> list[int]:
 	"""Validate and convert input values to a `list` of integers.
 

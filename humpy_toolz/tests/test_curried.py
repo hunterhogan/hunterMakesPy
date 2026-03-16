@@ -29,7 +29,7 @@ def test_reduce():
     assert reduce(add)((1, 2, 3)) == 6
 
 def test_module_name():
-    assert humpy_toolz.curried.__name__ == 'toolz.curried'
+    assert humpy_toolz.curried.__name__ == 'humpy_toolz.curried'
 
 def should_curry(func):
     if not callable(func) or isinstance(func, humpy_toolz.curry):
@@ -59,7 +59,7 @@ def test_curried_operator():
     assert len(set(vars(cop)) & {'add', 'sub', 'mul'}) == 3
 
 def test_curried_namespace():
-    exceptions = import_module('toolz.curried.exceptions')
+    exceptions = import_module('humpy_toolz.curried.exceptions')
     namespace = {}
 
     def curry_namespace(ns):

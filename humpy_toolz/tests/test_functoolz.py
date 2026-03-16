@@ -272,8 +272,8 @@ def test_curry_attributes_writable():
         assert f.__name__ == f.func_name
 
 def test_curry_module():
-    from toolz.curried.exceptions import merge
-    assert merge.__module__ == 'toolz.curried.exceptions'
+    from humpy_toolz.curried.exceptions import merge
+    assert merge.__module__ == 'humpy_toolz.curried.exceptions'
 
 def test_curry_comparable():
 

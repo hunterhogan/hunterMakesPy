@@ -1,24 +1,25 @@
 import humpy_toolz
 
 def test_tlz():
-    import tlz
-    tlz.curry
-    tlz.functoolz.curry
-    assert tlz.__package__ == 'tlz'
-    assert tlz.__name__ == 'tlz'
-    import tlz.curried
-    assert tlz.curried.__package__ == 'tlz.curried'
-    assert tlz.curried.__name__ == 'tlz.curried'
-    tlz.curried.curry
-    import tlz.curried.operator
-    assert tlz.curried.operator.__package__ in (None, 'tlz.curried')
-    assert tlz.curried.operator.__name__ == 'tlz.curried.operator'
-    assert tlz.functoolz.__name__ == 'tlz.functoolz'
-    m1 = tlz.functoolz
-    import tlz.functoolz as m2
+    import humpy_tlz
+    humpy_tlz.curry
+    humpy_tlz.functoolz.curry
+    assert humpy_tlz.__package__ == 'humpy_tlz'
+    assert humpy_tlz.__name__ == 'humpy_tlz'
+    import humpy_tlz.curried
+    assert humpy_tlz.curried.__package__ == 'humpy_tlz.curried'
+    assert humpy_tlz.curried.__name__ == 'humpy_tlz.curried'
+    humpy_tlz.curried.curry
+    import humpy_tlz.curried.operator
+    assert humpy_tlz.curried.operator.__package__ in (None, 'humpy_tlz.curried')
+    assert humpy_tlz.curried.operator.__name__ == 'humpy_tlz.curried.operator'
+    assert humpy_tlz.functoolz.__name__ == 'humpy_tlz.functoolz'
+    m1 = humpy_tlz.functoolz
+    import humpy_tlz.functoolz as m2
     assert m1 is m2
     import tlz.sandbox
     try:
+        import tlzthisisabadname.curried
         1 / 0
     except ImportError:
         pass
@@ -32,9 +33,9 @@ def test_tlz():
         1 / 0
     except ImportError:
         pass
-    assert humpy_toolz.__package__ == 'toolz'
-    assert humpy_toolz.curried.__package__ == 'toolz.curried'
-    assert humpy_toolz.functoolz.__name__ == 'toolz.functoolz'
+    assert humpy_toolz.__package__ == 'humpy_toolz'
+    assert humpy_toolz.curried.__package__ == 'humpy_toolz.curried'
+    assert humpy_toolz.functoolz.__name__ == 'humpy_toolz.functoolz'
     try:
         import cytoolz
         assert cytoolz.__package__ == 'cytoolz'
@@ -42,10 +43,10 @@ def test_tlz():
         assert cytoolz.functoolz.__name__ == 'cytoolz.functoolz'
     except ImportError:
         pass
-    if hasattr(tlz, '__file__'):
-        assert tlz.__file__ == humpy_toolz.__file__
-    if hasattr(tlz.functoolz, '__file__'):
-        assert tlz.functoolz.__file__ == humpy_toolz.functoolz.__file__
-    assert tlz.pipe is humpy_toolz.pipe
-    assert 'tlz' in tlz.__doc__
-    assert tlz.curried.__doc__ is not None
+    if hasattr(humpy_tlz, '__file__'):
+        assert humpy_tlz.__file__ == humpy_toolz.__file__
+    if hasattr(humpy_tlz.functoolz, '__file__'):
+        assert humpy_tlz.functoolz.__file__ == humpy_toolz.functoolz.__file__
+    assert humpy_tlz.pipe is humpy_toolz.pipe
+    assert 'humpy_tlz' in humpy_tlz.__doc__
+    assert humpy_tlz.curried.__doc__ is not None

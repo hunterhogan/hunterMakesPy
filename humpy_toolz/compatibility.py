@@ -18,4 +18,5 @@ from itertools import filterfalse, zip_longest
 iteritems = operator.methodcaller('items')
 iterkeys = operator.methodcaller('keys')
 itervalues = operator.methodcaller('values')
+from collections.abc import Sequence
 

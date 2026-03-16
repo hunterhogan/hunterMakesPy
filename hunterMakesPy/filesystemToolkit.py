@@ -184,7 +184,7 @@ def writePython(pythonSource: str, pathFilename: PathLike[Any] | PurePath | io.T
 	"""
 	if settings is None:
 		settings = {}
-
+# TODO The formatting system needs a complete rethink.
 	settings_autoflake: dict[str, Any] = settings.get('autoflake', settings_autoflakeDEFAULT)
 	pythonSource = autoflake_fix_code(pythonSource, **settings_autoflake)
 
