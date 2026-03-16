@@ -6,9 +6,6 @@
             "packageManager": "ms-python.python:pip"
         }
     ],
-    "python.testing.pytestArgs": [
-        "hunterMakesPy"
-    ],
     "python.testing.unittestEnabled": false,
     "python.testing.pytestEnabled": true
 }

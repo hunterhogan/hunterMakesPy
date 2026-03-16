@@ -53,7 +53,7 @@ dependencies = [
   "more_itertools",
   "numpy",
 ]
-optional-dependencies = { testing = [
+optional-dependencies = { development = ["astToolkit"], testing = [
   "pytest",
   "pytest-cov",
   "pytest-xdist",
@@ -73,7 +73,8 @@ run = { branch = true, concurrency = [
 ], data_file = "tests/coverage/.coverage", omit = [
   "tests/*",
   "hunterMakesPy/tests/*",
-  "hunterMakesPy/pytestForYourUse.py",
+  "humpy_toolz/sandbox/tests",
+  "humpy_toolz/tests",
 ], parallel = true, source = [
   ".",
 ] }
@@ -81,11 +82,22 @@ run = { branch = true, concurrency = [
 [tool.pytest]
 addopts = ["--color=auto"]
 log_auto_indent = "On"
-testpaths = ["hunterMakesPy/tests"]
+testpaths = [
+  "humpy_toolz/sandbox/tests",
+  "humpy_toolz/tests",
+  "hunterMakesPy/tests",
+]
 
 [tool.setuptools]
 package-data = { "*" = ["py.typed"] }
-packages = { find = {} }
+packages = [
+  "hunterMakesPy",
+  "humpy_toolz.curried",
+  "humpy_toolz.sandbox.tests",
+  "humpy_toolz.sandbox",
+  "humpy_toolz.tests",
+  "humpy_toolz",
+]
 
 [tool.updateCitation]
 filenameCitationDOTcff = "CITATION.cff"
