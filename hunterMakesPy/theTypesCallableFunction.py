@@ -4,7 +4,7 @@ from types import CellType, CodeType, MethodType
 from typing import Any, overload, ParamSpec, Protocol, runtime_checkable, Self, TypeVar, TypeVarTuple
 import sys
 
-#======== Stolen, uh, I mean copied from typeshed:stdlib\_typeshed\__init__.pyi ========
+#======== Copied from typeshed:stdlib\_typeshed\__init__.pyi ========
 type AnnotationForm = Any
 
 if (3, 14) <= sys.version_info:
@@ -13,7 +13,7 @@ if (3, 14) <= sys.version_info:
 # NOTE These return annotations, which can be arbitrary objects
 	type AnnotateFunc = Callable[[Format], dict[str, AnnotationForm]]
 	type EvaluateFunc = Callable[[Format], AnnotationForm]
-#======== End stolen, uh, I mean copied from typeshed:stdlib\_typeshed\__init__.pyi ========
+#======== End Copied from typeshed:stdlib\_typeshed\__init__.pyi ========
 
 @runtime_checkable
 class CallableFunction[**P, R](Protocol):

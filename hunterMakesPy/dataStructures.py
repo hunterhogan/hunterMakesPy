@@ -35,7 +35,7 @@ from collections.abc import Mapping
 from hunterMakesPy import Ordinals
 from numpy import integer
 from numpy.typing import NDArray
-from typing import Any, cast, TYPE_CHECKING, TypeVar
+from typing import Any, cast, TYPE_CHECKING
 import charset_normalizer
 import more_itertools
 import re as regex

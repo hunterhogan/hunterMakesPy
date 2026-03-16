@@ -46,7 +46,7 @@ from hunterMakesPy import identifierDotAttribute
 from isort import code as isort_code
 from os import PathLike
 from pathlib import Path, PurePath
-from typing import Any, TYPE_CHECKING, TypeVar, overload
+from typing import Any, overload, TYPE_CHECKING
 import contextlib
 import importlib
 import importlib.util

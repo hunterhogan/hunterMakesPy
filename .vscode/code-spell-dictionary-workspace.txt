@@ -1,7 +1,11 @@
 arctan
+backgroundm
 comparables
+connectee
 Dact
 eehhhh
 frozensets
 kwdefaults
+leetspeak
 tobytes
+Truncator

@@ -85,7 +85,7 @@ testpaths = ["hunterMakesPy/tests"]
 
 [tool.setuptools]
 package-data = { "*" = ["py.typed"] }
-packages = { find = {  } }
+packages = { find = {} }
 
 [tool.updateCitation]
 filenameCitationDOTcff = "CITATION.cff"
