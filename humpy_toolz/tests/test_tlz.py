@@ -17,7 +17,7 @@ def test_tlz():
     m1 = humpy_tlz.functoolz
     import humpy_tlz.functoolz as m2
     assert m1 is m2
-    import tlz.sandbox
+    import humpy_tlz.sandbox
     try:
         import tlzthisisabadname.curried
         1 / 0

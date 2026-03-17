@@ -1,9 +1,11 @@
+from humpy_toolz import functoolz
+
+__version__ = '1.1.0'
 from .dicttoolz import *
 from .functoolz import *
 from .itertoolz import *
 from .recipes import *
 from functools import partial, reduce
-from humpy_toolz import functoolz
 
 sorted = sorted
 map = map

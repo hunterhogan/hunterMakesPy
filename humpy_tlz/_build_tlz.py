@@ -5,7 +5,7 @@ import sys
 import types
 
 class TlzLoader:
-    """ Finds and loads ``tlz`` modules when added to sys.meta_path"""
+    """ Finds and loads ``humpy_tlz`` modules when added to sys.meta_path"""
 
     def __init__(self):
         self.always_from_toolz = {humpy_toolz.pipe}

@@ -1,6 +1,6 @@
 [project]
 name = "hunterMakesPy"
-version = "0.4.3"
+version = "0.4.4"
 description = "Easy Python functions making making functional Python functions easier."
 readme = "README.md"
 requires-python = ">=3.12"
@@ -92,11 +92,8 @@ testpaths = [
 package-data = { "*" = ["py.typed"] }
 packages = [
   "hunterMakesPy",
-  "humpy_toolz.curried",
-  "humpy_toolz.sandbox.tests",
-  "humpy_toolz.sandbox",
-  "humpy_toolz.tests",
   "humpy_toolz",
+  "humpy_tlz",
 ]
 
 [tool.updateCitation]
