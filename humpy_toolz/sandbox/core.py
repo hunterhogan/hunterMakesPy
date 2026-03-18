@@ -6,7 +6,7 @@ class EqualityHashKey:
 
     This may be used to create hash keys for otherwise unhashable types:
 
-    >>> from toolz import curry
+    >>> from humpy_toolz import curry
     >>> EqualityHashDefault = curry(EqualityHashKey, None)
     >>> set(map(EqualityHashDefault, [[], (), [1], [1]]))  # doctest: +SKIP
     {=[]=, =()=, =[1]=}
@@ -31,7 +31,7 @@ class EqualityHashKey:
     is complicated or unavailable.  For example, the following returns all
     unique values based on equality:
 
-    >>> from toolz import unique
+    >>> from humpy_toolz import unique
     >>> vals = [[], [], (), [1], [1], [2], {}, {}, {}]
     >>> list(unique(vals, key=EqualityHashDefault))
     [[], (), [1], [2], {}]

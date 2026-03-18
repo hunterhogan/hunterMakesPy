@@ -1,6 +1,6 @@
 [project]
 name = "hunterMakesPy"
-version = "0.4.4"
+version = "0.4.5"
 description = "Easy Python functions making making functional Python functions easier."
 readme = "README.md"
 requires-python = ">=3.12"
@@ -10,6 +10,7 @@ keywords = [
   "attribute loading",
   "concurrency limit",
   "configuration",
+  "cytoolz",
   "defensive programming",
   "dictionary merging",
   "directory creation",
@@ -25,6 +26,7 @@ keywords = [
   "pytest",
   "string extraction",
   "test utilities",
+  "toolz",
 ]
 classifiers = [
   "Development Status :: 5 - Production/Stable",
@@ -60,7 +62,12 @@ optional-dependencies = { development = ["astToolkit"], testing = [
 ] }
 
 [build-system]
-requires = ["setuptools", "setuptools-scm"]
+requires = [
+  "Cython",
+  "setuptools",
+  "setuptools_git_versioning",
+  "setuptools-scm"
+]
 build-backend = "setuptools.build_meta"
 
 [tool.coverage]
@@ -75,6 +82,7 @@ run = { branch = true, concurrency = [
   "hunterMakesPy/tests/*",
   "humpy_toolz/sandbox/tests",
   "humpy_toolz/tests",
+  "humpy_cytoolz/tests",
 ], parallel = true, source = [
   ".",
 ] }
@@ -83,6 +91,7 @@ run = { branch = true, concurrency = [
 addopts = ["--color=auto"]
 log_auto_indent = "On"
 testpaths = [
+  "humpy_cytoolz/tests",
   "humpy_toolz/sandbox/tests",
   "humpy_toolz/tests",
   "hunterMakesPy/tests",
@@ -91,9 +100,16 @@ testpaths = [
 [tool.setuptools]
 package-data = { "*" = ["py.typed"] }
 packages = [
-  "hunterMakesPy",
-  "humpy_toolz",
+  "humpy_cytoolz.curried",
+  "humpy_cytoolz.tests",
+  "humpy_cytoolz",
   "humpy_tlz",
+  "humpy_toolz.curried",
+  "humpy_toolz.sandbox.tests",
+  "humpy_toolz.sandbox",
+  "humpy_toolz.tests",
+  "humpy_toolz",
+  "hunterMakesPy",
 ]
 
 [tool.updateCitation]

@@ -1,7 +1,7 @@
-from humpy_toolz import *
-from humpy_toolz.utils import raises
-import humpy_toolz
-import humpy_toolz.curried
+from humpy_cytoolz import *
+from humpy_cytoolz.utils import raises
+import humpy_cytoolz
+import humpy_cytoolz.curried
 import pickle
 
 def test_compose():
@@ -29,7 +29,7 @@ def test_complement():
     assert f(False) == g(False)
 
 def test_instanceproperty():
-    p = humpy_toolz.functoolz.InstanceProperty(bool)
+    p = humpy_cytoolz.functoolz.InstanceProperty(bool)
     assert p.__get__(None) is None
     assert p.__get__(0) is False
     assert p.__get__(1) is True
@@ -42,8 +42,8 @@ def f(x, y):
     return (x, y)
 
 def test_flip():
-    flip = pickle.loads(pickle.dumps(humpy_toolz.functoolz.flip))
-    assert flip is humpy_toolz.functoolz.flip
+    flip = pickle.loads(pickle.dumps(humpy_cytoolz.functoolz.flip))
+    assert flip is humpy_cytoolz.functoolz.flip
     g1 = flip(f)
     g2 = pickle.loads(pickle.dumps(g1))
     assert g1(1, 2) == g2(1, 2) == f(2, 1)
@@ -52,17 +52,17 @@ def test_flip():
     assert g1(2) == g2(2) == f(2, 1)
 
 def test_curried_exceptions():
-    merge = pickle.loads(pickle.dumps(humpy_toolz.curried.merge))
-    assert merge is humpy_toolz.curried.merge
+    merge = pickle.loads(pickle.dumps(humpy_cytoolz.curried.merge))
+    assert merge is humpy_cytoolz.curried.merge
 
-@humpy_toolz.curry
+@humpy_cytoolz.curry
 class GlobalCurried:
 
     def __init__(self, x, y):
         self.x = x
         self.y = y
 
-    @humpy_toolz.curry
+    @humpy_cytoolz.curry
     def f1(self, a, b):
         return self.x + self.y + a + b
 
@@ -73,14 +73,14 @@ class GlobalCurried:
         """Allow us to serialize instances of GlobalCurried"""
         return (GlobalCurried, (self.x, self.y))
 
-    @humpy_toolz.curry
+    @humpy_cytoolz.curry
     class NestedCurried:
 
         def __init__(self, x, y):
             self.x = x
             self.y = y
 
-        @humpy_toolz.curry
+        @humpy_cytoolz.curry
         def f2(self, a, b):
             return self.x + self.y + a + b
 
@@ -97,7 +97,7 @@ class GlobalCurried:
             self.x = x
             self.y = y
 
-        @humpy_toolz.curry
+        @humpy_cytoolz.curry
         def f3(self, a, b):
             return self.x + self.y + a + b
 
@@ -132,7 +132,7 @@ def test_curried_qualname():
 
 def test_curried_bad_qualname():
 
-    @humpy_toolz.curry
+    @humpy_cytoolz.curry
     class Bad:
-        __qualname__ = 'toolz.functoolz.not.a.valid.path'
+        __qualname__ = 'cytoolz.functoolz.not.a.valid.path'
     assert raises(pickle.PicklingError, lambda: pickle.dumps(Bad))

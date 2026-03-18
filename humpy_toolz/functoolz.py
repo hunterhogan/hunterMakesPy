@@ -177,7 +177,7 @@ class curry:
     5
 
     See Also:
-        toolz.curried - namespace of curried functions
+        humpy_toolz.curried - namespace of curried functions
                         https://toolz.readthedocs.io/en/latest/curry.html
     """
 
@@ -621,8 +621,8 @@ def do(func, x):
     Logging functions can be made by composing ``do`` with a storage function
     like ``list.append`` or ``file.write``
 
-    >>> from toolz import compose
-    >>> from toolz.curried import do
+    >>> from humpy_toolz import compose
+    >>> from humpy_toolz.curried import do
 
     >>> log = []
     >>> inc = lambda x: x + 1
@@ -756,7 +756,7 @@ if PYPY:
             val = builtin_func(*builtin_args)
             return (None, val)
         return _check_sigspec_orig(sigspec, func, builtin_func, *builtin_args)
-_check_sigspec.__doc__ = " Private function to aid in introspection compatibly across Python versions.\n\nIf a callable doesn't have a signature (Python 3) or an argspec (Python 2),\nthe signature registry in toolz._signatures is used.\n"
+_check_sigspec.__doc__ = " Private function to aid in introspection compatibly across Python versions.\n\nIf a callable doesn't have a signature (Python 3) or an argspec (Python 2),\nthe signature registry in humpy_toolz._signatures is used.\n"
 
 def num_required_args(func, sigspec=None):
     sigspec, rv = _check_sigspec(sigspec, func, _sigs._num_required_args, func)

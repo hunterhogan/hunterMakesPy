@@ -1,0 +1,16 @@
+recursive-include humpy_cytoolz *
+recursive-include humpy_tlz *
+recursive-include humpy_toolz *
+recursive-include hunterMakesPy *
+include CITATION.cff
+include humpy_cytoolz/*.c
+include humpy_cytoolz/*.pxd
+include humpy_cytoolz/*.pyx
+include humpy_cytoolz/Notice_of_Copyright.txt
+include humpy_toolz/Notice_of_Copyright.txt
+include LICENSE
+include MANIFEST.in
+include pyproject.toml
+include README.md
+include setup.py
+global-exclude *.pyc *~ *.bak *.swp *.swo *.pyo *.so

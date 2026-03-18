@@ -14,8 +14,8 @@ class TlzLoader:
         rv = {}
         package, dot, submodules = fullname.partition('.')
         try:
-            module_name = ''.join(['cytoolz', dot, submodules])
-            rv['cytoolz'] = import_module(module_name)
+            module_name = ''.join(['humpy_cytoolz', dot, submodules])
+            rv['humpy_cytoolz'] = import_module(module_name)
         except ImportError:
             pass
         try:
@@ -51,8 +51,8 @@ class TlzLoader:
 
     def exec_module(self, module):
         toolz_mods = self._load_toolz(module.__name__)
-        fast_mod = toolz_mods.get('cytoolz') or toolz_mods['humpy_toolz']
-        slow_mod = toolz_mods.get('humpy_toolz') or toolz_mods['cytoolz']
+        fast_mod = toolz_mods.get('humpy_cytoolz') or toolz_mods['humpy_toolz']
+        slow_mod = toolz_mods.get('humpy_toolz') or toolz_mods['humpy_cytoolz']
         module.__dict__.update(humpy_toolz.merge(fast_mod.__dict__, module.__dict__))
         package = fast_mod.__package__
         if package is not None:

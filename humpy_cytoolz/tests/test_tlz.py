@@ -36,17 +36,13 @@ def test_tlz():
     assert humpy_toolz.__package__ == 'humpy_toolz'
     assert humpy_toolz.curried.__package__ == 'humpy_toolz.curried'
     assert humpy_toolz.functoolz.__name__ == 'humpy_toolz.functoolz'
-    try:
-        import humpy_cytoolz
-        assert humpy_cytoolz.__package__ == 'humpy_cytoolz'
-        assert humpy_cytoolz.curried.__package__ == 'humpy_cytoolz.curried'
-        assert humpy_cytoolz.functoolz.__name__ == 'humpy_cytoolz.functoolz'
-    except ImportError:
-        pass
-    if hasattr(humpy_tlz, '__file__'):
-        assert humpy_tlz.__file__ == humpy_toolz.__file__
-    if hasattr(humpy_tlz.functoolz, '__file__'):
-        assert humpy_tlz.functoolz.__file__ == humpy_toolz.functoolz.__file__
+    import humpy_cytoolz
+    assert humpy_cytoolz.__package__ == 'humpy_cytoolz'
+    assert humpy_cytoolz.curried.__package__ == 'humpy_cytoolz.curried'
+    assert humpy_cytoolz.functoolz.__name__ == 'humpy_cytoolz.functoolz'
+    assert humpy_tlz.pluck is humpy_cytoolz.pluck
+    assert humpy_tlz.__file__ == humpy_toolz.__file__
+    assert humpy_tlz.functoolz.__file__ == humpy_toolz.functoolz.__file__
     assert humpy_tlz.pipe is humpy_toolz.pipe
     assert 'humpy_tlz' in humpy_tlz.__doc__
     assert humpy_tlz.curried.__doc__ is not None

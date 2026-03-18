@@ -6,7 +6,7 @@ Currying provides implicit partial evaluation of all functions
 Example:
 
     Get usually requires two arguments, an index and a collection
-    >>> from toolz.curried import get
+    >>> from humpy_toolz.curried import get
     >>> get(0, ('a', 'b'))
     'a'
 
@@ -21,7 +21,7 @@ Example:
     [1, 11, 111]
 
 See Also:
-    toolz.functoolz.curry
+    humpy_toolz.functoolz.curry
 """
 from . import operator
 from .exceptions import merge, merge_with

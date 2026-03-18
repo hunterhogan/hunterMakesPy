@@ -72,18 +72,18 @@ def test_curried_namespace():
     if namespace != curried_namespace:
         missing = set(namespace) - set(curried_namespace)
         if missing:
-            raise AssertionError('There are missing functions in toolz.curried:\n    %s' % '    \n'.join(sorted(missing)))
+            raise AssertionError('There are missing functions in humpy_toolz.curried:\n    %s' % '    \n'.join(sorted(missing)))
         extra = set(curried_namespace) - set(namespace)
         if extra:
-            raise AssertionError('There are extra functions in toolz.curried:\n    %s' % '    \n'.join(sorted(extra)))
+            raise AssertionError('There are extra functions in humpy_toolz.curried:\n    %s' % '    \n'.join(sorted(extra)))
         unequal = humpy_toolz.merge_with(list, namespace, curried_namespace)
         unequal = humpy_toolz.valfilter(lambda x: x[0] != x[1], unequal)
         messages = []
         for name, (orig_func, auto_func) in sorted(unequal.items()):
             if name in from_exceptions:
-                messages.append('%s should come from toolz.curried.exceptions' % name)
+                messages.append('%s should come from humpy_toolz.curried.exceptions' % name)
             elif should_curry(getattr(humpy_toolz, name)):
-                messages.append('%s should be curried from toolz' % name)
+                messages.append('%s should be curried from humpy_toolz' % name)
             else:
-                messages.append('%s should come from toolz and NOT be curried' % name)
+                messages.append('%s should come from humpy_toolz and NOT be curried' % name)
         raise AssertionError('\n'.join(messages))
