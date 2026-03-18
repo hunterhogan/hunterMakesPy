@@ -1,5 +1,4 @@
 """Transform toolz."""
-from shutil import copytree
 from astToolkit import Be, Grab, IfThis, Make, NodeChanger, NodeTourist, parsePathFilename2astModule, Then
 from astToolkit.transformationTools import write_astModule
 from functools import partial
@@ -8,6 +7,7 @@ from hunterMakesPy.filesystemToolkit import settings_autoflakeDEFAULT, settings_
 from itertools import product as CartesianProduct
 from operator import contains, eq as equalTo
 from pathlib import Path
+from shutil import copy2, copytree
 from typing import Any, cast
 import ast
 import re as regex
@@ -33,6 +33,7 @@ settingsFor: dict[str, PackageSettings] = {}
 
 #-------- Put settings in the containers. --------
 
+pathRoot_tools_stubs = Path("/clones/toolz-stubs/src/toolz-stubs")
 noticeCopyrightHeader: str = "Some of the work in this directory and its subdirectories may be protected by \nthe following copyright.\n___\n\n"
 
 settingsWrite_astModule['autoflake']['remove_all_unused_imports'] = False
@@ -108,21 +109,31 @@ for pathTransformee, identifierTransformee, humpyPackage in transformALLdot_pyHe
 		changeIdentifierInConstant.visit(astModule)
 		write_astModule(astModule, settingsFor[humpyPackage].pathPackage.parent / filename_setupDOTpy, settingsWrite_astModule)
 
-#======== Post-transformation: acting on the new packages ========
+#-------- Copy stub files. ---------
 
+copytree(pathRoot_tools_stubs, settingsFor['humpy_toolz'].pathPackage, dirs_exist_ok=True)
+
+#======== Post-transformation: acting on the new packages ========
+#-------- Copy stub files. ---------
+
+copy2(settingsFor['humpy_toolz'].pathPackage / 'py.typed', settingsFor['humpy_cytoolz'].pathPackage / 'py.typed')
+
+for pathFilename_pyi in settingsFor['humpy_toolz'].pathPackage.rglob('*.pyi'):
+	pathFilename_pyx: Path = settingsFor['humpy_cytoolz'].pathPackage / pathFilename_pyi.relative_to(settingsFor['humpy_toolz'].pathPackage).with_suffix('.pyx')
+	pathFilename_py: Path = pathFilename_pyx.with_suffix('.py')
+	if pathFilename_pyx.exists() or pathFilename_py.exists():
+		copy2(pathFilename_pyi, pathFilename_pyx.parent)
+
+# NOTE Static version to replace the dynamic version so it passes the tests from the original packages.
 astAssign__toolz_version__: ast.Assign = raiseIfNone(NodeTourist(IfThis.isAssignAndTargets0Is(IfThis.isNameIdentifier('__toolz_version__')), Then.extractIt).captureLastMatch(parsePathFilename2astModule(settingsFor['humpy_cytoolz'].pathPackage / '__init__.py')))
 NodeChanger(IfThis.isNameIdentifier('__toolz_version__'), Grab.idAttribute(Then.replaceWith('__version__'))).visit(astAssign__toolz_version__)
-
 for aPackage in ('humpy_cytoolz', 'humpy_toolz'):
 	pathFilename__init__: Path = settingsFor[aPackage].pathPackage / '__init__.py'
 	astModule: ast.Module = parsePathFilename2astModule(pathFilename__init__)
 	astModule.body.insert(5, astAssign__toolz_version__)
 	write_astModule(astModule, pathFilename__init__, settingsWrite_astModule)
 
+# NOTE Find and replace a handful of textual references to the original packages.
 	for pathFilename in pathFilename__init__.parent.rglob(f"*{settingsFor[aPackage].fileExtension}"):
 		writeStringToHere(regexChangeImports(pathFilename.read_text()), pathFilename)
 
-#======== Copy stub files. ===========
-
-pathRoot_tools_stubs = Path("/clones/toolz-stubs/src/toolz-stubs")
-copytree(pathRoot_tools_stubs, settingsFor['humpy_toolz'].pathPackage, dirs_exist_ok=True)
