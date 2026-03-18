@@ -1,4 +1,5 @@
 """Transform toolz."""
+from shutil import copytree
 from astToolkit import Be, Grab, IfThis, Make, NodeChanger, NodeTourist, parsePathFilename2astModule, Then
 from astToolkit.transformationTools import write_astModule
 from functools import partial
@@ -120,3 +121,8 @@ for aPackage in ('humpy_cytoolz', 'humpy_toolz'):
 
 	for pathFilename in pathFilename__init__.parent.rglob(f"*{settingsFor[aPackage].fileExtension}"):
 		writeStringToHere(regexChangeImports(pathFilename.read_text()), pathFilename)
+
+#======== Copy stub files. ===========
+
+pathRoot_tools_stubs = Path("/clones/toolz-stubs/src/toolz-stubs")
+copytree(pathRoot_tools_stubs, settingsFor['humpy_toolz'].pathPackage, dirs_exist_ok=True)
