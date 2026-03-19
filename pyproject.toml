@@ -58,7 +58,6 @@ dependencies = [
 optional-dependencies = { development = [
   "astToolkit",
   "setuptools>=62.3",
-  "setuptools-scm",
 ], testing = [
   "cython",
   "pytest",
@@ -70,7 +69,6 @@ optional-dependencies = { development = [
 requires = [
   "cython",
   "setuptools>=62.3",
-  "setuptools-scm",
 ]
 build-backend = "setuptools.build_meta"
 
@@ -102,7 +100,7 @@ testpaths = [
 ]
 
 [tool.setuptools]
-extmodules = [
+ext-modules = [
   { name = "humpy_cytoolz.dicttoolz", sources = ["humpy_cytoolz/dicttoolz.pyx"] },
   { name = "humpy_cytoolz.functoolz", sources = ["humpy_cytoolz/functoolz.pyx"] },
   { name = "humpy_cytoolz.itertoolz", sources = ["humpy_cytoolz/itertoolz.pyx"] },
