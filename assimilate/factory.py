@@ -14,10 +14,11 @@ import re as regex
 
 #======== Settings for the packages to be created. ========
 
-# TODO I don't know how to move this code block to a separate file in the same directory and import the symbols from the file. It
+# TODO I don't know how to move the settings to a separate file in the same directory and import the symbols from the file. It
 # seems pretty basic, and I feel pretty stupid. I would normally create "_theSSOT.py" for these settings and re-export the symbols
 # through "__init__.py". More generally, I don't know how to divide this "sub-package", which is lateral to "hunterMakesPy", into
-# a namespace with multiple modules.
+# a stand-alone namespace with multiple modules.
+
 #-------- Eliminate hardcoding. -----------
 
 subModulesHARDCODED: frozenset[identifierDotAttribute] = frozenset(('', '._signatures', '.compatibility', '.curried', '.curried.exceptions'
@@ -31,10 +32,18 @@ getOtherName: dict[str, str] = {}
 transformALLdot_pyHere: list[tuple[Path, str, str]] = []
 settingsFor: dict[str, PackageSettings] = {}
 
-#-------- Put settings in the containers. --------
+#-------- Settings without containers. --------
 
-pathRoot_tools_stubs = Path("/clones/toolz-stubs/src/toolz-stubs")
+cythonDirectives: str = """# cython: embedsignature=True
+# cython: freethreading_compatible=True
+# cython: language_level=3
+"""
 noticeCopyrightHeader: str = "Some of the work in this directory and its subdirectories may be protected by \nthe following copyright.\n___\n\n"
+pathRoot_tools_stubs = Path("/clones/toolz-stubs/src/toolz-stubs")
+regexChangeImports: partial[str] = partial(regex.sub, "(from |import )(.?.?toolz)", "\\1humpy_\\2")  # ty:ignore[invalid-assignment] https://github.com/astral-sh/ty/issues/2799
+subModules: frozenset[identifierDotAttribute] = subModulesHARDCODED
+
+#-------- Put settings in the containers. --------
 
 settingsWrite_astModule['autoflake']['remove_all_unused_imports'] = False
 settingsWrite_astModule['autoflake']['expand_star_imports'] = False
@@ -57,10 +66,7 @@ for identifierTransformee in allTransformeePackages:
 
 	transformALLdot_pyHere.append((pathTransformee, identifierTransformee, getOtherName[identifierTransformee]))
 
-regexChangeImports: partial[str] = partial(regex.sub, "(from |import )(.?.?toolz)", "\\1humpy_\\2")  # ty:ignore[invalid-assignment] https://github.com/astral-sh/ty/issues/2799
-
-subModules: frozenset[identifierDotAttribute] = subModulesHARDCODED
-#======== Ingest and transform external packages and files ========
+#======== Ingest and transform external packages and files. ========
 
 for pathTransformee, identifierTransformee, humpyPackage in transformALLdot_pyHere:
 	for pathRoot, listDirectories, listFilenames in pathTransformee.walk():
@@ -87,13 +93,13 @@ for pathTransformee, identifierTransformee, humpyPackage in transformALLdot_pyHe
 					changeIdentifierInConstant = NodeChanger(IfThis.isAllOf(Be.Constant.valueIs(lambda nodeDOTvalue: isinstance(nodeDOTvalue, str)), Be.Constant.valueIs(lambda nodeDOTvalue, stringOld=stringOld: contains(nodeDOTvalue, stringOld))), lambda node, stringOld=stringOld, packageTransformee=packageTransformee, identifierModule=identifierModule: Make.Constant(cast(str, node.value).replace(stringOld, f" {getOtherName[packageTransformee]}{identifierModule}")))
 					changeIdentifierInConstant.visit(astModule)
 
-			for packageTransformee in allTransformeePackages:
-				stringOld: str = f"`{packageTransformee}`"
-				changeBacktickIdentifierInConstant = NodeChanger(IfThis.isAllOf(Be.Constant.valueIs(lambda nodeDOTvalue: isinstance(nodeDOTvalue, str)), Be.Constant.valueIs(lambda nodeDOTvalue, stringOld=stringOld: contains(nodeDOTvalue, stringOld))), lambda node, stringOld=stringOld, packageTransformee=packageTransformee: Make.Constant(cast(str, node.value).replace(stringOld, f"`{getOtherName[packageTransformee]}`")))
-				changeBacktickIdentifierInConstant.visit(astModule)
+				else:
+					stringOld: str = f"`{packageTransformee}`"
+					changeBacktickIdentifierInConstant = NodeChanger(IfThis.isAllOf(Be.Constant.valueIs(lambda nodeDOTvalue: isinstance(nodeDOTvalue, str)), Be.Constant.valueIs(lambda nodeDOTvalue, stringOld=stringOld: contains(nodeDOTvalue, stringOld))), lambda node, stringOld=stringOld, packageTransformee=packageTransformee: Make.Constant(cast(str, node.value).replace(stringOld, f"`{getOtherName[packageTransformee]}`")))
+					changeBacktickIdentifierInConstant.visit(astModule)
 
-				changeName = NodeChanger(IfThis.isNameIdentifier(packageTransformee), Grab.idAttribute(Then.replaceWith(getOtherName[packageTransformee])))
-				changeName.visit(astModule)
+					changeName = NodeChanger(IfThis.isNameIdentifier(packageTransformee), Grab.idAttribute(Then.replaceWith(getOtherName[packageTransformee])))
+					changeName.visit(astModule)
 
 			write_astModule(astModule, settingsFor[humpyPackage].pathPackage / pathRoot.relative_to(pathTransformee) / filename, settingsWrite_astModule)
 
@@ -101,19 +107,13 @@ for pathTransformee, identifierTransformee, humpyPackage in transformALLdot_pyHe
 		for pathFilename in pathTransformee.glob('*.pxd'):
 			writeStringToHere(regexChangeImports(pathFilename.read_text()), settingsFor[humpyPackage].pathPackage / pathFilename.relative_to(pathTransformee))
 		for pathFilename in pathTransformee.glob('*.pyx'):
-			writeStringToHere(regexChangeImports(pathFilename.read_text().replace(identifierTransformee, getOtherName[identifierTransformee])), settingsFor[humpyPackage].pathPackage / pathFilename.relative_to(pathTransformee))
-
-		filename_setupDOTpy: str ='setup.py'
-		astModule: ast.Module = parsePathFilename2astModule(pathTransformee.parent / filename_setupDOTpy)
-		changeIdentifierInConstant = NodeChanger(IfThis.isAllOf(Be.Constant.valueIs(lambda nodeDOTvalue: isinstance(nodeDOTvalue, str)), Be.Constant.valueIs(lambda nodeDOTvalue, identifierTransformee=identifierTransformee: contains(nodeDOTvalue, identifierTransformee))), lambda node, identifierTransformee=identifierTransformee: Make.Constant(cast(str, node.value).replace(identifierTransformee, getOtherName[identifierTransformee])))
-		changeIdentifierInConstant.visit(astModule)
-		write_astModule(astModule, settingsFor[humpyPackage].pathPackage.parent / filename_setupDOTpy, settingsWrite_astModule)
+			writeStringToHere(cythonDirectives + regexChangeImports(pathFilename.read_text().replace(identifierTransformee, getOtherName[identifierTransformee])), settingsFor[humpyPackage].pathPackage / pathFilename.relative_to(pathTransformee))
 
 #-------- Copy stub files. ---------
 
 copytree(pathRoot_tools_stubs, settingsFor['humpy_toolz'].pathPackage, dirs_exist_ok=True)
 
-#======== Post-transformation: acting on the new packages ========
+#======== Post-transformation: act on the new packages. ========
 #-------- Copy stub files. ---------
 
 copy2(settingsFor['humpy_toolz'].pathPackage / 'py.typed', settingsFor['humpy_cytoolz'].pathPackage / 'py.typed')
@@ -123,6 +123,8 @@ for pathFilename_pyi in settingsFor['humpy_toolz'].pathPackage.rglob('*.pyi'):
 	pathFilename_py: Path = pathFilename_pyx.with_suffix('.py')
 	if pathFilename_pyx.exists() or pathFilename_py.exists():
 		copy2(pathFilename_pyi, pathFilename_pyx.parent)
+
+# TODO I'm pretty sure I've seen packages that will put the contents of a stub file into the '.py' file.
 
 # NOTE Static version to replace the dynamic version so it passes the tests from the original packages.
 astAssign__toolz_version__: ast.Assign = raiseIfNone(NodeTourist(IfThis.isAssignAndTargets0Is(IfThis.isNameIdentifier('__toolz_version__')), Then.extractIt).captureLastMatch(parsePathFilename2astModule(settingsFor['humpy_cytoolz'].pathPackage / '__init__.py')))

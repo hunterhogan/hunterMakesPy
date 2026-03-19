@@ -42,7 +42,7 @@ References
 """
 from typing import NamedTuple
 
-#======== Semantic replacements for ambiguous values =======
+#======== Semantic replacements for ambiguous values. =======
 
 decreasing: int = -1
 """Express descending iteration or a reverse direction.
@@ -332,7 +332,7 @@ References
 
 """
 
-#======== Some colors for printing text to the terminal ========
+#======== Some colors for printing text to the terminal. ========
 # Many values and options at https://gist.github.com/JBlond/2fea43a3049b38287e5e9cefc87b2124
 # Many, many, many options at https://stackoverflow.com/a/33206814/4403878
 # NOTE Always define color and background color at the same time.

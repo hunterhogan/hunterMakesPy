@@ -1,3 +1,6 @@
+# cython: embedsignature=True
+# cython: freethreading_compatible=True
+# cython: language_level=3
 from cpython.sequence cimport PySequence_Tuple
 from humpy_cytoolz.itertoolz cimport frequencies, pluck
 

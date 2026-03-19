@@ -1,3 +1,6 @@
+# cython: embedsignature=True
+# cython: freethreading_compatible=True
+# cython: language_level=3
 from cpython.dict cimport PyDict_GetItem, PyDict_SetItem
 from cpython.exc cimport PyErr_Clear, PyErr_GivenExceptionMatches, PyErr_Occurred
 from cpython.list cimport PyList_Append, PyList_GET_ITEM, PyList_GET_SIZE

@@ -2470,7 +2470,7 @@ return 0;
 #endif
 /* #### Code section: module_code ### */
 
-/* "humpy_cytoolz/utils.pyx":15
+/* "humpy_cytoolz/utils.pyx":18
  * 
  * 
  * def raises(err, lamda):             # <<<<<<<<<<<<<<
@@ -2519,39 +2519,39 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   {
     PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_err,&__pyx_mstate_global->__pyx_n_u_lamda,0};
     const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_FASTCALL(__pyx_kwds) : 0;
-    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 15, __pyx_L3_error)
+    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 18, __pyx_L3_error)
     if (__pyx_kwds_len > 0) {
       switch (__pyx_nargs) {
         case  2:
         values[1] = __Pyx_ArgRef_FASTCALL(__pyx_args, 1);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 15, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 18, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  1:
         values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 15, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 18, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  0: break;
         default: goto __pyx_L5_argtuple_error;
       }
       const Py_ssize_t kwd_pos_args = __pyx_nargs;
-      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "raises", 0) < (0)) __PYX_ERR(0, 15, __pyx_L3_error)
+      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "raises", 0) < (0)) __PYX_ERR(0, 18, __pyx_L3_error)
       for (Py_ssize_t i = __pyx_nargs; i < 2; i++) {
-        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("raises", 1, 2, 2, i); __PYX_ERR(0, 15, __pyx_L3_error) }
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("raises", 1, 2, 2, i); __PYX_ERR(0, 18, __pyx_L3_error) }
       }
     } else if (unlikely(__pyx_nargs != 2)) {
       goto __pyx_L5_argtuple_error;
     } else {
       values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 15, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 18, __pyx_L3_error)
       values[1] = __Pyx_ArgRef_FASTCALL(__pyx_args, 1);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 15, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[1])) __PYX_ERR(0, 18, __pyx_L3_error)
     }
     __pyx_v_err = values[0];
     __pyx_v_lamda = values[1];
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("raises", 1, 2, 2, __pyx_nargs); __PYX_ERR(0, 15, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("raises", 1, 2, 2, __pyx_nargs); __PYX_ERR(0, 18, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -2588,7 +2588,7 @@ static PyObject *__pyx_pf_13humpy_cytoolz_5utils_raises(CYTHON_UNUSED PyObject *
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("raises", 0);
 
-  /* "humpy_cytoolz/utils.pyx":16
+  /* "humpy_cytoolz/utils.pyx":19
  * 
  * def raises(err, lamda):
  *     try:             # <<<<<<<<<<<<<<
@@ -2604,7 +2604,7 @@ static PyObject *__pyx_pf_13humpy_cytoolz_5utils_raises(CYTHON_UNUSED PyObject *
     __Pyx_XGOTREF(__pyx_t_3);
     /*try:*/ {
 
-      /* "humpy_cytoolz/utils.pyx":17
+      /* "humpy_cytoolz/utils.pyx":20
  * def raises(err, lamda):
  *     try:
  *         lamda()             # <<<<<<<<<<<<<<
@@ -2631,12 +2631,12 @@ static PyObject *__pyx_pf_13humpy_cytoolz_5utils_raises(CYTHON_UNUSED PyObject *
         __pyx_t_4 = __Pyx_PyObject_FastCall((PyObject*)__pyx_t_6, __pyx_callargs+__pyx_t_7, (1-__pyx_t_7) | (__pyx_t_7*__Pyx_PY_VECTORCALL_ARGUMENTS_OFFSET));
         __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
         __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-        if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 17, __pyx_L3_error)
+        if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 20, __pyx_L3_error)
         __Pyx_GOTREF(__pyx_t_4);
       }
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-      /* "humpy_cytoolz/utils.pyx":18
+      /* "humpy_cytoolz/utils.pyx":21
  *     try:
  *         lamda()
  *         return False             # <<<<<<<<<<<<<<
@@ -2648,7 +2648,7 @@ static PyObject *__pyx_pf_13humpy_cytoolz_5utils_raises(CYTHON_UNUSED PyObject *
       __pyx_r = Py_False;
       goto __pyx_L7_try_return;
 
-      /* "humpy_cytoolz/utils.pyx":16
+      /* "humpy_cytoolz/utils.pyx":19
  * 
  * def raises(err, lamda):
  *     try:             # <<<<<<<<<<<<<<
@@ -2661,7 +2661,7 @@ static PyObject *__pyx_pf_13humpy_cytoolz_5utils_raises(CYTHON_UNUSED PyObject *
     __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
     __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
 
-    /* "humpy_cytoolz/utils.pyx":19
+    /* "humpy_cytoolz/utils.pyx":22
  *         lamda()
  *         return False
  *     except err:             # <<<<<<<<<<<<<<
@@ -2672,7 +2672,7 @@ static PyObject *__pyx_pf_13humpy_cytoolz_5utils_raises(CYTHON_UNUSED PyObject *
     if (__pyx_t_8) {
       __Pyx_ErrRestore(0,0,0);
 
-      /* "humpy_cytoolz/utils.pyx":20
+      /* "humpy_cytoolz/utils.pyx":23
  *         return False
  *     except err:
  *         return True             # <<<<<<<<<<<<<<
@@ -2686,7 +2686,7 @@ static PyObject *__pyx_pf_13humpy_cytoolz_5utils_raises(CYTHON_UNUSED PyObject *
     }
     goto __pyx_L5_except_error;
 
-    /* "humpy_cytoolz/utils.pyx":16
+    /* "humpy_cytoolz/utils.pyx":19
  * 
  * def raises(err, lamda):
  *     try:             # <<<<<<<<<<<<<<
@@ -2713,7 +2713,7 @@ static PyObject *__pyx_pf_13humpy_cytoolz_5utils_raises(CYTHON_UNUSED PyObject *
     goto __pyx_L0;
   }
 
-  /* "humpy_cytoolz/utils.pyx":15
+  /* "humpy_cytoolz/utils.pyx":18
  * 
  * 
  * def raises(err, lamda):             # <<<<<<<<<<<<<<
@@ -2734,7 +2734,7 @@ static PyObject *__pyx_pf_13humpy_cytoolz_5utils_raises(CYTHON_UNUSED PyObject *
   return __pyx_r;
 }
 
-/* "humpy_cytoolz/utils.pyx":23
+/* "humpy_cytoolz/utils.pyx":26
  * 
  * 
  * def include_dirs():             # <<<<<<<<<<<<<<
@@ -2773,7 +2773,7 @@ static PyObject *__pyx_pf_13humpy_cytoolz_5utils_2include_dirs(CYTHON_UNUSED PyO
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("include_dirs", 0);
 
-  /* "humpy_cytoolz/utils.pyx":50
+  /* "humpy_cytoolz/utils.pyx":53
  *         )
  *     """
  *     return os.path.split(humpy_cytoolz.__path__[0])             # <<<<<<<<<<<<<<
@@ -2781,19 +2781,19 @@ static PyObject *__pyx_pf_13humpy_cytoolz_5utils_2include_dirs(CYTHON_UNUSED PyO
  * 
 */
   __Pyx_XDECREF(__pyx_r);
-  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_os); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 50, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_os); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 53, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_path); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 50, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_path); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 53, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_t_2 = __pyx_t_4;
   __Pyx_INCREF(__pyx_t_2);
-  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_humpy_cytoolz); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 50, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_humpy_cytoolz); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 53, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_path_2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 50, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_mstate_global->__pyx_n_u_path_2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 53, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = __Pyx_GetItemInt(__pyx_t_5, 0, long, 1, __Pyx_PyLong_From_long, 0, 0, 1, 1, __Pyx_ReferenceSharing_OwnStrongReference); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 50, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_GetItemInt(__pyx_t_5, 0, long, 1, __Pyx_PyLong_From_long, 0, 0, 1, 1, __Pyx_ReferenceSharing_OwnStrongReference); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 53, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   __pyx_t_6 = 0;
@@ -2803,14 +2803,14 @@ static PyObject *__pyx_pf_13humpy_cytoolz_5utils_2include_dirs(CYTHON_UNUSED PyO
     __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 50, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 53, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   }
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "humpy_cytoolz/utils.pyx":23
+  /* "humpy_cytoolz/utils.pyx":26
  * 
  * 
  * def include_dirs():             # <<<<<<<<<<<<<<
@@ -2833,7 +2833,7 @@ static PyObject *__pyx_pf_13humpy_cytoolz_5utils_2include_dirs(CYTHON_UNUSED PyO
   return __pyx_r;
 }
 
-/* "humpy_cytoolz/utils.pyx":53
+/* "humpy_cytoolz/utils.pyx":56
  * 
  * 
  * cpdef object consume(object seq):             # <<<<<<<<<<<<<<
@@ -2861,7 +2861,7 @@ static PyObject *__pyx_f_13humpy_cytoolz_5utils_consume(PyObject *__pyx_v_seq, C
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("consume", 0);
 
-  /* "humpy_cytoolz/utils.pyx":56
+  /* "humpy_cytoolz/utils.pyx":59
  *     """
  *     Efficiently consume an iterable """
  *     for _ in seq:             # <<<<<<<<<<<<<<
@@ -2872,9 +2872,9 @@ static PyObject *__pyx_f_13humpy_cytoolz_5utils_consume(PyObject *__pyx_v_seq, C
     __pyx_t_2 = 0;
     __pyx_t_3 = NULL;
   } else {
-    __pyx_t_2 = -1; __pyx_t_1 = PyObject_GetIter(__pyx_v_seq); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 56, __pyx_L1_error)
+    __pyx_t_2 = -1; __pyx_t_1 = PyObject_GetIter(__pyx_v_seq); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 59, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_3 = (CYTHON_COMPILING_IN_LIMITED_API) ? PyIter_Next : __Pyx_PyObject_GetIterNextFunc(__pyx_t_1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 56, __pyx_L1_error)
+    __pyx_t_3 = (CYTHON_COMPILING_IN_LIMITED_API) ? PyIter_Next : __Pyx_PyObject_GetIterNextFunc(__pyx_t_1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 59, __pyx_L1_error)
   }
   for (;;) {
     if (likely(!__pyx_t_3)) {
@@ -2882,7 +2882,7 @@ static PyObject *__pyx_f_13humpy_cytoolz_5utils_consume(PyObject *__pyx_v_seq, C
         {
           Py_ssize_t __pyx_temp = __Pyx_PyList_GET_SIZE(__pyx_t_1);
           #if !CYTHON_ASSUME_SAFE_SIZE
-          if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 56, __pyx_L1_error)
+          if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 59, __pyx_L1_error)
           #endif
           if (__pyx_t_2 >= __pyx_temp) break;
         }
@@ -2892,7 +2892,7 @@ static PyObject *__pyx_f_13humpy_cytoolz_5utils_consume(PyObject *__pyx_v_seq, C
         {
           Py_ssize_t __pyx_temp = __Pyx_PyTuple_GET_SIZE(__pyx_t_1);
           #if !CYTHON_ASSUME_SAFE_SIZE
-          if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 56, __pyx_L1_error)
+          if (unlikely((__pyx_temp < 0))) __PYX_ERR(0, 59, __pyx_L1_error)
           #endif
           if (__pyx_t_2 >= __pyx_temp) break;
         }
@@ -2903,13 +2903,13 @@ static PyObject *__pyx_f_13humpy_cytoolz_5utils_consume(PyObject *__pyx_v_seq, C
         #endif
         ++__pyx_t_2;
       }
-      if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 56, __pyx_L1_error)
+      if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 59, __pyx_L1_error)
     } else {
       __pyx_t_4 = __pyx_t_3(__pyx_t_1);
       if (unlikely(!__pyx_t_4)) {
         PyObject* exc_type = PyErr_Occurred();
         if (exc_type) {
-          if (unlikely(!__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) __PYX_ERR(0, 56, __pyx_L1_error)
+          if (unlikely(!__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) __PYX_ERR(0, 59, __pyx_L1_error)
           PyErr_Clear();
         }
         break;
@@ -2921,7 +2921,7 @@ static PyObject *__pyx_f_13humpy_cytoolz_5utils_consume(PyObject *__pyx_v_seq, C
   }
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "humpy_cytoolz/utils.pyx":53
+  /* "humpy_cytoolz/utils.pyx":56
  * 
  * 
  * cpdef object consume(object seq):             # <<<<<<<<<<<<<<
@@ -2984,32 +2984,32 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   {
     PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_seq,0};
     const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_FASTCALL(__pyx_kwds) : 0;
-    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 53, __pyx_L3_error)
+    if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 56, __pyx_L3_error)
     if (__pyx_kwds_len > 0) {
       switch (__pyx_nargs) {
         case  1:
         values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 53, __pyx_L3_error)
+        if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 56, __pyx_L3_error)
         CYTHON_FALLTHROUGH;
         case  0: break;
         default: goto __pyx_L5_argtuple_error;
       }
       const Py_ssize_t kwd_pos_args = __pyx_nargs;
-      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "consume", 0) < (0)) __PYX_ERR(0, 53, __pyx_L3_error)
+      if (__Pyx_ParseKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values, kwd_pos_args, __pyx_kwds_len, "consume", 0) < (0)) __PYX_ERR(0, 56, __pyx_L3_error)
       for (Py_ssize_t i = __pyx_nargs; i < 1; i++) {
-        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("consume", 1, 1, 1, i); __PYX_ERR(0, 53, __pyx_L3_error) }
+        if (unlikely(!values[i])) { __Pyx_RaiseArgtupleInvalid("consume", 1, 1, 1, i); __PYX_ERR(0, 56, __pyx_L3_error) }
       }
     } else if (unlikely(__pyx_nargs != 1)) {
       goto __pyx_L5_argtuple_error;
     } else {
       values[0] = __Pyx_ArgRef_FASTCALL(__pyx_args, 0);
-      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 53, __pyx_L3_error)
+      if (!CYTHON_ASSUME_SAFE_MACROS && unlikely(!values[0])) __PYX_ERR(0, 56, __pyx_L3_error)
     }
     __pyx_v_seq = values[0];
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("consume", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 53, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("consume", 1, 1, 1, __pyx_nargs); __PYX_ERR(0, 56, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -3039,7 +3039,7 @@ static PyObject *__pyx_pf_13humpy_cytoolz_5utils_4consume(CYTHON_UNUSED PyObject
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("consume", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_f_13humpy_cytoolz_5utils_consume(__pyx_v_seq, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 53, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_13humpy_cytoolz_5utils_consume(__pyx_v_seq, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 56, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -3439,42 +3439,45 @@ __Pyx_RefNannySetupContext("PyInit_utils", 0);
   (void)__Pyx_modinit_function_import_code(__pyx_mstate);
   /*--- Execution code ---*/
 
-  /* "humpy_cytoolz/utils.pyx":1
+  /* "humpy_cytoolz/utils.pyx":4
+ * # cython: freethreading_compatible=True
+ * # cython: language_level=3
  * import os.path             # <<<<<<<<<<<<<<
  * import humpy_cytoolz
  * 
 */
-  __pyx_t_1 = __Pyx_Import(__pyx_mstate_global->__pyx_n_u_os_path, 0, 0, NULL, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_Import(__pyx_mstate_global->__pyx_n_u_os_path, 0, 0, NULL, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 4, __pyx_L1_error)
   __pyx_t_2 = __pyx_t_1;
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_os, __pyx_t_2) < (0)) __PYX_ERR(0, 1, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_os, __pyx_t_2) < (0)) __PYX_ERR(0, 4, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "humpy_cytoolz/utils.pyx":2
+  /* "humpy_cytoolz/utils.pyx":5
+ * # cython: language_level=3
  * import os.path
  * import humpy_cytoolz             # <<<<<<<<<<<<<<
  * 
  * 
 */
-  __pyx_t_1 = __Pyx_Import(__pyx_mstate_global->__pyx_n_u_humpy_cytoolz, 0, 0, NULL, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 2, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_Import(__pyx_mstate_global->__pyx_n_u_humpy_cytoolz, 0, 0, NULL, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 5, __pyx_L1_error)
   __pyx_t_2 = __pyx_t_1;
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_humpy_cytoolz, __pyx_t_2) < (0)) __PYX_ERR(0, 2, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_humpy_cytoolz, __pyx_t_2) < (0)) __PYX_ERR(0, 5, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "humpy_cytoolz/utils.pyx":5
+  /* "humpy_cytoolz/utils.pyx":8
  * 
  * 
  * __all__ = ['raises', 'no_default', 'include_dirs', 'consume']             # <<<<<<<<<<<<<<
  * 
  * 
 */
-  __pyx_t_2 = __Pyx_PyList_Pack(4, __pyx_mstate_global->__pyx_n_u_raises, __pyx_mstate_global->__pyx_n_u_no_default, __pyx_mstate_global->__pyx_n_u_include_dirs, __pyx_mstate_global->__pyx_n_u_consume); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 5, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyList_Pack(4, __pyx_mstate_global->__pyx_n_u_raises, __pyx_mstate_global->__pyx_n_u_no_default, __pyx_mstate_global->__pyx_n_u_include_dirs, __pyx_mstate_global->__pyx_n_u_consume); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 8, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_all, __pyx_t_2) < (0)) __PYX_ERR(0, 5, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_all, __pyx_t_2) < (0)) __PYX_ERR(0, 8, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "humpy_cytoolz/utils.pyx":8
+  /* "humpy_cytoolz/utils.pyx":11
  * 
  * 
  * try:             # <<<<<<<<<<<<<<
@@ -3490,7 +3493,7 @@ __Pyx_RefNannySetupContext("PyInit_utils", 0);
     __Pyx_XGOTREF(__pyx_t_4);
     /*try:*/ {
 
-      /* "humpy_cytoolz/utils.pyx":10
+      /* "humpy_cytoolz/utils.pyx":13
  * try:
  *     # Attempt to get the no_default sentinel object from humpy_toolz
  *     from humpy_toolz.utils import no_default             # <<<<<<<<<<<<<<
@@ -3499,22 +3502,22 @@ __Pyx_RefNannySetupContext("PyInit_utils", 0);
 */
       {
         PyObject* const __pyx_imported_names[] = {__pyx_mstate_global->__pyx_n_u_no_default};
-        __pyx_t_5 = __Pyx_Import(__pyx_mstate_global->__pyx_n_u_humpy_toolz_utils, __pyx_imported_names, 1, NULL, 0); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 10, __pyx_L2_error)
+        __pyx_t_5 = __Pyx_Import(__pyx_mstate_global->__pyx_n_u_humpy_toolz_utils, __pyx_imported_names, 1, NULL, 0); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 13, __pyx_L2_error)
       }
       __pyx_t_2 = __pyx_t_5;
       __Pyx_GOTREF(__pyx_t_2);
       {
         PyObject* const __pyx_imported_names[] = {__pyx_mstate_global->__pyx_n_u_no_default};
         __pyx_t_6 = 0; {
-          __pyx_t_7 = __Pyx_ImportFrom(__pyx_t_2, __pyx_imported_names[__pyx_t_6]); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 10, __pyx_L2_error)
+          __pyx_t_7 = __Pyx_ImportFrom(__pyx_t_2, __pyx_imported_names[__pyx_t_6]); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 13, __pyx_L2_error)
           __Pyx_GOTREF(__pyx_t_7);
-          if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_imported_names[__pyx_t_6], __pyx_t_7) < (0)) __PYX_ERR(0, 10, __pyx_L2_error)
+          if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_imported_names[__pyx_t_6], __pyx_t_7) < (0)) __PYX_ERR(0, 13, __pyx_L2_error)
           __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
         }
       }
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-      /* "humpy_cytoolz/utils.pyx":8
+      /* "humpy_cytoolz/utils.pyx":11
  * 
  * 
  * try:             # <<<<<<<<<<<<<<
@@ -3530,7 +3533,7 @@ __Pyx_RefNannySetupContext("PyInit_utils", 0);
     __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
 
-    /* "humpy_cytoolz/utils.pyx":11
+    /* "humpy_cytoolz/utils.pyx":14
  *     # Attempt to get the no_default sentinel object from humpy_toolz
  *     from humpy_toolz.utils import no_default
  * except ImportError:             # <<<<<<<<<<<<<<
@@ -3540,19 +3543,19 @@ __Pyx_RefNannySetupContext("PyInit_utils", 0);
     __pyx_t_8 = __Pyx_PyErr_ExceptionMatches(((PyObject *)(((PyTypeObject*)PyExc_ImportError))));
     if (__pyx_t_8) {
       __Pyx_AddTraceback("humpy_cytoolz.utils", __pyx_clineno, __pyx_lineno, __pyx_filename);
-      if (__Pyx_GetException(&__pyx_t_2, &__pyx_t_7, &__pyx_t_9) < 0) __PYX_ERR(0, 11, __pyx_L4_except_error)
+      if (__Pyx_GetException(&__pyx_t_2, &__pyx_t_7, &__pyx_t_9) < 0) __PYX_ERR(0, 14, __pyx_L4_except_error)
       __Pyx_XGOTREF(__pyx_t_2);
       __Pyx_XGOTREF(__pyx_t_7);
       __Pyx_XGOTREF(__pyx_t_9);
 
-      /* "humpy_cytoolz/utils.pyx":12
+      /* "humpy_cytoolz/utils.pyx":15
  *     from humpy_toolz.utils import no_default
  * except ImportError:
  *     no_default = '__no__default__'             # <<<<<<<<<<<<<<
  * 
  * 
 */
-      if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_no_default, __pyx_mstate_global->__pyx_n_u_no__default) < (0)) __PYX_ERR(0, 12, __pyx_L4_except_error)
+      if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_no_default, __pyx_mstate_global->__pyx_n_u_no__default) < (0)) __PYX_ERR(0, 15, __pyx_L4_except_error)
       __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
       __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
       __Pyx_XDECREF(__pyx_t_9); __pyx_t_9 = 0;
@@ -3560,7 +3563,7 @@ __Pyx_RefNannySetupContext("PyInit_utils", 0);
     }
     goto __pyx_L4_except_error;
 
-    /* "humpy_cytoolz/utils.pyx":8
+    /* "humpy_cytoolz/utils.pyx":11
  * 
  * 
  * try:             # <<<<<<<<<<<<<<
@@ -3581,55 +3584,55 @@ __Pyx_RefNannySetupContext("PyInit_utils", 0);
     __pyx_L7_try_end:;
   }
 
-  /* "humpy_cytoolz/utils.pyx":15
+  /* "humpy_cytoolz/utils.pyx":18
  * 
  * 
  * def raises(err, lamda):             # <<<<<<<<<<<<<<
  *     try:
  *         lamda()
 */
-  __pyx_t_9 = __Pyx_CyFunction_New(&__pyx_mdef_13humpy_cytoolz_5utils_1raises, 0, __pyx_mstate_global->__pyx_n_u_raises, NULL, __pyx_mstate_global->__pyx_n_u_humpy_cytoolz_utils, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[0])); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 15, __pyx_L1_error)
+  __pyx_t_9 = __Pyx_CyFunction_New(&__pyx_mdef_13humpy_cytoolz_5utils_1raises, 0, __pyx_mstate_global->__pyx_n_u_raises, NULL, __pyx_mstate_global->__pyx_n_u_humpy_cytoolz_utils, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[0])); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 18, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_9);
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
   PyUnstable_Object_EnableDeferredRefcount(__pyx_t_9);
   #endif
-  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_raises, __pyx_t_9) < (0)) __PYX_ERR(0, 15, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_raises, __pyx_t_9) < (0)) __PYX_ERR(0, 18, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
 
-  /* "humpy_cytoolz/utils.pyx":23
+  /* "humpy_cytoolz/utils.pyx":26
  * 
  * 
  * def include_dirs():             # <<<<<<<<<<<<<<
  *     """ Return a list of directories containing the *.pxd files for ``humpy_cytoolz``
  * 
 */
-  __pyx_t_9 = __Pyx_CyFunction_New(&__pyx_mdef_13humpy_cytoolz_5utils_3include_dirs, 0, __pyx_mstate_global->__pyx_n_u_include_dirs, NULL, __pyx_mstate_global->__pyx_n_u_humpy_cytoolz_utils, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[1])); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 23, __pyx_L1_error)
+  __pyx_t_9 = __Pyx_CyFunction_New(&__pyx_mdef_13humpy_cytoolz_5utils_3include_dirs, 0, __pyx_mstate_global->__pyx_n_u_include_dirs, NULL, __pyx_mstate_global->__pyx_n_u_humpy_cytoolz_utils, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[1])); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 26, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_9);
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
   PyUnstable_Object_EnableDeferredRefcount(__pyx_t_9);
   #endif
-  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_include_dirs, __pyx_t_9) < (0)) __PYX_ERR(0, 23, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_include_dirs, __pyx_t_9) < (0)) __PYX_ERR(0, 26, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
 
-  /* "humpy_cytoolz/utils.pyx":53
+  /* "humpy_cytoolz/utils.pyx":56
  * 
  * 
  * cpdef object consume(object seq):             # <<<<<<<<<<<<<<
  *     """
  *     Efficiently consume an iterable """
 */
-  __pyx_t_9 = __Pyx_CyFunction_New(&__pyx_mdef_13humpy_cytoolz_5utils_5consume, 0, __pyx_mstate_global->__pyx_n_u_consume, NULL, __pyx_mstate_global->__pyx_n_u_humpy_cytoolz_utils, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[2])); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 53, __pyx_L1_error)
+  __pyx_t_9 = __Pyx_CyFunction_New(&__pyx_mdef_13humpy_cytoolz_5utils_5consume, 0, __pyx_mstate_global->__pyx_n_u_consume, NULL, __pyx_mstate_global->__pyx_n_u_humpy_cytoolz_utils, __pyx_mstate_global->__pyx_d, ((PyObject *)__pyx_mstate_global->__pyx_codeobj_tab[2])); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 56, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_9);
   #if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030E0000
   PyUnstable_Object_EnableDeferredRefcount(__pyx_t_9);
   #endif
-  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_consume, __pyx_t_9) < (0)) __PYX_ERR(0, 53, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_mstate_global->__pyx_d, __pyx_mstate_global->__pyx_n_u_consume, __pyx_t_9) < (0)) __PYX_ERR(0, 56, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
 
   /* "humpy_cytoolz/utils.pyx":1
- * import os.path             # <<<<<<<<<<<<<<
- * import humpy_cytoolz
- * 
+ * # cython: embedsignature=True             # <<<<<<<<<<<<<<
+ * # cython: freethreading_compatible=True
+ * # cython: language_level=3
 */
   __pyx_t_9 = __Pyx_PyDict_NewPresized(0); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 1, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_9);
@@ -3805,17 +3808,17 @@ static int __Pyx_CreateCodeObjects(__pyx_mstatetype *__pyx_mstate) {
   PyObject* tuple_dedup_map = PyDict_New();
   if (unlikely(!tuple_dedup_map)) return -1;
   {
-    const __Pyx_PyCode_New_function_description descr = {2, 0, 0, 2, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 15};
+    const __Pyx_PyCode_New_function_description descr = {2, 0, 0, 2, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 18};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_err, __pyx_mstate->__pyx_n_u_lamda};
     __pyx_mstate_global->__pyx_codeobj_tab[0] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_humpy_cytoolz_utils_pyx, __pyx_mstate->__pyx_n_u_raises, __pyx_mstate->__pyx_kp_b_iso88591_Q_q_q, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[0])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {0, 0, 0, 0, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 23};
+    const __Pyx_PyCode_New_function_description descr = {0, 0, 0, 0, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 26};
     PyObject* const varnames[] = {0};
     __pyx_mstate_global->__pyx_codeobj_tab[1] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_humpy_cytoolz_utils_pyx, __pyx_mstate->__pyx_n_u_include_dirs, __pyx_mstate->__pyx_kp_b_iso88591_6_2U_iq, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[1])) goto bad;
   }
   {
-    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 53};
+    const __Pyx_PyCode_New_function_description descr = {1, 0, 0, 1, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 56};
     PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_seq};
     __pyx_mstate_global->__pyx_codeobj_tab[2] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_humpy_cytoolz_utils_pyx, __pyx_mstate->__pyx_n_u_consume, __pyx_mstate->__pyx_kp_b_iso88591_Q, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[2])) goto bad;
   }

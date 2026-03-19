@@ -1,3 +1,6 @@
+# cython: embedsignature=True
+# cython: freethreading_compatible=True
+# cython: language_level=3
 from cpython.dict cimport (PyDict_Check, PyDict_CheckExact, PyDict_GetItem,
                            PyDict_New, PyDict_Next,
                            PyDict_SetItem, PyDict_Update, PyDict_DelItem)

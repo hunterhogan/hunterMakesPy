@@ -67,5 +67,4 @@ jobs:
           python-version: ${{ matrix.tests-python-versions }}
 
       - run: pip install ".[testing]"
-      - run: pip install setuptools && python setup.py build_ext --inplace --no-cython
       - run: pytest

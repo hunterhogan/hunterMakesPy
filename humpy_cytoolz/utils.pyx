@@ -1,3 +1,6 @@
+# cython: embedsignature=True
+# cython: freethreading_compatible=True
+# cython: language_level=3
 import os.path
 import humpy_cytoolz
 

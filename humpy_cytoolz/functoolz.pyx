@@ -1,3 +1,6 @@
+# cython: embedsignature=True
+# cython: freethreading_compatible=True
+# cython: language_level=3
 from functools import partial
 from humpy_cytoolz.utils import no_default
 import humpy_cytoolz._signatures as _sigs

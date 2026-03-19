@@ -55,7 +55,12 @@ dependencies = [
   "more_itertools",
   "numpy",
 ]
-optional-dependencies = { development = ["astToolkit"], testing = [
+optional-dependencies = { development = [
+  "astToolkit",
+  "cython",
+  "setuptools>=62.3",
+  "setuptools-scm",
+], testing = [
   "pytest",
   "pytest-cov",
   "pytest-xdist",
@@ -63,10 +68,9 @@ optional-dependencies = { development = ["astToolkit"], testing = [
 
 [build-system]
 requires = [
-  "Cython",
-  "setuptools",
-  "setuptools_git_versioning",
-  "setuptools-scm"
+  "cython",
+  "setuptools>=62.3",
+  "setuptools-scm",
 ]
 build-backend = "setuptools.build_meta"
 
@@ -98,7 +102,21 @@ testpaths = [
 ]
 
 [tool.setuptools]
-package-data = { "*" = ["py.typed"] }
+ext-modules = [
+  { name = "humpy_cytoolz.dicttoolz", sources = ["humpy_cytoolz/dicttoolz.pyx"] },
+  { name = "humpy_cytoolz.functoolz", sources = ["humpy_cytoolz/functoolz.pyx"] },
+  { name = "humpy_cytoolz.itertoolz", sources = ["humpy_cytoolz/itertoolz.pyx"] },
+  { name = "humpy_cytoolz.recipes", sources = ["humpy_cytoolz/recipes.pyx"] },
+  { name = "humpy_cytoolz.utils", sources = ["humpy_cytoolz/utils.pyx"] },
+]
+package-data = { "*" = [
+  "*.c",
+  "*.pxd",
+  "*.pyi",
+  "*.pyx",
+  "py.typed",
+  "Notice_of_Copyright.txt"
+] }
 packages = [
   "humpy_cytoolz.curried",
   "humpy_cytoolz.tests",

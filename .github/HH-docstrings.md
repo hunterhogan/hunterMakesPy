@@ -1,6 +1,6 @@
 ---
 name: Docstring Standards
-description: Standards for Python docstrings conforming to NumPy style with enhanced precision, international accessibility, and machine parseability.
+description: Standards for Python docstrings.
 ---
 # Python Docstring Standards
 
@@ -29,15 +29,15 @@ The summary line must be written as **a second-person declarative clause express
 
 **Examples:**
 
-- ✅ **Correct**: "Express descending iteration or a reverse direction."
-- ✅ **Correct**: "Compute the total number of distinct map foldings for a given shape."
-- ✅ **Correct**: "Convert a pile range to an iterator of individual leaves."
-- ✅ **Correct**: "Validate folding constraints before computation."
+- ✅ Correct: "Express descending iteration or a reverse direction."
+- ✅ Correct: "Compute the total number of distinct map foldings for a given shape."
+- ✅ Correct: "Convert a pile range to an iterator of individual leaves."
+- ✅ Correct: "Validate folding constraints before computation."
 
-- ❌ **Incorrect**: "You can express descending iteration." (explicit subject - too verbose for summary)
-- ❌ **Incorrect**: "Compute the total number of distinct map foldings." (imperative mood without modal - sounds commanding)
-- ❌ **Incorrect**: "Computes foldings." (third person, not second person)
-- ❌ **Incorrect**: "Returns the iterator." (too passive, not focused on reader capability)
+- ❌ Incorrect: "You can express descending iteration." (explicit subject - too verbose for summary)
+- ❌ Incorrect: "Compute the total number of distinct map foldings." (imperative mood without modal - sounds commanding)
+- ❌ Incorrect: "Computes foldings." (third person, not second person)
+- ❌ Incorrect: "Returns the iterator." (too passive, not focused on reader capability)
 
 **Why this matters:**
 
@@ -60,13 +60,13 @@ The summary line must be written in **first-person descriptive voice** explainin
 
 **Examples:**
 
-- ✅ **Correct**: "I use this shared subroutine for validating input across multiple public methods."
-- ✅ **Correct**: "I use this to manage control flow between the preprocessing and computation phases."
-- ✅ **Correct**: "I use this to cache intermediate results during recursive folding operations."
+- ✅ Correct: "I use this shared subroutine for validating input across multiple public methods."
+- ✅ Correct: "I use this to manage control flow between the preprocessing and computation phases."
+- ✅ Correct: "I use this to cache intermediate results during recursive folding operations."
 
-- ❌ **Incorrect**: "You can validate input." (second person - implies public API)
-- ❌ **Incorrect**: "Validates input." (third person - too passive, doesn't explain architectural role)
-- ❌ **Incorrect**: "Validate input before processing." (imperative - doesn't explain usage context)
+- ❌ Incorrect: "You can validate input." (second person - implies public API)
+- ❌ Incorrect: "Validates input." (third person - too passive, doesn't explain architectural role)
+- ❌ Incorrect: "Validate input before processing." (imperative - doesn't explain usage context)
 
 **Why this matters:**
 
@@ -108,7 +108,6 @@ def exampleFunction(parameterFirst: int, parameterSecond: str = "default") -> bo
  ----------
  [1] Relevant documentation or concept being referenced
   https://example.com/documentation
-
  """
 ```
 
@@ -136,7 +135,6 @@ entry : datatype
  Definition or description.
 entry : datatype = defaultValue
  Definition or description.
-[blank line]
 ```
 
 **Standard section names** (use exactly these):
@@ -241,8 +239,6 @@ def exampleFunction(data: list[int]) -> int:
  [3] gmpy2 - Context7
   https://gmpy2.readthedocs.io/en/latest/
  [4] mapFolding.basecamp.countFolds
-  Internal package reference
-
  """
 ```
 
@@ -458,7 +454,6 @@ algorithms
  Collection of map-folding algorithm implementations.
 _e
  Experimental elimination-based algorithms (internal research code).
-
 """
 ```
 
@@ -484,7 +479,6 @@ class ExampleClass:
  ----------
  attributeName : type
   Description of the attribute.
-
  """
 ```
 
@@ -504,7 +498,6 @@ class Configuration:
  ----------
  settingDefault : int
   The default setting value applied when no override is provided.
-
  """
 
  settingDefault: int = 42
