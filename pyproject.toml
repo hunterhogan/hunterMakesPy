@@ -102,13 +102,6 @@ testpaths = [
 ]
 
 [tool.setuptools]
-ext-modules = [
-  { name = "humpy_cytoolz.dicttoolz", sources = ["humpy_cytoolz/dicttoolz.pyx"] },
-  { name = "humpy_cytoolz.functoolz", sources = ["humpy_cytoolz/functoolz.pyx"] },
-  { name = "humpy_cytoolz.itertoolz", sources = ["humpy_cytoolz/itertoolz.pyx"] },
-  { name = "humpy_cytoolz.recipes", sources = ["humpy_cytoolz/recipes.pyx"] },
-  { name = "humpy_cytoolz.utils", sources = ["humpy_cytoolz/utils.pyx"] },
-]
 package-data = { "*" = [
   "*.c",
   "*.pxd",
