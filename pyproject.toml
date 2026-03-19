@@ -57,10 +57,10 @@ dependencies = [
 ]
 optional-dependencies = { development = [
   "astToolkit",
-  "cython",
   "setuptools>=62.3",
   "setuptools-scm",
 ], testing = [
+  "cython",
   "pytest",
   "pytest-cov",
   "pytest-xdist",
