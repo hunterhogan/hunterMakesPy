@@ -1,6 +1,6 @@
 [project]
 name = "hunterMakesPy"
-version = "0.4.5"
+version = "0.4.6"
 description = "Easy Python functions making making functional Python functions easier."
 readme = "README.md"
 requires-python = ">=3.12"
@@ -126,6 +126,7 @@ packages = [
   "humpy_toolz.tests",
   "humpy_toolz",
   "hunterMakesPy",
+  "hunterMakesPy.tests",
 ]
 
 [tool.updateCitation]
