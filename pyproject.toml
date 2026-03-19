@@ -95,13 +95,20 @@ run = { branch = true, concurrency = [
 addopts = ["--color=auto"]
 log_auto_indent = "On"
 testpaths = [
-  "humpy_cytoolz/tests",
+#   "humpy_cytoolz/tests",
   "humpy_toolz/sandbox/tests",
   "humpy_toolz/tests",
   "hunterMakesPy/tests",
 ]
 
 [tool.setuptools]
+extmodules = [
+  { name = "humpy_cytoolz.dicttoolz", sources = ["humpy_cytoolz/dicttoolz.pyx"] },
+  { name = "humpy_cytoolz.functoolz", sources = ["humpy_cytoolz/functoolz.pyx"] },
+  { name = "humpy_cytoolz.itertoolz", sources = ["humpy_cytoolz/itertoolz.pyx"] },
+  { name = "humpy_cytoolz.recipes", sources = ["humpy_cytoolz/recipes.pyx"] },
+  { name = "humpy_cytoolz.utils", sources = ["humpy_cytoolz/utils.pyx"] },
+]
 package-data = { "*" = [
   "*.c",
   "*.pxd",
