@@ -1,34 +1,33 @@
-# pyright: reportAny=false
 import collections.abc
 import functools
 import inspect
 import typing
 
 __all__ = (
-    "identity",
     "apply",
-    "thread_first",
-    "thread_last",
-    "memoize",
+    "complement",
     "compose",
     "compose_left",
-    "pipe",
-    "complement",
-    "juxt",
-    "do",
     "curry",
-    "flip",
+    "do",
     "excepts",
+    "flip",
+    "identity",
+    "juxt",
+    "memoize",
+    "pipe",
+    "thread_first",
+    "thread_last",
 )
 PYPY = bool
 
 ### Internal type stubs
 _T = typing.TypeVar("_T")
 _Instance = typing.TypeVar("_Instance")
-_Getter = typing.Callable[[_Instance], _T]
-_Setter = typing.Callable[[_Instance, _T], None]
-_Deleter = typing.Callable[[_Instance], None]
-_InstancePropertyState = tuple[
+type _Getter[_Instance, _T] = typing.Callable[[_Instance], _T]
+type _Setter[_Instance, _T] = typing.Callable[[_Instance, _T], None]
+type _Deleter[_Instance] = typing.Callable[[_Instance], None]
+type _InstancePropertyState[_Instance, _T] = tuple[
     _Getter[_Instance, _T] | None,
     _Setter[_Instance, _T] | None,
     _Deleter[_Instance] | None,
@@ -44,7 +43,6 @@ def identity[T](x: T) -> T:
     >>> identity(3)
     3
     """
-    ...
 
 def apply[**P, T](func: typing.Callable[P, T], *args: P.args, **kwargs: P.kwargs) -> T:
     """Applies a function and returns the results
@@ -57,7 +55,6 @@ def apply[**P, T](func: typing.Callable[P, T], *args: P.args, **kwargs: P.kwargs
     >>> tuple(map(apply, [double, inc, double], [10, 500, 8000]))
     (20, 501, 16000)
     """
-    ...
 
 def thread_first[T, R](
     val: T, *forms: typing.Callable[[T], R] | tuple[typing.Callable[..., R], typing.Any]
@@ -82,10 +79,10 @@ def thread_first[T, R](
     expands to
         g(f(x), y, z)
 
-    See Also:
+    See Also
+    --------
         thread_last
     """
-    ...
 
 def thread_last[T, U](
     val: T, *forms: typing.Callable[[T], U] | tuple[typing.Callable[..., U]]
@@ -115,12 +112,12 @@ def thread_last[T, U](
     >>> list(thread_last([1, 2, 3], (map, inc), (filter, iseven)))
     [2, 4]
 
-    See Also:
+    See Also
+    --------
         thread_first
     """
-    ...
 
-class InstanceProperty[_Instance, _T](property):
+class InstanceProperty[Instance, T](property):
     """Like @property, but returns ``classval`` when used as a class attribute
 
     Should not be used directly.  Use ``instanceproperty`` instead.
@@ -193,7 +190,6 @@ def instanceproperty(
     >>> obj.val
     42
     """
-    ...
 
 _CurryState = tuple
 
@@ -221,7 +217,8 @@ class curry[**P, T]:
     >>> add(2, 3)
     5
 
-    See Also:
+    See Also
+    --------
         toolz.curried - namespace of curried functions
                         https://toolz.readthedocs.io/en/latest/curry.html
     """
@@ -242,10 +239,6 @@ class curry[**P, T]:
     def keywords(self) -> dict[str, typing.Any]: ...
     @instanceproperty
     def func_name(self) -> str: ...
-    @typing.override
-    def __str__(self) -> str: ...
-    @typing.override
-    def __repr__(self) -> str: ...
     @typing.override
     def __hash__(self) -> int: ...
     @typing.override
@@ -310,7 +303,6 @@ def memoize[T](
     ...         print('Calculating %s + %s' % (x, y))
     ...     return x + y
     """
-    ...
 
 @typing.overload
 def compose[**P, T](fn_0: typing.Callable[P, T]) -> typing.Callable[P, T]: ...
@@ -368,11 +360,11 @@ def compose(
     >>> compose(str, inc)(3)
     '4'
 
-    See Also:
+    See Also
+    --------
         compose_left
         pipe
     """
-    ...
 
 @typing.overload
 def compose_left[**P, T](fn_0: typing.Callable[P, T]) -> typing.Callable[P, T]: ...
@@ -430,11 +422,11 @@ def compose_left(
     >>> compose_left(inc, str)(3)
     '4'
 
-    See Also:
+    See Also
+    --------
         compose
         pipe
     """
-    ...
 
 @typing.overload
 def pipe[T0, T1](
@@ -497,13 +489,13 @@ def pipe(data: typing.Any, *funcs: typing.Callable[..., typing.Any]) -> typing.A
     >>> pipe(3, double, str)
     '6'
 
-    See Also:
+    See Also
+    --------
         compose
         compose_left
         thread_first
         thread_last
     """
-    ...
 
 def complement[**P](func: typing.Callable[P, bool]) -> typing.Callable[P, bool]:
     """Convert a predicate function to its logical complement.
@@ -518,7 +510,6 @@ def complement[**P](func: typing.Callable[P, bool]) -> typing.Callable[P, bool]:
     >>> isodd(2)
     False
     """
-    ...
 
 @typing.overload
 def juxt() -> typing.Callable[..., tuple[()]]: ...
@@ -587,7 +578,6 @@ def juxt[**P, T](
     >>> juxt([inc, double])(10)
     (11, 20)
     """
-    ...
 
 def do[T](func: typing.Callable[[T], typing.Any], x: T) -> T:
     """Runs ``func`` on ``x``, returns ``x``
@@ -611,7 +601,6 @@ def do[T](func: typing.Callable[[T], typing.Any], x: T) -> T:
     >>> log
     [1, 11]
     """
-    ...
 
 @curry
 def flip[T, U, R](func: typing.Callable[[T, U], R], a: U, b: T) -> R:
@@ -637,7 +626,6 @@ def flip[T, U, R](func: typing.Callable[[T, U], R], a: U, b: T) -> R:
     >>> only_ints
     [1, 2, 3]
     """
-    ...
 
 class excepts[T, **P]:
     """A wrapper around a function to catch exceptions and

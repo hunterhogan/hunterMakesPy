@@ -7,8 +7,7 @@ This module validates the behavior of file and directory operations,
 including safe directory creation, file writing, and dynamic importing.
 
 """
-from hunterMakesPy import (
-	importLogicalPath2Identifier, importPathFilename2Identifier, makeDirsSafely, writePython, writeStringToHere)
+from hunterMakesPy import importLogicalPath2Identifier, importPathFilename2Identifier, makeDirsSafely, writePython, writeStringToHere
 from hunterMakesPy.tests.conftest import standardizedEqualTo
 import io
 import math

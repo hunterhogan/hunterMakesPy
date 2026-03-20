@@ -20,7 +20,8 @@ Example:
     >>> list(map(get(0), data))
     [1, 11, 111]
 
-See Also:
+See Also
+--------
     humpy_cytoolz.functoolz.curry
 """
 from . import operator
@@ -40,7 +41,7 @@ dissoc = humpy_cytoolz.curry(humpy_cytoolz.dissoc)
 do = humpy_cytoolz.curry(humpy_cytoolz.do)
 drop = humpy_cytoolz.curry(humpy_cytoolz.drop)
 excepts = humpy_cytoolz.curry(humpy_cytoolz.excepts)
-filter = humpy_cytoolz.curry(humpy_cytoolz.filter)
+filter = humpy_cytoolz.curry(humpy_cytoolz.filter)  # noqa: A001
 get = humpy_cytoolz.curry(humpy_cytoolz.get)
 get_in = humpy_cytoolz.curry(humpy_cytoolz.get_in)
 groupby = humpy_cytoolz.curry(humpy_cytoolz.groupby)
@@ -51,7 +52,7 @@ iterate = humpy_cytoolz.curry(humpy_cytoolz.iterate)
 join = humpy_cytoolz.curry(humpy_cytoolz.join)
 keyfilter = humpy_cytoolz.curry(humpy_cytoolz.keyfilter)
 keymap = humpy_cytoolz.curry(humpy_cytoolz.keymap)
-map = humpy_cytoolz.curry(humpy_cytoolz.map)
+map = humpy_cytoolz.curry(humpy_cytoolz.map)  # noqa: A001
 mapcat = humpy_cytoolz.curry(humpy_cytoolz.mapcat)
 nth = humpy_cytoolz.curry(humpy_cytoolz.nth)
 partial = humpy_cytoolz.curry(humpy_cytoolz.partial)
@@ -65,7 +66,7 @@ reduce = humpy_cytoolz.curry(humpy_cytoolz.reduce)
 reduceby = humpy_cytoolz.curry(humpy_cytoolz.reduceby)
 remove = humpy_cytoolz.curry(humpy_cytoolz.remove)
 sliding_window = humpy_cytoolz.curry(humpy_cytoolz.sliding_window)
-sorted = humpy_cytoolz.curry(humpy_cytoolz.sorted)
+sorted = humpy_cytoolz.curry(humpy_cytoolz.sorted)  # noqa: A001
 tail = humpy_cytoolz.curry(humpy_cytoolz.tail)
 take = humpy_cytoolz.curry(humpy_cytoolz.take)
 take_nth = humpy_cytoolz.curry(humpy_cytoolz.take_nth)
@@ -74,5 +75,4 @@ unique = humpy_cytoolz.curry(humpy_cytoolz.unique)
 update_in = humpy_cytoolz.curry(humpy_cytoolz.update_in)
 valfilter = humpy_cytoolz.curry(humpy_cytoolz.valfilter)
 valmap = humpy_cytoolz.curry(humpy_cytoolz.valmap)
-del exceptions
 del humpy_cytoolz

@@ -1,6 +1,5 @@
 from humpy_toolz._signatures import *
-from humpy_toolz._signatures import (
-	_has_keywords, _has_varargs, _is_arity, _is_partial_args, _is_valid_args, _num_required_args)
+from humpy_toolz._signatures import _has_keywords, _has_varargs, _is_arity, _is_partial_args, _is_valid_args, _num_required_args
 
 cytoolz_info = {}
 cytoolz_info['humpy_cytoolz.dicttoolz'] = dict(assoc=[lambda d, key, value, factory=dict: None], assoc_in=[lambda d, keys, value, factory=dict: None], dissoc=[lambda d, *keys, **kwargs: None], get_in=[lambda keys, coll, default=None, no_default=False: None], itemfilter=[lambda predicate, d, factory=dict: None], itemmap=[lambda func, d, factory=dict: None], keyfilter=[lambda predicate, d, factory=dict: None], keymap=[lambda func, d, factory=dict: None], merge=[lambda *dicts, **kwargs: None], merge_with=[lambda func, *dicts, **kwargs: None], update_in=[lambda d, keys, func, default=None, factory=dict: None], valfilter=[lambda predicate, d, factory=dict: None], valmap=[lambda func, d, factory=dict: None])

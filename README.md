@@ -4,10 +4,6 @@ Utilities for converting mixed input to integers, calculating CPU limits, handli
 
 [![pip install hunterMakesPy](https://img.shields.io/badge/pip%20install-hunterMakesPy-gray.svg?colorB=3b434b)](https://pypi.org/project/hunterMakesPy/)
 
-```bash
-pip install hunterMakesPy
-```
-
 ## What This Package Does
 
 1. **Convert strings, floats, binary data to validated integers** — Accepts messy input like `["1", 2.0, b"3"]` and returns `[1, 2, 3]` or fails with descriptive errors.

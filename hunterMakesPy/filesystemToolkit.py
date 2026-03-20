@@ -150,7 +150,7 @@ settings_isortDEFAULT: dict[str, bool | int | str | list[str]] = {
 	"from_first": True,
 	"honor_noqa": True,
 	"indent": "\t",
-	"line_length": 120,
+	"line_length": 140,
 	"lines_after_imports": 1,
 	"lines_between_types": 0,
 	"multi_line_output": 4,

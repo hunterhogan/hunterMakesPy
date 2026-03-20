@@ -1,4 +1,3 @@
-# pyright: reportAny=false
 import collections.abc
 import sys
 import typing
@@ -9,19 +8,19 @@ else:
     from typing_extensions import TypeIs
 
 __all__ = (
+    "assoc",
+    "assoc_in",
+    "dissoc",
+    "get_in",
+    "itemfilter",
+    "itemmap",
+    "keyfilter",
+    "keymap",
     "merge",
     "merge_with",
-    "valmap",
-    "keymap",
-    "itemmap",
-    "valfilter",
-    "keyfilter",
-    "itemfilter",
-    "assoc",
-    "dissoc",
-    "assoc_in",
     "update_in",
-    "get_in",
+    "valfilter",
+    "valmap",
 )
 
 @typing.overload
@@ -45,10 +44,10 @@ def merge[K, V](
     >>> merge({1: 2, 3: 4}, {3: 3, 4: 4})
     {1: 2, 3: 3, 4: 4}
 
-    See Also:
+    See Also
+    --------
         merge_with
     """
-    ...
 
 @typing.overload
 def merge_with[K, V](
@@ -77,10 +76,10 @@ def merge_with[K, V](
     >>> merge_with(first, {1: 1, 2: 2}, {2: 20, 3: 30})  # doctest: +SKIP
     {1: 1, 2: 2, 3: 30}
 
-    See Also:
+    See Also
+    --------
         merge
     """
-    ...
 
 @typing.overload
 def valmap[K, V0, V1](
@@ -106,11 +105,11 @@ def valmap[K, V0, V1](
     >>> valmap(sum, bills)  # doctest: +SKIP
     {'Alice': 65, 'Bob': 45}
 
-    See Also:
+    See Also
+    --------
         keymap
         itemmap
     """
-    ...
 
 @typing.overload
 def keymap[K0, K1, V](
@@ -136,11 +135,11 @@ def keymap[K0, K1, V](
     >>> keymap(str.lower, bills)  # doctest: +SKIP
     {'alice': [20, 15, 30], 'bob': [10, 35]}
 
-    See Also:
+    See Also
+    --------
         valmap
         itemmap
     """
-    ...
 
 @typing.overload
 def itemmap[K0, V0, K1, V1](
@@ -166,11 +165,11 @@ def itemmap[K0, V0, K1, V1](
     >>> itemmap(reversed, accountids)  # doctest: +SKIP
     {10: "Alice", 20: "Bob"}
 
-    See Also:
+    See Also
+    --------
         keymap
         valmap
     """
-    ...
 
 @typing.overload
 def valfilter[K, V, R](
@@ -221,12 +220,12 @@ def valfilter[K, V, R](
     >>> valfilter(iseven, d)
     {1: 2, 3: 4}
 
-    See Also:
+    See Also
+    --------
         keyfilter
         itemfilter
         valmap
     """
-    ...
 
 @typing.overload
 def keyfilter[K, V, R](
@@ -277,12 +276,12 @@ def keyfilter[K, V, R](
     >>> keyfilter(iseven, d)
     {2: 3, 4: 5}
 
-    See Also:
+    See Also
+    --------
         valfilter
         itemfilter
         keymap
     """
-    ...
 
 @typing.overload
 def itemfilter[K, V, K1, V1](
@@ -337,12 +336,12 @@ def itemfilter[K, V, K1, V1](
     >>> itemfilter(isvalid, d)
     {2: 3}
 
-    See Also:
+    See Also
+    --------
         keyfilter
         valfilter
         itemmap
     """
-    ...
 
 @typing.overload
 def assoc[K, V](
@@ -374,7 +373,6 @@ def assoc[K, V](
     >>> assoc({'x': 1}, 'y', 3)   # doctest: +SKIP
     {'x': 1, 'y': 3}
     """
-    ...
 
 @typing.overload
 def dissoc[K, V](
@@ -404,7 +402,6 @@ def dissoc[K, V](
     >>> dissoc({'x': 1}, 'y') # Ignores missing keys
     {'x': 1}
     """
-    ...
 
 # Overloads for nested dictionaries with tuple keys (2-level nesting)
 @typing.overload
@@ -475,7 +472,6 @@ def assoc_in[K, V](
      'name': 'Alice',
      'order': {'costs': [0.25, 1.00], 'items': ['Apple', 'Orange']}}
     """
-    ...
 
 @typing.overload
 def update_in[K, V](
@@ -540,7 +536,6 @@ def update_in[K, V](
     >>> update_in({1: 'foo'}, [2, 3, 4], inc, 0)
     {1: 'foo', 2: {3: {4: 1}}}
     """
-    ...
 
 @typing.overload
 def get_in[K, V, D](
@@ -595,8 +590,8 @@ def get_in[K, V](
         ...
     KeyError: 'y'
 
-    See Also:
+    See Also
+    --------
         itertoolz.get
         operator.getitem
     """
-    ...
