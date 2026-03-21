@@ -66,8 +66,7 @@ References
 """
 
 # isort: split
-from hunterMakesPy.semiotics import (
-	decreasing as decreasing, errorL33T as errorL33T, inclusive as inclusive, zeroIndexed as zeroIndexed)
+from hunterMakesPy.semiotics import decreasing as decreasing, errorL33T as errorL33T, inclusive as inclusive, zeroIndexed as zeroIndexed
 
 # isort: split
 from hunterMakesPy.theTypes import (

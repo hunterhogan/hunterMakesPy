@@ -15,8 +15,6 @@ consolidates multiple dictionaries while offering optional deduplication and sor
 Contents
 --------
 Functions
-	removeExtraWhitespace
-		Remove extra whitespace from string representation of Python data structures.
 	autoDecodingRLE
 		Transform a NumPy array into a compact, self-decoding run-length encoded string representation.
 	stringItUp
@@ -32,172 +30,133 @@ References
 """
 from charset_normalizer import CharsetMatch
 from collections.abc import Mapping
+from humpy_cytoolz.functoolz import identity
+from humpy_cytoolz.recipes import partitionby
 from hunterMakesPy import Ordinals
 from numpy import integer
 from numpy.typing import NDArray
-from typing import Any, cast, TYPE_CHECKING
+from typing import Any, cast
 import charset_normalizer
-import more_itertools
-import re as regex
 import sys
 
-if TYPE_CHECKING:
-	from collections.abc import Iterator
-
-def removeExtraWhitespace(string: str) -> str:
-	"""Remove extra whitespace from string representation of Python data structures."""
-	commas: str = regex.sub(r',\s+', ',', string)
-	bracketsOpening: str = regex.sub(r'([\[\(])\s+', r'\1', commas)
-	# Remove spaces before closing brackets/parentheses.
-	return regex.sub(r'\s+([\]\)])', r'\1', bracketsOpening)
-
+# TODO refine autoDecodingRLE.
 def autoDecodingRLE(arrayTarget: NDArray[integer[Any]], *, assumeAddSpaces: bool = False) -> str:
 	"""Transform a NumPy array into a compact, self-decoding run-length encoded string representation.
 
-	This function converts a NumPy array into a string that, when evaluated as Python code,
-	recreates the original array structure. The function employs two compression strategies:
+	This function converts a NumPy array into a string that, when evaluated as Python code, recreates
+	the original array structure. The function employs two compression strategies:
 	1. Python's `range` syntax for consecutive integer sequences
 	2. Multiplication syntax for repeated elements
 
 	The resulting string representation is designed to be both human-readable and space-efficient,
-	especially for large cartesian mappings with repetitive patterns. When this string is used
-	as a data source, Python will automatically decode it into Python `list`, which if used as an
-	argument to `numpy.array()`, will recreate the original array structure.
+	especially for large cartesian mappings with repetitive patterns. When this string is used as a
+	data source, Python will automatically decode it into Python `list`, which if used as an argument
+	to `numpy.array()`, will recreate the original array structure.
 
 	Parameters
 	----------
 	arrayTarget : NDArray[integer[Any]]
-		(array2target) The NumPy array to be encoded.
+		The NumPy array to be encoded.
 	assumeAddSpaces : bool = False
-		(assume2add2spaces) Affects internal length comparison during compression decisions.
-		This parameter doesn't directly change output format but influences whether
-		`range` or multiplication syntax is preferred in certain cases. The parameter
-		exists because the Abstract Syntax Tree (AST) inserts spaces in its string
-		representation.
+		Affects internal length comparison during compression decisions. This parameter doesn't
+		directly change output format but influences whether `range` or multiplication syntax is
+		preferred in certain cases. The parameter exists because the Abstract Syntax Tree (AST)
+		inserts spaces in its string representation.
 
 	Returns
 	-------
-	rleString : str
-		(rle2string) A string representation of the array using run-length encoding that,
-		when evaluated as Python code, reproduces the original array structure.
+	encodedString : str
+		A string representation of the array using run-length encoding that, when evaluated as Python
+		code, reproduces the original array structure.
 
 	Notes
 	-----
-	The "autoDecoding" feature means that the string representation evaluates directly
-	to the desired data structure without explicit decompression steps.
+	The "autoDecoding" feature means that the string representation evaluates directly to the desired
+	data structure without explicit decompression steps.
 
+	The encoded string uses only builtins — no imports are needed to decode it.
 	"""
-	def sliceNDArrayToNestedLists(arraySlice: NDArray[integer[Any]]) -> Any:
-		def getLengthOption(optionAsStr: str) -> int:
-			"""`assumeAddSpaces` characters: `,` 1; `]*` 2."""
-			return assumeAddSpaces * (optionAsStr.count(',') + optionAsStr.count(']*') * 2) + len(optionAsStr)
+	def measurerCalculatesAdjustedLength(string: str) -> int:
+		"""`assumeAddSpaces` characters: `,` 1; `]*` 2."""
+		return len(string) + assumeAddSpaces * (string.count(',') + string.count(']*') * 2)
 
-		if 1 < arraySlice.ndim:
-			axisOfOperation = 0
-			return [sliceNDArrayToNestedLists(arraySlice[index]) for index in range(arraySlice.shape[axisOfOperation])]
+	def encoderConvertsTokenToString(token: int | tuple[int, int]) -> str:
+		string: str = str(token)
+		if isinstance(token, tuple):
+			rangeStart, rangeEnd = token
+			if rangeStart == 0:
+				string = f"*range({rangeEnd})"
+			else:
+				string = f"*range({rangeStart},{rangeEnd})"
+		return string
+
+	def encoderTransformsOneDimensionalSequenceToString(listIntegers: list[int]) -> str:
+		stringRepresentingArray: str = '[]'
+
+		if listIntegers:
+			listTokens: list[int | tuple[int, int]] = []
+			index: int = 0
+			countIntegers: int = len(listIntegers)
+
+			while index < countIntegers:
+				countConsecutive: int = 1
+				while (index + countConsecutive < countIntegers) and (listIntegers[index + countConsecutive] == listIntegers[index] + countConsecutive):
+					countConsecutive += 1
+
+				integerStart: int = listIntegers[index]
+				integerEnd: int = integerStart + countConsecutive
+				stringRangeSyntax: str = ''
+				if integerStart == 0:
+					stringRangeSyntax = f"*range({integerEnd})"
+				else:
+					stringRangeSyntax = f"*range({integerStart},{integerEnd})"
+				stringCommaSeparated: str = ','.join(str(integerStart + offset) for offset in range(countConsecutive))
+
+				if measurerCalculatesAdjustedLength(stringRangeSyntax) < measurerCalculatesAdjustedLength(stringCommaSeparated):
+					listTokens.append((integerStart, integerEnd))
+				else:
+					for indexOffset in range(countConsecutive):
+						listTokens.append(integerStart + indexOffset)  # noqa: PERF401
+				index += countConsecutive
+
+			listSegments: list[str] = []
+			listBuffer: list[str] = []
+
+			for groupTokens in partitionby(identity, listTokens):
+				listGroup: list[int | tuple[int, int]] = list(groupTokens)
+				tokenActive: int | tuple[int, int] = listGroup[0]
+				countRepetitions: int = len(listGroup)
+
+				stringTokenActive: str = encoderConvertsTokenToString(tokenActive)
+
+				if 1 < countRepetitions:
+					stringMultiplicationSyntax: str = f"[{stringTokenActive}]*{countRepetitions}"
+					stringListSyntax: str = "[" + ",".join([stringTokenActive] * countRepetitions) + "]"
+					if measurerCalculatesAdjustedLength(stringMultiplicationSyntax) < measurerCalculatesAdjustedLength(stringListSyntax):
+						if listBuffer:
+							listSegments.append('[' + ','.join(listBuffer) + ']')
+							listBuffer = []
+						listSegments.append(stringMultiplicationSyntax)
+						continue
+
+				listBuffer.extend([stringTokenActive] * countRepetitions)
+
+			if listBuffer:
+				listSegments.append('[' + ','.join(listBuffer) + ']')
+
+			if listSegments:
+				stringRepresentingArray = '+'.join(listSegments)
+
+		return stringRepresentingArray
+
+	def encoderTransformsArrayRecursively(arraySlice: NDArray[integer[Any]]) -> str:
+		if arraySlice.ndim == 0:
+			return str(int(arraySlice))
 		if arraySlice.ndim == 1:
-			arraySliceAsList: list[int | range] = []
-			cache_consecutiveGroup_addMe: dict[Iterator[Any], list[int] | list[range]] = {}
-			for consecutiveGroup in more_itertools.consecutive_groups(arraySlice.tolist()):
-				if consecutiveGroup in cache_consecutiveGroup_addMe:
-					addMe = cache_consecutiveGroup_addMe[consecutiveGroup]
-				else:
-					ImaSerious: list[int] = list(consecutiveGroup)
-					ImaRange: list[range] = [range(ImaSerious[0], ImaSerious[-1] + 1)]
-					ImaRangeAsStr: str = removeExtraWhitespace(str(ImaRange)).replace('range(0,', 'range(').replace('range', '*range')
+			return encoderTransformsOneDimensionalSequenceToString(arraySlice.tolist())
+		return '[' + ','.join(encoderTransformsArrayRecursively(arraySlice[indexRow]) for indexRow in range(arraySlice.shape[0])) + ']'
 
-					option1 = ImaRange
-					option1AsStr = ImaRangeAsStr
-					option2 = ImaSerious
-					option2AsStr: str | None = None
-
-					# alpha, potential function
-					option1AsStr: str = option1AsStr or removeExtraWhitespace(str(option1))
-					lengthOption1: int = getLengthOption(option1AsStr)
-
-					option2AsStr = option2AsStr or removeExtraWhitespace(str(option2))
-					lengthOption2: int = getLengthOption(option2AsStr)
-
-					if lengthOption1 < lengthOption2:
-						addMe = option1
-					else:
-						addMe = option2
-
-					cache_consecutiveGroup_addMe[consecutiveGroup] = addMe
-
-				arraySliceAsList += addMe
-
-			listRangeAndTuple: list[int | range | tuple[int | range, int]] = []
-			cache_malkovichGrouped_addMe: dict[tuple[int | range, int], list[tuple[int | range, int]] | list[int | range]] = {}
-			for malkovichGrouped in more_itertools.run_length.encode(arraySliceAsList):
-				if malkovichGrouped in cache_malkovichGrouped_addMe:
-					addMe = cache_malkovichGrouped_addMe[malkovichGrouped]
-				else:
-					lengthMalkovich: int = malkovichGrouped[-1]
-					malkovichAsList: list[int | range] = list(more_itertools.run_length.decode([malkovichGrouped]))
-					malkovichMalkovich: str = f"[{malkovichGrouped[0]}]*{lengthMalkovich}"
-
-					option1 = [malkovichGrouped]
-					option1AsStr = malkovichMalkovich
-					option2 = malkovichAsList
-					option2AsStr = None
-
-					# beta, potential function
-					option1AsStr = option1AsStr or removeExtraWhitespace(str(option1))
-					lengthOption1 = getLengthOption(option1AsStr)
-
-					option2AsStr = option2AsStr or removeExtraWhitespace(str(option2))
-					lengthOption2 = getLengthOption(option2AsStr)
-
-					if lengthOption1 < lengthOption2:
-						addMe = option1
-					else:
-						addMe = option2
-
-					cache_malkovichGrouped_addMe[malkovichGrouped] = addMe
-
-				listRangeAndTuple += addMe
-
-			return listRangeAndTuple
-		return arraySlice
-
-	arrayAsNestedLists = sliceNDArrayToNestedLists(arrayTarget)
-
-	arrayAsStr: str = removeExtraWhitespace(str(arrayAsNestedLists))
-
-	patternRegex: regex.Pattern[str] = regex.compile(
-		"(?<!rang)(?:"
-		# Pattern 1: Comma ahead, bracket behind  # noqa: ERA001
-		"(?P<joinAhead>,)\\((?P<malkovich>\\d+),(?P<multiply>\\d+)\\)(?P<bracketBehind>])|"
-		# Pattern 2: Bracket or start ahead, comma behind  # noqa: ERA001
-		"(?P<bracketOrStartAhead>\\[|^.)\\((?P<malkovichMalkovich>\\d+),(?P<multiplyIDK>\\d+)\\)(?P<joinBehind>,)|"
-		# Pattern 3: Bracket ahead, bracket behind  # noqa: ERA001
-		"(?P<bracketAhead>\\[)\\((?P<malkovichMalkovichMalkovich>\\d+),(?P<multiply_whatever>\\d+)\\)(?P<bracketBehindBracketBehind>])|"
-		# Pattern 4: Comma ahead, comma behind  # noqa: ERA001
-		"(?P<joinAheadJoinAhead>,)\\((?P<malkovichMalkovichMalkovichMalkovich>\\d+),(?P<multiplyOrSomething>\\d+)\\)(?P<joinBehindJoinBehind>,)"
-		")"
-	)
-
-	def replacementByContext(match: regex.Match[str]) -> str:
-		"""Generate replacement string based on context patterns."""
-		elephino: dict[str, str | None] = match.groupdict()
-		joinAhead: str | None = elephino.get('joinAhead') or elephino.get('joinAheadJoinAhead')
-		malkovich: str | None = elephino.get('malkovich') or elephino.get('malkovichMalkovich') or elephino.get('malkovichMalkovichMalkovich') or elephino.get('malkovichMalkovichMalkovichMalkovich')
-		multiply: str | None = elephino.get('multiply') or elephino.get('multiplyIDK') or elephino.get('multiply_whatever') or elephino.get('multiplyOrSomething')
-		joinBehind: str | None = elephino.get('joinBehind') or elephino.get('joinBehindJoinBehind')
-
-		replaceAhead: str = "]+[" if joinAhead == "," else "["
-
-		replaceBehind: str = "+[" if joinBehind == "," else ""
-
-		return f"{replaceAhead}{malkovich}]*{multiply}{replaceBehind}"
-
-	arrayAsStr = patternRegex.sub(replacementByContext, arrayAsStr)
-	arrayAsStr = patternRegex.sub(replacementByContext, arrayAsStr)
-
-	# Replace `range(0,stop)` syntax with `range(stop)` syntax.  # noqa: ERA001
-	# Add unpack operator `*` for automatic decoding when evaluated.
-	return arrayAsStr.replace('range(0,', 'range(').replace('range', '*range')
+	return encoderTransformsArrayRecursively(arrayTarget)
 
 def stringItUp(*scrapPile: Any) -> list[str]:
 	"""Convert, if possible, every element in the input data structure to a string.
@@ -265,14 +224,16 @@ def updateExtendPolishDictionaryLists[小于: Ordinals](*dictionaryLists: Mappin
 	Parameters
 	----------
 	*dictionaryLists : Mapping[str, list[Any] | set[Any] | tuple[Any, ...]]
-		Variable number of dictionaries to be merged. If only one dictionary is passed, it will be "polished".
+		Variable number of dictionaries to be merged. If only one dictionary is passed, it will be
+		"polished".
 	destroyDuplicates : bool = False
 		If `True`, removes duplicate elements from the `list`. Defaults to `False`.
 	reorderLists : bool = False
-		If `True`, sorts each `list` value. Defaults to `False`. The elements must be comparable; otherwise, a `TypeError` will be raised.
+		If `True`, sorts each `list` value. Defaults to `False`. The elements must be comparable;
+		otherwise, a `TypeError` will be raised.
 	killErroneousDataTypes : bool = False
-		If `True`, suppresses any `TypeError` `Exception` and omits the dictionary key or value that caused the `Exception`.
-		Defaults to `False`.
+		If `True`, suppresses any `TypeError` `Exception` and omits the dictionary key or value that
+		caused the `Exception`. Defaults to `False`.
 
 	Returns
 	-------
@@ -281,12 +242,12 @@ def updateExtendPolishDictionaryLists[小于: Ordinals](*dictionaryLists: Mappin
 
 	Notes
 	-----
-	The returned value, `ePluribusUnum`, is a so-called primitive dictionary (`dict`). Furthermore, every dictionary key is a
-	so-called primitive string (*cf.* `str()`) and every dictionary value is a so-called primitive `list` (`list`). If
-	`dictionaryLists` has other data types, the data types will not be preserved. That could have unexpected consequences.
-	Conversion from the original data type to a `list`, for example, may not preserve the order even if you want the order to be
-	preserved.
-
+	The returned value, `ePluribusUnum`, is a so-called primitive dictionary (`dict`). Furthermore,
+	every dictionary key is a so-called primitive string (*cf.* `str()`) and every dictionary value
+	is a so-called primitive `list` (`list`). If `dictionaryLists` has other data types, the data
+	types will not be preserved. That could have unexpected consequences. Conversion from the
+	original data type to a `list`, for example, may not preserve the order even if you want the
+	order to be preserved.
 	"""
 	ePluribusUnum: dict[str, list[小于]] = {}
 
