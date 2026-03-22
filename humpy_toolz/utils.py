@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+from collections.abc import Callable
 from enum import Enum
-from typing import Any, Callable
+from typing import Any
 
 def raises(err: type[Exception], lamda: Callable[[], Any]) -> bool:
     try:

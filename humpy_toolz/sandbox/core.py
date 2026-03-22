@@ -1,14 +1,15 @@
 from __future__ import annotations
 
+from collections.abc import Callable, Iterable
 from humpy_toolz.itertoolz import cons, getter, pluck
 from itertools import starmap, tee
-from typing import Any, Callable, Generic, Iterable, TypeVar
+from typing import Any, Generic, TypeVar
 
 _S = TypeVar('_S')
 _T = TypeVar('_T')
 
 class EqualityHashKey(Generic[_S, _T]):
-    """ Create a hash key that uses equality comparisons between items.
+    """Create a hash key that uses equality comparisons between items.
 
     This may be used to create hash keys for otherwise unhashable types:
 
@@ -58,7 +59,8 @@ class EqualityHashKey(Generic[_S, _T]):
     idiom in functional programming, and``EqualityHashKey`` easily allows
     the same idiom to be used by convention rather than strict requirement.
 
-    See Also:
+    See Also
+    --------
         identity
     """
     __slots__ = ['item', 'key']
@@ -80,13 +82,13 @@ class EqualityHashKey(Generic[_S, _T]):
             val = self.key(self.item)
         return hash(val)
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         try:
             return bool(self._default_hashkey == other._default_hashkey and self.item == other.item)
         except AttributeError:
             return False
 
-    def __ne__(self, other: Any) -> bool:
+    def __ne__(self, other: object) -> bool:
         return not self.__eq__(other)
 
     def __str__(self) -> str:

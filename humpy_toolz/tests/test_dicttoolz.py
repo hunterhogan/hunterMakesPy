@@ -12,7 +12,7 @@ def inc(x):
 def iseven(i):
     return i % 2 == 0
 
-class TestDict(object):
+class TestDict:
     """Test typical usage: dict inputs, no factory keyword.
 
     Class attributes:
@@ -132,7 +132,7 @@ class TestDict(object):
 class defaultdict(_defaultdict):
 
     def __eq__(self, other):
-        return super(defaultdict, self).__eq__(other) and isinstance(other, _defaultdict) and (self.default_factory == other.default_factory)
+        return super().__eq__(other) and isinstance(other, _defaultdict) and (self.default_factory == other.default_factory)
 
 class TestDefaultDict(TestDict):
     """Test defaultdict as input and factory
@@ -147,7 +147,7 @@ class TestDefaultDict(TestDict):
         return defaultdict(int, dict_)
     kw = {'factory': lambda: defaultdict(int)}
 
-class CustomMapping(object):
+class CustomMapping:
     """Define methods of the MutableMapping protocol required by dicttoolz"""
 
     def __init__(self, *args, **kwargs):

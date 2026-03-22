@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from collections.abc import Callable, Mapping, MutableMapping
+from collections.abc import Callable, Mapping, MutableMapping, Sequence
 from functools import reduce
-from typing import Any, Sequence, TYPE_CHECKING
+from typing import Any, TYPE_CHECKING
 import operator
 
-__all__ = ('merge', 'merge_with', 'valmap', 'keymap', 'itemmap', 'valfilter', 'keyfilter', 'itemfilter', 'assoc', 'dissoc', 'assoc_in', 'update_in', 'get_in')
+__all__ = ('assoc', 'assoc_in', 'dissoc', 'get_in', 'itemfilter', 'itemmap', 'keyfilter', 'keymap', 'merge', 'merge_with', 'update_in', 'valfilter', 'valmap')
 if TYPE_CHECKING:
     from typing import TypeVar
     _S = TypeVar('_S')
@@ -19,7 +19,7 @@ if TYPE_CHECKING:
     Filter = Callable[[_T], bool]
 
 def merge(*dicts: Mapping[_S, _T], factory: type[_DictType]=dict) -> _DictType[_S, _T]:
-    """ Merge a collection of dictionaries
+    """Merge a collection of dictionaries
 
     >>> merge({1: 'one'}, {2: 'two'})
     {1: 'one', 2: 'two'}
@@ -29,7 +29,8 @@ def merge(*dicts: Mapping[_S, _T], factory: type[_DictType]=dict) -> _DictType[_
     >>> merge({1: 2, 3: 4}, {3: 3, 4: 4})
     {1: 2, 3: 3, 4: 4}
 
-    See Also:
+    See Also
+    --------
         merge_with
     """
     if len(dicts) == 1 and (not isinstance(dicts[0], Mapping)):
@@ -40,7 +41,7 @@ def merge(*dicts: Mapping[_S, _T], factory: type[_DictType]=dict) -> _DictType[_
     return rv
 
 def merge_with(func: Callable[[Sequence[_T]], _U], *dicts: Mapping[_S, _T], factory: type[_DictType]=dict) -> _DictType[_S, _U]:
-    """ Merge dictionaries and apply function to combined values
+    """Merge dictionaries and apply function to combined values
 
     A key may occur in more than one dict, and all values mapped from the key
     will be passed to the function as a list, such as func([val1, val2, ...]).
@@ -51,7 +52,8 @@ def merge_with(func: Callable[[Sequence[_T]], _U], *dicts: Mapping[_S, _T], fact
     >>> merge_with(first, {1: 1, 2: 2}, {2: 20, 3: 30})  # doctest: +SKIP
     {1: 1, 2: 2, 3: 30}
 
-    See Also:
+    See Also
+    --------
         merge
     """
     if len(dicts) == 1 and (not isinstance(dicts[0], Mapping)):
@@ -66,13 +68,14 @@ def merge_with(func: Callable[[Sequence[_T]], _U], *dicts: Mapping[_S, _T], fact
     return result
 
 def valmap(func: TransformOp[_T, _U], d: Mapping[_S, _T], factory: type[_DictType]=dict) -> _DictType[_S, _U]:
-    """ Apply function to values of dictionary
+    """Apply function to values of dictionary
 
     >>> bills = {"Alice": [20, 15, 30], "Bob": [10, 35]}
     >>> valmap(sum, bills)  # doctest: +SKIP
     {'Alice': 65, 'Bob': 45}
 
-    See Also:
+    See Also
+    --------
         keymap
         itemmap
     """
@@ -81,13 +84,14 @@ def valmap(func: TransformOp[_T, _U], d: Mapping[_S, _T], factory: type[_DictTyp
     return rv
 
 def keymap(func: TransformOp[_S, _U], d: Mapping[_S, _T], factory: type[_DictType]=dict) -> _DictType[_U, _T]:
-    """ Apply function to keys of dictionary
+    """Apply function to keys of dictionary
 
     >>> bills = {"Alice": [20, 15, 30], "Bob": [10, 35]}
     >>> keymap(str.lower, bills)  # doctest: +SKIP
     {'alice': [20, 15, 30], 'bob': [10, 35]}
 
-    See Also:
+    See Also
+    --------
         valmap
         itemmap
     """
@@ -96,13 +100,14 @@ def keymap(func: TransformOp[_S, _U], d: Mapping[_S, _T], factory: type[_DictTyp
     return rv
 
 def itemmap(func: Callable[[tuple[_S, _T]], tuple[_U, _V]], d: Mapping[_S, _T], factory: type[_DictType]=dict) -> _DictType[_U, _V]:
-    """ Apply function to items of dictionary
+    """Apply function to items of dictionary
 
     >>> accountids = {"Alice": 10, "Bob": 20}
     >>> itemmap(reversed, accountids)  # doctest: +SKIP
     {10: "Alice", 20: "Bob"}
 
-    See Also:
+    See Also
+    --------
         keymap
         valmap
     """
@@ -111,14 +116,15 @@ def itemmap(func: Callable[[tuple[_S, _T]], tuple[_U, _V]], d: Mapping[_S, _T], 
     return rv
 
 def valfilter(predicate: Filter[_T], d: Mapping[_S, _T], factory: type[_DictType]=dict) -> _DictType[_S, _T]:
-    """ Filter items in dictionary by value
+    """Filter items in dictionary by value
 
     >>> iseven = lambda x: x % 2 == 0
     >>> d = {1: 2, 2: 3, 3: 4, 4: 5}
     >>> valfilter(iseven, d)
     {1: 2, 3: 4}
 
-    See Also:
+    See Also
+    --------
         keyfilter
         itemfilter
         valmap
@@ -130,14 +136,15 @@ def valfilter(predicate: Filter[_T], d: Mapping[_S, _T], factory: type[_DictType
     return rv
 
 def keyfilter(predicate: Filter[_S], d: Mapping[_S, _T], factory: type[_DictType]=dict) -> _DictType[_S, _T]:
-    """ Filter items in dictionary by key
+    """Filter items in dictionary by key
 
     >>> iseven = lambda x: x % 2 == 0
     >>> d = {1: 2, 2: 3, 3: 4, 4: 5}
     >>> keyfilter(iseven, d)
     {2: 3, 4: 5}
 
-    See Also:
+    See Also
+    --------
         valfilter
         itemfilter
         keymap
@@ -149,7 +156,7 @@ def keyfilter(predicate: Filter[_S], d: Mapping[_S, _T], factory: type[_DictType
     return rv
 
 def itemfilter(predicate: Filter[tuple[_S, _T]], d: Mapping[_S, _T], factory: type[_DictType]=dict) -> _DictType[_S, _T]:
-    """ Filter items in dictionary by item
+    """Filter items in dictionary by item
 
     >>> def isvalid(item):
     ...     k, v = item
@@ -159,7 +166,8 @@ def itemfilter(predicate: Filter[tuple[_S, _T]], d: Mapping[_S, _T], factory: ty
     >>> itemfilter(isvalid, d)
     {2: 3}
 
-    See Also:
+    See Also
+    --------
         keyfilter
         valfilter
         itemmap
@@ -172,7 +180,7 @@ def itemfilter(predicate: Filter[tuple[_S, _T]], d: Mapping[_S, _T], factory: ty
     return rv
 
 def assoc(d: Mapping[_S, _T], key: _S, value: _T, factory: type[_DictType]=dict) -> _DictType[_S, _T]:
-    """ Return a new dict with new key value pair
+    """Return a new dict with new key value pair
 
     New dict has d[key] set to value. Does not modify the initial dictionary.
 
@@ -187,7 +195,7 @@ def assoc(d: Mapping[_S, _T], key: _S, value: _T, factory: type[_DictType]=dict)
     return d2
 
 def dissoc(d: Mapping[_S, _T], *keys: _S, factory: type[_DictType]=dict) -> _DictType[_S, _T]:
-    """ Return a new dict with the given key(s) removed.
+    """Return a new dict with the given key(s) removed.
 
     New dict has d[key] deleted for each supplied key.
     Does not modify the initial dictionary.
@@ -213,7 +221,7 @@ def dissoc(d: Mapping[_S, _T], *keys: _S, factory: type[_DictType]=dict) -> _Dic
     return d2
 
 def assoc_in(d: Mapping[_S, _T], keys: Sequence, value: Any, factory: type[_DictType] | None=None) -> _DictType[_S, _T]:
-    """ Return a new dict with new, potentially nested, key value pair
+    """Return a new dict with new, potentially nested, key value pair
 
     >>> purchase = {'name': 'Alice',
     ...             'order': {'items': ['Apple', 'Orange'],
@@ -227,7 +235,7 @@ def assoc_in(d: Mapping[_S, _T], keys: Sequence, value: Any, factory: type[_Dict
     return update_in(d, keys, lambda _: value, value, factory)
 
 def update_in(d: Mapping[_S, _T], keys: Sequence, func: Callable, default: Any=None, factory: type[_DictType] | None=None) -> _DictType[_S, _T]:
-    """ Update value in a (potentially) nested dictionary
+    """Update value in a (potentially) nested dictionary
 
     inputs:
     d - dictionary on which to operate
@@ -281,7 +289,7 @@ def update_in(d: Mapping[_S, _T], keys: Sequence, func: Callable, default: Any=N
     return rv
 
 def get_in(keys: Sequence, coll: Mapping, default: Any=None, no_default: bool=False) -> Any:
-    """ Returns coll[i0][i1]...[iX] where [i0, i1, ..., iX]==keys.
+    """Returns coll[i0][i1]...[iX] where [i0, i1, ..., iX]==keys.
 
     If coll[i0][i1]...[iX] cannot be found, returns ``default``, unless
     ``no_default`` is specified, then it raises KeyError or IndexError.
@@ -307,7 +315,8 @@ def get_in(keys: Sequence, coll: Mapping, default: Any=None, no_default: bool=Fa
         ...
     KeyError: 'y'
 
-    See Also:
+    See Also
+    --------
         itertoolz.get
         operator.getitem
     """

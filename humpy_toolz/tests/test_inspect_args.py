@@ -161,7 +161,7 @@ def test_is_valid_py3(check_valid=is_valid_args, incomplete=False):
     f.__signature__ = 34
     assert check_valid(f) is False
 
-    class RaisesValueError(object):
+    class RaisesValueError:
 
         def __call__(self):
             pass
@@ -225,7 +225,7 @@ def test_has_unknown_args():
     f.__signature__ = 34
     assert has_varargs(f) is False
 
-    class RaisesValueError(object):
+    class RaisesValueError:
 
         def __call__(self):
             pass
@@ -382,7 +382,7 @@ def test_introspect_builtin_modules():
 
 def test_inspect_signature_property():
 
-    class AddX(object):
+    class AddX:
 
         def __init__(self, func):
             self.func = func
@@ -408,7 +408,7 @@ def test_inspect_signature_property():
 
 def test_inspect_wrapped_property():
 
-    class Wrapped(object):
+    class Wrapped:
 
         def __init__(self, func):
             self.func = func

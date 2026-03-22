@@ -1,20 +1,14 @@
 from __future__ import annotations
 
+from .utils import no_default
 from functools import partial, reduce
 from importlib import import_module
 from operator import attrgetter, not_
 from types import MethodType
-from typing import Any, cast, Generic, overload, TYPE_CHECKING, TypeVar
+from typing import Any, cast, Generic, overload, ParamSpec, TYPE_CHECKING, TypeVar
 import contextlib
 import inspect
 import sys
-
-if sys.version_info < (3, 10):
-    from typing_extensions import ParamSpec
-else:
-    from typing import ParamSpec
-
-from .utils import no_default
 
 _S = TypeVar('_S')
 _T = TypeVar('_T')
@@ -24,7 +18,8 @@ _P = ParamSpec('_P')
 if TYPE_CHECKING:
     from collections.abc import Callable, Mapping, Sequence
     from types import NotImplementedType
-    from typing_extensions import Literal, TypeGuard, TypeVarTuple, Unpack
+    from typing import Literal, TypeGuard, Unpack
+    from typing_extensions import TypeVarTuple
     _Ts = TypeVarTuple('_Ts')
     Getter = Callable[[_Instance], _T]
     Setter = Callable[[_Instance, _T], None]
@@ -34,11 +29,13 @@ if TYPE_CHECKING:
     TupleTransformBack = tuple[Callable[[Unpack[_Ts], _S], _T], Unpack[_Ts]]
     TupleTransformFront = tuple[Callable[[_S, Unpack[_Ts]], _T], Unpack[_Ts]]
     _CurryState = tuple
-__all__ = ('identity', 'apply', 'thread_first', 'thread_last', 'memoize', 'compose', 'compose_left', 'pipe', 'complement', 'juxt', 'do', 'curry', 'flip', 'excepts')
+
+__all__ = ('apply', 'complement', 'compose', 'compose_left', 'curry', 'do', 'excepts', 'flip', 'identity', 'juxt', 'memoize', 'pipe', 'thread_first', 'thread_last')
+
 PYPY = hasattr(sys, 'pypy_version_info')
 
 def identity(x: _T) -> _T:
-    """ Identity function. Return x
+    """Identity function. Return x
 
     >>> identity(3)
     3
@@ -46,7 +43,7 @@ def identity(x: _T) -> _T:
     return x
 
 def apply(func: Callable[..., _T], /, *args: Any, **kwargs: Any) -> _T:
-    """ Applies a function and returns the results
+    """Applies a function and returns the results
 
     >>> def double(x): return 2*x
     >>> def inc(x):    return x + 1
@@ -59,7 +56,7 @@ def apply(func: Callable[..., _T], /, *args: Any, **kwargs: Any) -> _T:
     return func(*args, **kwargs)
 
 def thread_first(val: Any, *forms: TransformOp | TupleTransformFront) -> Any:
-    """ Thread value through a sequence of functions/forms
+    """Thread value through a sequence of functions/forms
 
     >>> def double(x): return 2*x
     >>> def inc(x):    return x + 1
@@ -79,7 +76,8 @@ def thread_first(val: Any, *forms: TransformOp | TupleTransformFront) -> Any:
     expands to
         g(f(x), y, z)
 
-    See Also:
+    See Also
+    --------
         thread_last
     """
 
@@ -100,7 +98,7 @@ def thread_first(val: Any, *forms: TransformOp | TupleTransformFront) -> Any:
     return reduce(evalform_front, forms, val)
 
 def thread_last(val: Any, *forms: TransformOp | TupleTransformBack) -> Any:
-    """ Thread value through a sequence of functions/forms
+    """Thread value through a sequence of functions/forms
 
     >>> def double(x): return 2*x
     >>> def inc(x):    return x + 1
@@ -125,7 +123,8 @@ def thread_last(val: Any, *forms: TransformOp | TupleTransformBack) -> Any:
     >>> list(thread_last([1, 2, 3], (map, inc), (filter, iseven)))
     [2, 4]
 
-    See Also:
+    See Also
+    --------
         thread_first
     """
 
@@ -154,7 +153,7 @@ def instanceproperty(fget: Literal[None] | None=None, fset: Setter[_Instance, _T
     ...
 
 def instanceproperty(fget: Getter[_Instance, _T] | None=None, fset: Setter[_Instance, _T] | None=None, fdel: Deleter[_Instance] | None=None, doc: str | None=None, classval: _T | None=None) -> InstanceProperty[_Instance, _T] | Callable[[Getter[_Instance, _T]], InstanceProperty[_Instance, _T]]:
-    """ Like @property, but returns ``classval`` when used as a class attribute
+    """Like @property, but returns ``classval`` when used as a class attribute
 
     >>> class MyClass(object):
     ...     '''The class docstring'''
@@ -180,7 +179,7 @@ def instanceproperty(fget: Getter[_Instance, _T] | None=None, fset: Setter[_Inst
     return InstanceProperty(fget=fget, fset=fset, fdel=fdel, doc=doc, classval=classval)
 
 class InstanceProperty(Generic[_Instance, _T], property):
-    """ Like @property, but returns ``classval`` when used as a class attribute
+    """Like @property, but returns ``classval`` when used as a class attribute
 
     Should not be used directly.  Use ``instanceproperty`` instead.
     """
@@ -212,7 +211,7 @@ def is_partial_function(func: Callable) -> TypeGuard[partial]:
     return False
 
 class curry(Generic[_T]):
-    """ Curry a callable function
+    """Curry a callable function
 
     Enables partial application of arguments through calling a function with an
     incomplete set of arguments.
@@ -235,7 +234,8 @@ class curry(Generic[_T]):
     >>> add(2, 3)
     5
 
-    See Also:
+    See Also
+    --------
         humpy_toolz.curried - namespace of curried functions
                         https://toolz.readthedocs.io/en/latest/curry.html
     """
@@ -407,7 +407,7 @@ def _restore_curry(cls: type[curry[_T]], func: str | Callable[..., _T], args: tu
 
 @curry
 def memoize(func: Callable[..., _T], cache: dict[Any, _T] | None=None, key: Callable[[tuple, Mapping], Any] | None=None) -> Callable[..., _T]:
-    """ Cache a function's result for speedy future evaluation
+    """Cache a function's result for speedy future evaluation
 
     Considerations:
         Trades memory for speed.
@@ -481,9 +481,10 @@ def memoize(func: Callable[..., _T], cache: dict[Any, _T] | None=None, key: Call
     return memof
 
 class Compose:
-    """ A composition of functions
+    """A composition of functions
 
-    See Also:
+    See Also
+    --------
         compose
     """
     __slots__ = ['first', 'funcs']
@@ -525,7 +526,7 @@ class Compose:
     @property
     def __name__(self) -> str:
         try:
-            return '_of_'.join((f.__name__ for f in reversed((self.first, *self.funcs))))
+            return '_of_'.join(f.__name__ for f in reversed((self.first, *self.funcs)))
         except AttributeError:
             return 'Compose'
 
@@ -534,12 +535,12 @@ class Compose:
         funcs = tuple(reversed((self.first, *self.funcs)))
         return f'{name}{funcs!r}'
 
-    def __eq__(self, other: Any) -> bool | NotImplementedType:
+    def __eq__(self, other: object) -> bool | NotImplementedType:
         if isinstance(other, Compose):
             return other.first == self.first and other.funcs == self.funcs
         return NotImplemented
 
-    def __ne__(self, other: Any) -> bool | NotImplementedType:
+    def __ne__(self, other: object) -> bool | NotImplementedType:
         equality = self.__eq__(other)
         return NotImplemented if equality is NotImplemented else not equality
 
@@ -557,7 +558,7 @@ class Compose:
     __wrapped__ = instanceproperty(attrgetter('first'))
 
 def compose(*funcs: Callable) -> Callable | Compose:
-    """ Compose functions to operate in series.
+    """Compose functions to operate in series.
 
     Returns a function that applies other functions in sequence.
 
@@ -570,7 +571,8 @@ def compose(*funcs: Callable) -> Callable | Compose:
     >>> compose(str, inc)(3)
     '4'
 
-    See Also:
+    See Also
+    --------
         compose_left
         pipe
     """
@@ -581,7 +583,7 @@ def compose(*funcs: Callable) -> Callable | Compose:
     return Compose(funcs)
 
 def compose_left(*funcs: Callable) -> Callable | Compose:
-    """ Compose functions to operate in series.
+    """Compose functions to operate in series.
 
     Returns a function that applies other functions in sequence.
 
@@ -594,14 +596,15 @@ def compose_left(*funcs: Callable) -> Callable | Compose:
     >>> compose_left(inc, str)(3)
     '4'
 
-    See Also:
+    See Also
+    --------
         compose
         pipe
     """
     return compose(*reversed(funcs))
 
 def pipe(data: Any, *funcs: Callable) -> Any:
-    """ Pipe a value through a sequence of functions
+    """Pipe a value through a sequence of functions
 
     I.e. ``pipe(data, f, g, h)`` is equivalent to ``h(g(f(data)))``
 
@@ -614,7 +617,8 @@ def pipe(data: Any, *funcs: Callable) -> Any:
     >>> pipe(3, double, str)
     '6'
 
-    See Also:
+    See Also
+    --------
         compose
         compose_left
         thread_first
@@ -625,7 +629,7 @@ def pipe(data: Any, *funcs: Callable) -> Any:
     return data
 
 def complement(func: Callable[[Any], bool]) -> Compose:
-    """ Convert a predicate function to its logical complement.
+    """Convert a predicate function to its logical complement.
 
     In other words, return a function that, for inputs that normally
     yield True, yields False, and vice-versa.
@@ -640,7 +644,7 @@ def complement(func: Callable[[Any], bool]) -> Compose:
     return cast(Compose, compose(not_, func))
 
 class juxt(Generic[_P, _T]):
-    """ Creates a function that calls several functions with the same arguments
+    """Creates a function that calls several functions with the same arguments
 
     Takes several functions and returns a function that applies its arguments
     to each of those functions then returns a tuple of the results.
@@ -663,7 +667,7 @@ class juxt(Generic[_P, _T]):
         self.funcs: tuple[Callable[_P, _T], ...] = tuple(funcs)
 
     def __call__(self, *args: _P.args, **kwargs: _P.kwargs) -> tuple[_T, ...]:
-        return tuple((func(*args, **kwargs) for func in self.funcs))
+        return tuple(func(*args, **kwargs) for func in self.funcs)
 
     def __getstate__(self) -> tuple[Callable[_P, _T], ...]:
         return self.funcs
@@ -672,7 +676,7 @@ class juxt(Generic[_P, _T]):
         self.funcs = state
 
 def do(func: Callable[[_T], Any], x: _T) -> _T:
-    """ Runs ``func`` on ``x``, returns ``x``
+    """Runs ``func`` on ``x``, returns ``x``
 
     Because the results of ``func`` are not returned, only the side
     effects of ``func`` are relevant.
@@ -698,7 +702,7 @@ def do(func: Callable[[_T], Any], x: _T) -> _T:
 
 @curry
 def flip(func: Callable[[_S, _T], _U], a: _T, b: _S) -> _U:
-    """ Call the function call with the arguments flipped
+    """Call the function call with the arguments flipped
 
     This function is curried.
 
@@ -722,10 +726,10 @@ def flip(func: Callable[[_S, _T], _U], a: _T, b: _S) -> _U:
     """
     return func(b, a)
 
-def return_none(exc: Exception) -> Literal[None]:
-    """ Returns None.
+def return_none(exc: Exception) -> None:
+    """Returns None.
     """
-    return None
+    return
 
 class excepts(Generic[_P, _T]):
     """A wrapper around a function to catch exceptions and
@@ -831,19 +835,19 @@ def num_required_args(func: Callable, sigspec: inspect.Signature | None=None) ->
     sigspec, rv = _check_sigspec(sigspec, func, _sigs._num_required_args, func)
     if sigspec is None:
         return rv
-    return sum((1 for p in sigspec.parameters.values() if p.default is p.empty and p.kind in (p.POSITIONAL_OR_KEYWORD, p.POSITIONAL_ONLY)))
+    return sum(1 for p in sigspec.parameters.values() if p.default is p.empty and p.kind in (p.POSITIONAL_OR_KEYWORD, p.POSITIONAL_ONLY))
 
 def has_varargs(func: Callable, sigspec: inspect.Signature | None=None) -> bool | None:
     sigspec, rv = _check_sigspec(sigspec, func, _sigs._has_varargs, func)
     if sigspec is None:
         return rv
-    return any((p.kind == p.VAR_POSITIONAL for p in sigspec.parameters.values()))
+    return any(p.kind == p.VAR_POSITIONAL for p in sigspec.parameters.values())
 
 def has_keywords(func: Callable, sigspec: inspect.Signature | None=None) -> bool | None:
     sigspec, rv = _check_sigspec(sigspec, func, _sigs._has_keywords, func)
     if sigspec is None:
         return rv
-    return any((p.default is not p.empty or p.kind in (p.KEYWORD_ONLY, p.VAR_KEYWORD) for p in sigspec.parameters.values()))
+    return any(p.default is not p.empty or p.kind in (p.KEYWORD_ONLY, p.VAR_KEYWORD) for p in sigspec.parameters.values())
 
 def is_valid_args(func: Callable, args: tuple[Any, ...], kwargs: Mapping[str, Any], sigspec: inspect.Signature | None=None) -> bool | None:
     sigspec, rv = _check_sigspec(sigspec, func, _sigs._is_valid_args, func, args, kwargs)
@@ -866,7 +870,7 @@ def is_partial_args(func: Callable, args: tuple[Any, ...], kwargs: Mapping[str, 
     return True
 
 def is_arity(n: int, func: Callable, sigspec: inspect.Signature | None=None) -> bool | None:
-    """ Does a function have only n positional arguments?
+    """Does a function have only n positional arguments?
 
     This function relies on introspection and does not call the function.
     Returns None if validity can't be determined.
@@ -903,4 +907,3 @@ has_keywords.__doc__ = " Does a function have keyword arguments?\n\n    This fun
 is_valid_args.__doc__ = " Is ``func(*args, **kwargs)`` a valid function call?\n\n    This function relies on introspection and does not call the function.\n    Returns None if validity can't be determined.\n\n    >>> def add(x, y):\n    ...     return x + y\n\n    >>> is_valid_args(add, (1,), {})\n    False\n    >>> is_valid_args(add, (1, 2), {})\n    True\n    >>> is_valid_args(map, (), {})\n    False\n\n    **Implementation notes**\n    Python 2 relies on ``inspect.getargspec``, which only works for\n    user-defined functions.  Python 3 uses ``inspect.signature``, which\n    works for many more types of callables.\n\n    Many builtins in the standard library are also supported.\n    "
 is_partial_args.__doc__ = " Can partial(func, *args, **kwargs)(*args2, **kwargs2) be a valid call?\n\n    Returns True *only* if the call is valid or if it is possible for the\n    call to become valid by adding more positional or keyword arguments.\n\n    This function relies on introspection and does not call the function.\n    Returns None if validity can't be determined.\n\n    >>> def add(x, y):\n    ...     return x + y\n\n    >>> is_partial_args(add, (1,), {})\n    True\n    >>> is_partial_args(add, (1, 2), {})\n    True\n    >>> is_partial_args(add, (1, 2, 3), {})\n    False\n    >>> is_partial_args(map, (), {})\n    True\n\n    **Implementation notes**\n    Python 2 relies on ``inspect.getargspec``, which only works for\n    user-defined functions.  Python 3 uses ``inspect.signature``, which\n    works for many more types of callables.\n\n    Many builtins in the standard library are also supported.\n    "
 from . import _signatures as _sigs
-

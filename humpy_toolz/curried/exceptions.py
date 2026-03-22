@@ -4,13 +4,13 @@ from typing import TYPE_CHECKING
 import humpy_toolz
 
 if TYPE_CHECKING:
-    from collections.abc import Mapping, MutableMapping
-    from typing import Callable, Sequence, TypeVar
+    from collections.abc import Callable, Mapping, MutableMapping, Sequence
+    from typing import TypeVar
     _S = TypeVar('_S')
     _T = TypeVar('_T')
     _U = TypeVar('_U')
     _DictType = MutableMapping[_S, _T]
-__all__ = ['merge_with', 'merge']
+__all__ = ['merge', 'merge_with']
 
 @humpy_toolz.curry
 def merge_with(func: Callable[[Sequence[_T]], _U], d: Mapping[_S, _T], *dicts: Mapping[_S, _T], **kwargs: type[_DictType]) -> _DictType[_S, _U]:

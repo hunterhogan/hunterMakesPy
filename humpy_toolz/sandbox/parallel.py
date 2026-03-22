@@ -1,8 +1,9 @@
 from __future__ import annotations
 
+from collections.abc import Callable, Iterable, Sequence
 from humpy_toolz.itertoolz import partition_all
 from humpy_toolz.utils import no_default
-from typing import Callable, cast, Iterable, Sequence, TYPE_CHECKING, TypeVar
+from typing import cast, TYPE_CHECKING, TypeVar
 import functools
 
 if TYPE_CHECKING:

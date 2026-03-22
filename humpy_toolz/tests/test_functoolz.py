@@ -18,7 +18,7 @@ def inc(x):
 def double(x):
     return 2 * x
 
-class AlwaysEquals(object):
+class AlwaysEquals:
     """useful to test correct __eq__ implementation of other objects"""
 
     def __eq__(self, other):
@@ -27,7 +27,7 @@ class AlwaysEquals(object):
     def __ne__(self, other):
         return False
 
-class NeverEquals(object):
+class NeverEquals:
     """useful to test correct __eq__ implementation of other objects"""
 
     def __eq__(self, other):
@@ -192,7 +192,7 @@ def test_curry_passes_errors():
     @curry
     def f(a, b):
         if not isinstance(a, int):
-            raise TypeError()
+            raise TypeError
         return a + b
     assert f(1, 2) == 3
     assert raises(TypeError, lambda: f('1', 2))
@@ -312,7 +312,7 @@ def test_curry_doesnot_transmogrify():
 
 def test_curry_on_classmethods():
 
-    class A(object):
+    class A:
         BASE = 10
 
         def __init__(self, base):
@@ -349,7 +349,7 @@ def test_curry_on_classmethods():
 
 def test_memoize_on_classmethods():
 
-    class A(object):
+    class A:
         BASE = 10
         HASH = 10
 
@@ -464,7 +464,7 @@ def test_compose_metadata():
     composed = compose(f, h)
     assert composed.__name__ == 'Compose'
     assert composed.__doc__ == 'A composition of functions'
-    assert repr(composed) == 'Compose({!r}, {!r})'.format(f, h)
+    assert repr(composed) == f'Compose({f!r}, {h!r})'
     assert composed == compose(f, h)
     assert composed == AlwaysEquals()
     assert not composed == compose(h, f)
@@ -500,7 +500,7 @@ def test_compose_metadata():
         return 4
 
     def otherfunc(f):
-        return 'result: {}'.format(f)
+        return f'result: {f}'
     myfunc.__annotations__ = {'a': int, 'b': str, 'c': float, 'd': int, 'e': bool, 'return': int}
     otherfunc.__annotations__ = {'f': int, 'return': str}
     composed = compose(otherfunc, myfunc)
@@ -543,7 +543,7 @@ def test_complement():
     assert complement(lambda: '')()
     assert complement(lambda: 0)()
     assert complement(lambda: None)()
-    assert complement(lambda: [])()
+    assert complement(list)()
     assert not complement(lambda: 'x')()
     assert not complement(lambda: 1)()
     assert not complement(lambda: [1])()
@@ -557,7 +557,7 @@ def test_do():
 
 def test_juxt_generator_input():
     data = list(range(10))
-    juxtfunc = juxt((itemgetter(2 * i) for i in range(5)))
+    juxtfunc = juxt(itemgetter(2 * i) for i in range(5))
     assert juxtfunc(data) == (0, 2, 4, 6, 8)
     assert juxtfunc(data) == (0, 2, 4, 6, 8)
 

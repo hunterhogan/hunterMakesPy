@@ -250,12 +250,12 @@ def test_partition_all():
     assert list(partition_all(3, range(5))) == [(0, 1, 2), (3, 4)]
     assert list(partition_all(2, [])) == []
 
-    class NoCompare(object):
+    class NoCompare:
 
         def __eq__(self, other):
             if self.__class__ == other.__class__:
                 return True
-            raise ValueError()
+            raise ValueError
     obj = NoCompare()
     result = [(obj, obj, obj, obj), (obj, obj, obj)]
     assert list(partition_all(4, [obj] * 7)) == result

@@ -6,6 +6,3 @@ implementation of ``humpy_toolz``--if it is installed, otherwise it uses
 functions from ``humpy_toolz``.
 """
 from . import _build_tlz
-
-__all__ = ['_build_tlz']
-

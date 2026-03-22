@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-from collections.abc import Callable, Generator, Iterator, Mapping, Sequence, Sized
+from collections.abc import Callable, Generator, Iterable, Iterator, Mapping, Sequence, Sized
 from functools import partial
 from humpy_toolz.utils import no_default, no_pad
 from itertools import filterfalse, zip_longest
 from random import Random
-from typing import Any, cast, Iterable, overload, TYPE_CHECKING, TypeVar
+from typing import Any, cast, overload, TYPE_CHECKING, TypeVar
 import collections
 import heapq
 import itertools
@@ -17,8 +17,7 @@ _U = TypeVar('_U')
 if TYPE_CHECKING:
     from abc import abstractmethod
     from humpy_toolz.utils import NoDefaultType, NoPadType
-    from typing import Protocol
-    from typing_extensions import TypeGuard
+    from typing import Protocol, TypeGuard
 
     class Comparable(Protocol):
         """Protocol for annotating comparable types."""
@@ -37,7 +36,7 @@ if TYPE_CHECKING:
     UnaryOp = Callable[[_T], _T]
     TransformOp = Callable[[_T], _S]
     SeqOrMapping = Sequence[_T] | Mapping[Any, _T]
-__all__ = ('remove', 'accumulate', 'groupby', 'merge_sorted', 'interleave', 'unique', 'isiterable', 'isdistinct', 'take', 'drop', 'take_nth', 'first', 'second', 'nth', 'last', 'get', 'concat', 'concatv', 'mapcat', 'cons', 'interpose', 'frequencies', 'reduceby', 'iterate', 'sliding_window', 'partition', 'partition_all', 'count', 'pluck', 'join', 'tail', 'diff', 'topk', 'peek', 'peekn', 'random_sample')
+__all__ = ('accumulate', 'concat', 'concatv', 'cons', 'count', 'diff', 'drop', 'first', 'frequencies', 'get', 'groupby', 'interleave', 'interpose', 'isdistinct', 'isiterable', 'iterate', 'join', 'last', 'mapcat', 'merge_sorted', 'nth', 'partition', 'partition_all', 'peek', 'peekn', 'pluck', 'random_sample', 'reduceby', 'remove', 'second', 'sliding_window', 'tail', 'take', 'take_nth', 'topk', 'unique')
 
 def _is_no_default(x: Any) -> TypeGuard[NoDefaultType]:
     if x is no_default:
@@ -45,7 +44,7 @@ def _is_no_default(x: Any) -> TypeGuard[NoDefaultType]:
     return False
 
 def remove(predicate: Predicate[_T] | None, seq: Iterable[_T]) -> Iterator[_T]:
-    """ Return those items of sequence for which predicate(item) is False
+    """Return those items of sequence for which predicate(item) is False
 
     >>> def iseven(x):
     ...     return x % 2 == 0
@@ -55,7 +54,7 @@ def remove(predicate: Predicate[_T] | None, seq: Iterable[_T]) -> Iterator[_T]:
     return filterfalse(predicate, seq)
 
 def accumulate(binop: BinaryOp[_T], seq: Iterable[_T], initial: _T | NoDefaultType=no_default) -> Generator[_T, None, None]:
-    """ Repeatedly apply binary function to a sequence, accumulating results
+    """Repeatedly apply binary function to a sequence, accumulating results
 
     >>> from operator import add, mul
     >>> list(accumulate(add, [1, 2, 3, 4, 5]))
@@ -78,7 +77,8 @@ def accumulate(binop: BinaryOp[_T], seq: Iterable[_T], initial: _T | NoDefaultTy
     >>> list(accumulate(add, [], 1))
     [1]
 
-    See Also:
+    See Also
+    --------
         itertools.accumulate :  In standard itertools for Python 3.2+
     """
     seq = iter(seq)
@@ -95,7 +95,7 @@ def accumulate(binop: BinaryOp[_T], seq: Iterable[_T], initial: _T | NoDefaultTy
         yield result
 
 def groupby(key: TransformOp[_T, _S], seq: Iterable[_T]) -> dict[_S, list[_T]]:
-    """ Group a collection by a key function
+    """Group a collection by a key function
 
     >>> names = ['Alice', 'Bob', 'Charlie', 'Dan', 'Edith', 'Frank']
     >>> groupby(len, names)  # doctest: +SKIP
@@ -116,7 +116,8 @@ def groupby(key: TransformOp[_T, _S], seq: Iterable[_T]) -> dict[_S, list[_T]]:
 
     Not to be confused with ``itertools.groupby``
 
-    See Also:
+    See Also
+    --------
         countby
     """
     if not callable(key):
@@ -128,7 +129,7 @@ def groupby(key: TransformOp[_T, _S], seq: Iterable[_T]) -> dict[_S, list[_T]]:
     return d
 
 def merge_sorted(*seqs: Iterable[_CT], key: UnaryOp[_CT] | None=None) -> Iterator[_CT]:
-    """ Merge and sort a collection of sorted collections
+    """Merge and sort a collection of sorted collections
 
     This works lazily and only keeps one value from each iterable in memory.
 
@@ -223,7 +224,7 @@ def _merge_sorted_binary_key(seqs: Sequence[Iterable[_CT]], key: UnaryOp[_CT]) -
         yield val1
 
 def interleave(seqs: Sequence[Sequence[_T]]) -> Iterator[_T]:
-    """ Interleave a sequence of sequences
+    """Interleave a sequence of sequences
 
     >>> list(interleave([[1, 2], [3, 4]]))
     [1, 3, 2, 4]
@@ -246,7 +247,7 @@ def interleave(seqs: Sequence[Sequence[_T]]) -> Iterator[_T]:
             iters = itertools.cycle(itertools.takewhile(predicate, iters))
 
 def unique(seq: Sequence[_T], key: TransformOp[_T, Any] | None=None) -> Iterator[_T]:
-    """ Return only unique elements of a sequence
+    """Return only unique elements of a sequence
 
     >>> tuple(unique((1, 2, 3)))
     (1, 2, 3)
@@ -272,7 +273,7 @@ def unique(seq: Sequence[_T], key: TransformOp[_T, Any] | None=None) -> Iterator
                 yield item
 
 def isiterable(x: Any) -> TypeGuard[Iterable]:
-    """ Is x iterable?
+    """Is x iterable?
 
     >>> isiterable([1, 2, 3])
     True
@@ -288,7 +289,7 @@ def isiterable(x: Any) -> TypeGuard[Iterable]:
         return False
 
 def isdistinct(seq: Iterable | Sequence) -> bool:
-    """ All values in sequence are distinct
+    """All values in sequence are distinct
 
     >>> isdistinct([1, 2, 3])
     True
@@ -310,24 +311,26 @@ def isdistinct(seq: Iterable | Sequence) -> bool:
     return True
 
 def take(n: int, seq: Iterable[_T]) -> Iterator[_T]:
-    """ The first n elements of a sequence
+    """The first n elements of a sequence
 
     >>> list(take(2, [10, 20, 30, 40, 50]))
     [10, 20]
 
-    See Also:
+    See Also
+    --------
         drop
         tail
     """
     return itertools.islice(seq, n)
 
 def tail(n: int, seq: Sequence[_T]) -> Sequence[_T]:
-    """ The last n elements of a sequence
+    """The last n elements of a sequence
 
     >>> tail(2, [10, 20, 30, 40, 50])
     [40, 50]
 
-    See Also:
+    See Also
+    --------
         drop
         take
     """
@@ -337,19 +340,20 @@ def tail(n: int, seq: Sequence[_T]) -> Sequence[_T]:
         return tuple(collections.deque(seq, n))
 
 def drop(n: int, seq: Sequence[_T]) -> Iterator[_T]:
-    """ The sequence following the first n elements
+    """The sequence following the first n elements
 
     >>> list(drop(2, [10, 20, 30, 40, 50]))
     [30, 40, 50]
 
-    See Also:
+    See Also
+    --------
         take
         tail
     """
     return itertools.islice(seq, n, None)
 
 def take_nth(n: int, seq: Sequence[_T]) -> Iterator[_T]:
-    """ Every nth item in seq
+    """Every nth item in seq
 
     >>> list(take_nth(2, [10, 20, 30, 40, 50]))
     [10, 30, 50]
@@ -357,7 +361,7 @@ def take_nth(n: int, seq: Sequence[_T]) -> Iterator[_T]:
     return itertools.islice(seq, 0, None, n)
 
 def first(seq: Iterable[_T]) -> _T:
-    """ The first element in a sequence
+    """The first element in a sequence
 
     >>> first('ABC')
     'A'
@@ -365,7 +369,7 @@ def first(seq: Iterable[_T]) -> _T:
     return next(iter(seq))
 
 def second(seq: Iterable[_T]) -> _T:
-    """ The second element in a sequence
+    """The second element in a sequence
 
     >>> second('ABC')
     'B'
@@ -375,7 +379,7 @@ def second(seq: Iterable[_T]) -> _T:
     return next(seq)
 
 def nth(n: int, seq: Iterable[_T] | Sequence[_T]) -> _T:
-    """ The nth element in a sequence
+    """The nth element in a sequence
 
     >>> nth(1, 'ABC')
     'B'
@@ -385,7 +389,7 @@ def nth(n: int, seq: Iterable[_T] | Sequence[_T]) -> _T:
     return next(itertools.islice(seq, n, None))
 
 def last(seq: Sequence[_T]) -> _T:
-    """ The last element in a sequence
+    """The last element in a sequence
 
     >>> last('ABC')
     'C'
@@ -408,7 +412,7 @@ def get(ind: Any, seq: SeqOrMapping[_T], default: _T | NoDefaultType=...) -> _T:
     ...
 
 def get(ind: Any | Sequence[Any], seq: SeqOrMapping[_T], default: _T | NoDefaultType=no_default) -> _T | tuple[_T, ...]:
-    """ Get element in a sequence or dict
+    """Get element in a sequence or dict
 
     Provides standard indexing
 
@@ -437,7 +441,8 @@ def get(ind: Any | Sequence[Any], seq: SeqOrMapping[_T], default: _T | NoDefault
     >>> get(['Alice', 'Dennis'], phonebook, None)
     ('555-1234', None)
 
-    See Also:
+    See Also
+    --------
         pluck
     """
     try:
@@ -450,7 +455,7 @@ def get(ind: Any | Sequence[Any], seq: SeqOrMapping[_T], default: _T | NoDefault
                 if ind:
                     return (seq[ind[0]],)
                 return ()
-            return tuple((_get(i, seq, cast(_T, default)) for i in ind))
+            return tuple(_get(i, seq, cast(_T, default)) for i in ind)
         if not _is_no_default(default):
             return cast(_T, default)
         raise
@@ -460,7 +465,7 @@ def get(ind: Any | Sequence[Any], seq: SeqOrMapping[_T], default: _T | NoDefault
         raise
 
 def concat(seqs: Iterable[Iterable[_T]]) -> Iterator[_T]:
-    """ Concatenate zero or more iterables, any of which may be infinite.
+    """Concatenate zero or more iterables, any of which may be infinite.
 
     An infinite sequence will prevent the rest of the arguments from
     being included.
@@ -471,24 +476,26 @@ def concat(seqs: Iterable[Iterable[_T]]) -> Iterator[_T]:
     >>> list(concat([[], [1], [2, 3]]))
     [1, 2, 3]
 
-    See also:
+    See Also
+    --------
         itertools.chain.from_iterable  equivalent
     """
     return itertools.chain.from_iterable(seqs)
 
 def concatv(*seqs: Iterable[_T]) -> Iterator[_T]:
-    """ Variadic version of concat
+    """Variadic version of concat
 
     >>> list(concatv([], ["a"], ["b", "c"]))
     ['a', 'b', 'c']
 
-    See also:
+    See Also
+    --------
         itertools.chain
     """
     return concat(seqs)
 
 def mapcat(func: TransformOp[Iterable[_T], Iterable[_S]], seqs: Iterable[Iterable[_T]]) -> Iterator[_S]:
-    """ Apply func to each sequence in seqs, concatenating results.
+    """Apply func to each sequence in seqs, concatenating results.
 
     >>> list(mapcat(lambda s: [c.upper() for c in s],
     ...             [["a", "b"], ["c", "d", "e"]]))
@@ -497,7 +504,7 @@ def mapcat(func: TransformOp[Iterable[_T], Iterable[_S]], seqs: Iterable[Iterabl
     return concat(map(func, seqs))
 
 def cons(el: _T, seq: Iterable[_T]) -> Iterator[_T]:
-    """ Add el to beginning of (possibly infinite) sequence seq.
+    """Add el to beginning of (possibly infinite) sequence seq.
 
     >>> list(cons(1, [2, 3]))
     [1, 2, 3]
@@ -505,7 +512,7 @@ def cons(el: _T, seq: Iterable[_T]) -> Iterator[_T]:
     return itertools.chain([el], seq)
 
 def interpose(el: _T, seq: Iterable[_T]) -> Iterator[_T]:
-    """ Introduce element between each pair of elements in seq
+    """Introduce element between each pair of elements in seq
 
     >>> list(interpose("a", [1, 2, 3]))
     [1, 'a', 2, 'a', 3]
@@ -515,12 +522,13 @@ def interpose(el: _T, seq: Iterable[_T]) -> Iterator[_T]:
     return inposed
 
 def frequencies(seq: Iterable[_T]) -> dict[_T, int]:
-    """ Find number of occurrences of each value in seq
+    """Find number of occurrences of each value in seq
 
     >>> frequencies(['cat', 'cat', 'ox', 'pig', 'pig', 'cat'])  #doctest: +SKIP
     {'cat': 3, 'ox': 1, 'pig': 2}
 
-    See Also:
+    See Also
+    --------
         countby
         groupby
     """
@@ -530,7 +538,7 @@ def frequencies(seq: Iterable[_T]) -> dict[_T, int]:
     return d
 
 def reduceby(key: TransformOp[_T, _S], binop: BinaryOp[_T], seq: Iterable[_T], init: _T | Callable[[], _T] | NoDefaultType=no_default) -> dict[_S, _T]:
-    """ Perform a simultaneous groupby and reduction
+    """Perform a simultaneous groupby and reduction
 
     The computation:
 
@@ -607,7 +615,7 @@ def reduceby(key: TransformOp[_T, _S], binop: BinaryOp[_T], seq: Iterable[_T], i
     return d
 
 def iterate(func: UnaryOp[_T], x: _T) -> Iterator[_T]:
-    """ Repeatedly apply a function func onto an original input
+    """Repeatedly apply a function func onto an original input
 
     Yields x, then func(x), then func(func(x)), then func(func(func(x))), etc..
 
@@ -636,7 +644,7 @@ def iterate(func: UnaryOp[_T], x: _T) -> Iterator[_T]:
         x = func(x)
 
 def sliding_window(n: int, seq: Iterable[_T]) -> Iterator[tuple[_T, ...]]:
-    """ A sequence of overlapping subsequences
+    """A sequence of overlapping subsequences
 
     >>> list(sliding_window(2, [1, 2, 3, 4]))
     [(1, 2), (2, 3), (3, 4)]
@@ -651,7 +659,7 @@ def sliding_window(n: int, seq: Iterable[_T]) -> Iterator[tuple[_T, ...]]:
     return zip(*(collections.deque(itertools.islice(it, i), 0) or it for i, it in enumerate(itertools.tee(seq, n))))
 
 def partition(n: int, seq: Iterable[_T], pad: _S | NoPadType=no_pad) -> Iterator[tuple[_T | _S, ...]]:
-    """ Partition sequence into tuples of length n
+    """Partition sequence into tuples of length n
 
     >>> list(partition(2, [1, 2, 3, 4]))
     [(1, 2), (3, 4)]
@@ -665,7 +673,8 @@ def partition(n: int, seq: Iterable[_T], pad: _S | NoPadType=no_pad) -> Iterator
     >>> list(partition(2, [1, 2, 3, 4, 5], pad=None))
     [(1, 2), (3, 4), (5, None)]
 
-    See Also:
+    See Also
+    --------
         partition_all
     """
     args = [iter(seq)] * n
@@ -674,7 +683,7 @@ def partition(n: int, seq: Iterable[_T], pad: _S | NoPadType=no_pad) -> Iterator
     return zip_longest(*args, fillvalue=pad)
 
 def partition_all(n: int, seq: Sequence[_T]) -> Iterator[tuple[_T, ...]]:
-    """ Partition all elements of sequence into tuples of length at most n
+    """Partition all elements of sequence into tuples of length at most n
 
     The final tuple may be shorter to accommodate extra elements.
 
@@ -684,7 +693,8 @@ def partition_all(n: int, seq: Sequence[_T]) -> Iterator[tuple[_T, ...]]:
     >>> list(partition_all(2, [1, 2, 3, 4, 5]))
     [(1, 2), (3, 4), (5,)]
 
-    See Also:
+    See Also
+    --------
         partition
     """
 
@@ -715,18 +725,19 @@ def partition_all(n: int, seq: Sequence[_T]) -> Iterator[tuple[_T, ...]]:
         yield cast_out(prev)
 
 def count(seq: Iterable) -> int:
-    """ Count the number of items in seq
+    """Count the number of items in seq
 
     Like the builtin ``len`` but works on lazy sequences.
 
     Not to be confused with ``itertools.count``
 
-    See also:
+    See Also
+    --------
         len
     """
     if isinstance(seq, Sized):
         return len(seq)
-    return sum((1 for _ in seq))
+    return sum(1 for _ in seq)
 
 @overload
 def pluck(index: Sequence[Any], seqs: Iterable[SeqOrMapping[_T]], default: _T | NoDefaultType=...) -> Iterator[tuple[_T, ...]]:
@@ -737,7 +748,7 @@ def pluck(index: Any, seqs: Iterable[SeqOrMapping[_T]], default: _T | NoDefaultT
     ...
 
 def pluck(ind: Any | Sequence[Any], seqs: Iterable[SeqOrMapping[_T]], default: _T | NoDefaultType=no_default) -> Iterator[_T] | Iterator[tuple[_T, ...]]:
-    """ plucks an element or several elements from each item in a sequence.
+    """Plucks an element or several elements from each item in a sequence.
 
     ``pluck`` maps ``itertoolz.get`` over a sequence and returns one or more
     elements of each item in the sequence.
@@ -755,7 +766,8 @@ def pluck(ind: Any | Sequence[Any], seqs: Iterable[SeqOrMapping[_T]], default: _
     >>> list(pluck([0, 1], [[1, 2, 3], [4, 5, 7]]))
     [(1, 2), (4, 5)]
 
-    See Also:
+    See Also
+    --------
         get
         map
     """
@@ -763,7 +775,7 @@ def pluck(ind: Any | Sequence[Any], seqs: Iterable[SeqOrMapping[_T]], default: _
         get = getter(ind)
         return map(get, seqs)
     if isinstance(ind, list):
-        return (tuple((_get(item, seq, cast(_T, default)) for item in ind)) for seq in seqs)
+        return (tuple(_get(item, seq, cast(_T, default)) for item in ind) for seq in seqs)
     return (_get(ind, seq, cast(_T, default)) for seq in seqs)
 
 @overload
@@ -886,7 +898,7 @@ def join(leftkey: TransformOp[_T, Any], leftseq: Iterable[_T], rightkey: Transfo
                     yield (match, cast(_U, right_default))
 
 def diff(*seqs: Iterable[_T], default: _T | NoDefaultType=no_default, key: TransformOp[_T, Any] | None=None) -> Iterator[tuple[_T, ...]]:
-    """ Return those items that differ between sequences
+    """Return those items that differ between sequences
 
     >>> list(diff([1, 2, 3], [1, 2, 10, 100]))
     [(3, 10)]
@@ -925,7 +937,7 @@ def diff(*seqs: Iterable[_T], default: _T | NoDefaultType=no_default, key: Trans
                 yield items
 
 def topk(k: int, seq: Iterable[_T], key: Predicate[_T] | Any | None=None) -> tuple[_T, ...]:
-    """ Find the k largest elements of a sequence
+    """Find the k largest elements of a sequence
 
     Operates lazily in ``n*log(k)`` time
 
@@ -937,7 +949,8 @@ def topk(k: int, seq: Iterable[_T], key: Predicate[_T] | Any | None=None) -> tup
     >>> topk(2, ['Alice', 'Bob', 'Charlie', 'Dan'], key=len)
     ('Charlie', 'Alice')
 
-    See also:
+    See Also
+    --------
         heapq.nlargest
     """
     if key is not None and (not callable(key)):
@@ -945,7 +958,7 @@ def topk(k: int, seq: Iterable[_T], key: Predicate[_T] | Any | None=None) -> tup
     return tuple(heapq.nlargest(k, seq, key=key))
 
 def peek(seq: Iterable[_T]) -> tuple[_T, Iterator[_T]]:
-    """ Retrieve the next element of a sequence
+    """Retrieve the next element of a sequence
 
     Returns the first element and an iterable equivalent to the original
     sequence, still having the element retrieved.
@@ -962,7 +975,7 @@ def peek(seq: Iterable[_T]) -> tuple[_T, Iterator[_T]]:
     return (item, itertools.chain((item,), iterator))
 
 def peekn(n: int, seq: Iterable[_T]) -> tuple[tuple[_T, ...], Iterator[_T]]:
-    """ Retrieve the next n elements of a sequence
+    """Retrieve the next n elements of a sequence
 
     Returns a tuple of the first n elements and an iterable equivalent
     to the original, still having the elements retrieved.
@@ -984,7 +997,7 @@ def _has_random(random_state: Any) -> TypeGuard[Randomable]:
     return False
 
 def random_sample(prob: float, seq: Iterable[_T], random_state: int | Randomable | None=None) -> Iterator[_T]:
-    """ Return elements from a sequence with probability of prob
+    """Return elements from a sequence with probability of prob
 
     Returns a lazy iterator of random items from seq.
 

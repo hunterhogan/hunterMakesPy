@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
 class TlzLoader(Loader):
-    """ Finds and loads ``humpy_tlz`` modules when added to sys.meta_path"""
+    """Finds and loads ``humpy_tlz`` modules when added to sys.meta_path"""
 
     def __init__(self) -> None:
         self.always_from_toolz = {humpy_toolz.pipe}

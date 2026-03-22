@@ -20,7 +20,8 @@ Example:
     >>> list(map(get(0), data))
     [1, 11, 111]
 
-See Also:
+See Also
+--------
     humpy_toolz.functoolz.curry
 """
 from . import operator
