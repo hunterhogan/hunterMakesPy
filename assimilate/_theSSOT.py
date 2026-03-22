@@ -4,6 +4,7 @@ from hunterMakesPy.filesystemToolkit import settings_autoflakeDEFAULT, settings_
 from pathlib import Path
 from typing import Any
 import re as regex
+import textwrap
 
 """# DEVELOPMENT
 Potentially dynamic sources go through the chop shop.
@@ -12,6 +13,9 @@ https://github.com/pytoolz/cytoolz/
 https://github.com/mgrinshpon/toolz-stubs
 
 Static sources should be ingested once, assimilated, and stored.
+https://github.com/getzze/toolz/tree/typed
+
+Consolidate settings.
 """
 #============ Eliminate hardcoding. ===============
 
@@ -32,7 +36,7 @@ cythonDirectives: str = """# cython: embedsignature=True
 # cython: freethreading_compatible=True
 # cython: language_level=3
 """
-noticeCopyrightHeader: str = "Some of the works in this directory and its subdirectories may be protected by \nthe following copyright.\n___\n\n"
+noticeCopyrightHeader: str = textwrap.fill("Some of the original or derivative works in this directory and its subdirectories may be protected by the following copyright.", width=80) + "\n___\n\n"
 pathRoot_tools_stubs = Path("/clones/toolz-stubs/src/toolz-stubs")
 regexChangeImports: partial[str] = partial(regex.sub, "(from |import )(.?.?toolz)", "\\1humpy_\\2")  # ty:ignore[invalid-assignment] https://github.com/astral-sh/ty/issues/2799
 subModules: frozenset[identifierDotAttribute] = subModulesHARDCODED
