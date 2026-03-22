@@ -5,7 +5,7 @@ import humpy_toolz._signatures as _sigs
 def test_is_valid(check_valid=_is_valid_args, incomplete=False):
     orig_check_valid = check_valid
     check_valid = lambda func, *args, **kwargs: orig_check_valid(func, args, kwargs)
-    assert check_valid(lambda x: None) is None
+    assert check_valid(lambda _: None) is None
     f = builtins.abs
     assert check_valid(f) is incomplete
     assert check_valid(f, 1)

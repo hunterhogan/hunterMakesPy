@@ -1,29 +1,28 @@
+from __future__ import annotations
+
 from humpy_toolz.itertoolz import partition_all
 from humpy_toolz.utils import no_default
+from typing import Callable, cast, Iterable, Sequence, TYPE_CHECKING, TypeVar
 import functools
 
-def _reduce(func, seq, initial=None):
+if TYPE_CHECKING:
+    from humpy_toolz.itertoolz import BinaryOp
+    from humpy_toolz.utils import NoDefaultType
+_T = TypeVar('_T')
+
+def _reduce(func: BinaryOp[_T], seq: Iterable[_T], initial: _T | None=None) -> _T:
     if initial is None:
         return functools.reduce(func, seq)
-    else:
-        return functools.reduce(func, seq, initial)
+    return functools.reduce(func, seq, initial)
 
-def fold(binop, seq, default=no_default, map=map, chunksize=128, combine=None):
+def fold(binop: BinaryOp[_T], seq: Sequence[_T], default: _T | NoDefaultType=no_default, map: Callable=map, chunksize: int=128, combine: BinaryOp[_T] | None=None) -> _T:
     """
     Reduce without guarantee of ordered reduction.
-
-    Parameters
-    ----------
-    binops
-        Associative operator. The associative property allows us to
-        leverage a parallel map to perform reductions in parallel.
-
 
     inputs:
 
     ``binop``     - associative operator. The associative property allows us to
                     leverage a parallel map to perform reductions in parallel.
-
     ``seq``       - a sequence to be aggregated
     ``default``   - an identity element like 0 for ``add`` or 1 for mul
 
@@ -56,7 +55,7 @@ def fold(binop, seq, default=no_default, map=map, chunksize=128, combine=None):
     >>> fold(add, [1, 2, 3, 4], chunksize=2, map=map)
     10
     """
-    assert chunksize > 1
+    chunksize = max(chunksize, 1)
     if combine is None:
         combine = binop
     chunks = partition_all(chunksize, seq)
@@ -66,6 +65,7 @@ def fold(binop, seq, default=no_default, map=map, chunksize=128, combine=None):
         results = map(functools.partial(_reduce, binop, initial=default), chunks)
     results = list(results)
     if len(results) == 1:
-        return results[0]
+        res = results[0]
     else:
-        return fold(combine, results, map=map, chunksize=chunksize)
+        res = fold(combine, results, map=map, chunksize=chunksize)
+    return cast(_T, res)

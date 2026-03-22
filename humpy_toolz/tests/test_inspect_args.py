@@ -1,6 +1,5 @@
 from humpy_toolz._signatures import builtins
-from humpy_toolz.functoolz import (
-	curry, has_keywords, has_varargs, is_arity, is_partial_args, is_valid_args, num_required_args)
+from humpy_toolz.functoolz import curry, has_keywords, has_varargs, is_arity, is_partial_args, is_valid_args, num_required_args
 from humpy_toolz.utils import raises
 import functools
 import humpy_toolz
@@ -8,7 +7,6 @@ import humpy_toolz._signatures as _sigs
 import inspect
 import itertools
 import operator
-import sys
 
 def make_func(param_string, raise_if_called=True):
     if not param_string.startswith('('):
@@ -18,7 +16,7 @@ def make_func(param_string, raise_if_called=True):
     else:
         body = 'return True'
     d = {}
-    exec(f'def func{param_string}:\n    {body}', globals(), d)
+    exec('def func%s:\n    %s' % (param_string, body), globals(), d)
     return d['func']
 
 def test_make_func():
@@ -163,7 +161,7 @@ def test_is_valid_py3(check_valid=is_valid_args, incomplete=False):
     f.__signature__ = 34
     assert check_valid(f) is False
 
-    class RaisesValueError:
+    class RaisesValueError(object):
 
         def __call__(self):
             pass
@@ -227,7 +225,7 @@ def test_has_unknown_args():
     f.__signature__ = 34
     assert has_varargs(f) is False
 
-    class RaisesValueError:
+    class RaisesValueError(object):
 
         def __call__(self):
             pass
@@ -255,7 +253,7 @@ def test_has_keywords():
     assert has_keywords(int)
     assert has_keywords(sorted)
     assert has_keywords(max)
-    assert has_keywords(map) == (sys.version_info[1] >= 14)
+    assert has_keywords(map) is False
     assert has_keywords(bytearray) is None
 
 def test_has_varargs():
@@ -384,7 +382,7 @@ def test_introspect_builtin_modules():
 
 def test_inspect_signature_property():
 
-    class AddX:
+    class AddX(object):
 
         def __init__(self, func):
             self.func = func
@@ -410,7 +408,7 @@ def test_inspect_signature_property():
 
 def test_inspect_wrapped_property():
 
-    class Wrapped:
+    class Wrapped(object):
 
         def __init__(self, func):
             self.func = func
@@ -424,16 +422,6 @@ def test_inspect_wrapped_property():
     func = lambda x: x
     wrapped = Wrapped(func)
     assert inspect.signature(func) == inspect.signature(wrapped)
-    inspectbroken = True
-    if sys.version_info.major > 3:
-        inspectbroken = False
-    if sys.version_info.minor == 11 and sys.version_info.micro > 8:
-        inspectbroken = False
-    if sys.version_info.minor == 12 and sys.version_info.micro > 2:
-        inspectbroken = False
-    if sys.version_info.minor > 12:
-        inspectbroken = False
-    if inspectbroken:
-        assert num_required_args(Wrapped) is None
-        _sigs.signatures[Wrapped] = (_sigs.expand_sig((0, lambda func: None)),)
+    assert num_required_args(Wrapped) is None
+    _sigs.signatures[Wrapped] = (_sigs.expand_sig((0, lambda func: None)),)
     assert num_required_args(Wrapped) == 1

@@ -18,7 +18,7 @@ def inc(x):
 def double(x):
     return 2 * x
 
-class AlwaysEquals:
+class AlwaysEquals(object):
     """useful to test correct __eq__ implementation of other objects"""
 
     def __eq__(self, other):
@@ -27,7 +27,7 @@ class AlwaysEquals:
     def __ne__(self, other):
         return False
 
-class NeverEquals:
+class NeverEquals(object):
     """useful to test correct __eq__ implementation of other objects"""
 
     def __eq__(self, other):
@@ -312,7 +312,7 @@ def test_curry_doesnot_transmogrify():
 
 def test_curry_on_classmethods():
 
-    class A:
+    class A(object):
         BASE = 10
 
         def __init__(self, base):
@@ -349,7 +349,7 @@ def test_curry_on_classmethods():
 
 def test_memoize_on_classmethods():
 
-    class A:
+    class A(object):
         BASE = 10
         HASH = 10
 
@@ -464,7 +464,7 @@ def test_compose_metadata():
     composed = compose(f, h)
     assert composed.__name__ == 'Compose'
     assert composed.__doc__ == 'A composition of functions'
-    assert repr(composed) == f'Compose({f!r}, {h!r})'
+    assert repr(composed) == 'Compose({!r}, {!r})'.format(f, h)
     assert composed == compose(f, h)
     assert composed == AlwaysEquals()
     assert not composed == compose(h, f)
@@ -500,7 +500,7 @@ def test_compose_metadata():
         return 4
 
     def otherfunc(f):
-        return f'result: {f}'
+        return 'result: {}'.format(f)
     myfunc.__annotations__ = {'a': int, 'b': str, 'c': float, 'd': int, 'e': bool, 'return': int}
     otherfunc.__annotations__ = {'f': int, 'return': str}
     composed = compose(otherfunc, myfunc)
@@ -569,8 +569,7 @@ def test_flip():
 
 def test_excepts():
     assert excepts.__name__ == 'excepts'
-    testlines = '\n'.join((line.strip() for line in excepts.__doc__.splitlines()))
-    assert 'A wrapper around a function to catch exceptions and\ndispatch to a handler.\n' in testlines
+    assert 'A wrapper around a function to catch exceptions and\n    dispatch to a handler.\n' in excepts.__doc__
 
     def idx(a):
         """idx docstring

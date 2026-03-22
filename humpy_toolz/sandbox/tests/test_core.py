@@ -26,8 +26,8 @@ def test_EqualityHashKey_default_key():
     assert repr(E1) == '=[1]='
     assert E1 != E2
     assert not E1 == E2
-    assert E1 == EqualityHashDefault(L1)
-    assert not E1 != EqualityHashDefault(L1)
+    assert EqualityHashDefault(L1) == E1
+    assert not EqualityHashDefault(L1) != E1
     assert E1 != L1
     assert not E1 == L1
 

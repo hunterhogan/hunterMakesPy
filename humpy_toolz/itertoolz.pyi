@@ -1,45 +1,48 @@
-from .utils import no_default
-from _typeshed import SupportsRichComparison
+# pyright: reportAny=false
 import collections.abc
 import typing
 
+from _typeshed import SupportsRichComparison
+
+from .utils import no_default
+
 __all__ = (
+    "remove",
     "accumulate",
+    "groupby",
+    "merge_sorted",
+    "interleave",
+    "unique",
+    "isiterable",
+    "isdistinct",
+    "take",
+    "drop",
+    "take_nth",
+    "first",
+    "second",
+    "nth",
+    "last",
+    "get",
     "concat",
     "concatv",
-    "cons",
-    "count",
-    "diff",
-    "drop",
-    "first",
-    "frequencies",
-    "get",
-    "groupby",
-    "interleave",
-    "interpose",
-    "isdistinct",
-    "isiterable",
-    "iterate",
-    "join",
-    "last",
     "mapcat",
-    "merge_sorted",
-    "nth",
+    "cons",
+    "interpose",
+    "frequencies",
+    "reduceby",
+    "iterate",
+    "sliding_window",
     "partition",
     "partition_all",
+    "count",
+    "pluck",
+    "join",
+    "tail",
+    "diff",
+    "topk",
     "peek",
     "peekn",
-    "pluck",
     "random_sample",
-    "reduceby",
-    "remove",
-    "second",
-    "sliding_window",
-    "tail",
-    "take",
-    "take_nth",
-    "topk",
-    "unique",
 )
 
 ### Special types for toolz
@@ -61,6 +64,7 @@ def remove[T](
     >>> list(remove(iseven, [1, 2, 3, 4]))
     [1, 3]
     """
+    ...
 
 @typing.overload
 def accumulate[T](
@@ -99,10 +103,10 @@ def accumulate[T](
     >>> list(accumulate(add, [], 1))
     [1]
 
-    See Also
-    --------
+    See Also:
         itertools.accumulate :  In standard itertools for Python 3.2+
     """
+    ...
 
 def groupby[KT, T](
     key: typing.Callable[[T], KT], seq: collections.abc.Iterable[T]
@@ -128,10 +132,10 @@ def groupby[KT, T](
 
     Not to be confused with ``itertools.groupby``
 
-    See Also
-    --------
+    See Also:
         countby
     """
+    ...
 
 def merge_sorted[CT: SupportsRichComparison](
     *seqs: collections.abc.Iterable[CT], key: typing.Callable[[CT], CT] | None = None
@@ -151,6 +155,7 @@ def merge_sorted[CT: SupportsRichComparison](
     >>> list(merge_sorted([2, 3], [1, 3], key=lambda x: x // 3))
     [2, 1, 3, 3]
     """
+    ...
 
 def interleave[T](
     seqs: collections.abc.Iterable[collections.abc.Iterable[T]],
@@ -167,6 +172,7 @@ def interleave[T](
 
     Returns a lazy iterator
     """
+    ...
 
 def unique[T](
     seq: collections.abc.Iterable[T],
@@ -184,6 +190,7 @@ def unique[T](
     >>> tuple(unique(['cat', 'mouse', 'dog', 'hen'], key=len))
     ('cat', 'mouse')
     """
+    ...
 
 def isiterable(x: typing.Any) -> typing.TypeGuard[collections.abc.Iterable[typing.Any]]:
     """Is x iterable?
@@ -195,6 +202,7 @@ def isiterable(x: typing.Any) -> typing.TypeGuard[collections.abc.Iterable[typin
     >>> isiterable(5)
     False
     """
+    ...
 
 def isdistinct(
     seq: collections.abc.Iterable[typing.Any] | collections.abc.Sequence[typing.Any],
@@ -211,6 +219,7 @@ def isdistinct(
     >>> isdistinct("World")
     True
     """
+    ...
 
 def take[T](n: int, seq: collections.abc.Iterable[T]) -> collections.abc.Iterator[T]:
     """The first n elements of a sequence
@@ -218,11 +227,11 @@ def take[T](n: int, seq: collections.abc.Iterable[T]) -> collections.abc.Iterato
     >>> list(take(2, [10, 20, 30, 40, 50]))
     [10, 20]
 
-    See Also
-    --------
+    See Also:
         drop
         tail
     """
+    ...
 
 def tail[T](n: int, seq: collections.abc.Iterable[T]) -> collections.abc.Iterator[T]:
     """The last n elements of a sequence
@@ -230,11 +239,11 @@ def tail[T](n: int, seq: collections.abc.Iterable[T]) -> collections.abc.Iterato
     >>> tail(2, [10, 20, 30, 40, 50])
     [40, 50]
 
-    See Also
-    --------
+    See Also:
         drop
         take
     """
+    ...
 
 def drop[T](n: int, seq: collections.abc.Iterable[T]) -> collections.abc.Iterator[T]:
     """The sequence following the first n elements
@@ -242,11 +251,11 @@ def drop[T](n: int, seq: collections.abc.Iterable[T]) -> collections.abc.Iterato
     >>> list(drop(2, [10, 20, 30, 40, 50]))
     [30, 40, 50]
 
-    See Also
-    --------
+    See Also:
         take
         tail
     """
+    ...
 
 def take_nth[T](
     n: int, seq: collections.abc.Iterable[T]
@@ -256,6 +265,7 @@ def take_nth[T](
     >>> list(take_nth(2, [10, 20, 30, 40, 50]))
     [10, 30, 50]
     """
+    ...
 
 def first[T](seq: collections.abc.Iterable[T]) -> T:
     """The first element in a sequence
@@ -263,6 +273,7 @@ def first[T](seq: collections.abc.Iterable[T]) -> T:
     >>> first('ABC')
     'A'
     """
+    ...
 
 def second[T](seq: collections.abc.Iterable[T]) -> T:
     """The second element in a sequence
@@ -270,6 +281,7 @@ def second[T](seq: collections.abc.Iterable[T]) -> T:
     >>> second('ABC')
     'B'
     """
+    ...
 
 def nth[T](n: int, seq: collections.abc.Iterable[T]) -> T:
     """The nth element in a sequence
@@ -277,6 +289,7 @@ def nth[T](n: int, seq: collections.abc.Iterable[T]) -> T:
     >>> nth(1, 'ABC')
     'B'
     """
+    ...
 
 def last[T](seq: collections.abc.Iterable[T]) -> T:
     """The last element in a sequence
@@ -284,6 +297,7 @@ def last[T](seq: collections.abc.Iterable[T]) -> T:
     >>> last('ABC')
     'C'
     """
+    ...
 
 def rest[T](seq: collections.abc.Iterable[T]) -> collections.abc.Iterable[T]:
     """All but the first element in a sequence
@@ -292,6 +306,7 @@ def rest[T](seq: collections.abc.Iterable[T]) -> collections.abc.Iterable[T]:
     'BC'
     """
     # Warning - this function is not exposed via __all__ and should be considered private.
+    ...
 
 @typing.overload
 def get[T](
@@ -339,10 +354,10 @@ def get[T](
     >>> get(['Alice', 'Dennis'], phonebook, None)
     ('555-1234', None)
 
-    See Also
-    --------
+    See Also:
         pluck
     """
+    ...
 
 def concat[T](
     seqs: collections.abc.Iterable[collections.abc.Iterable[T]],
@@ -358,10 +373,10 @@ def concat[T](
     >>> list(concat([[], [1], [2, 3]]))
     [1, 2, 3]
 
-    See Also
-    --------
+    See also:
         itertools.chain.from_iterable  equivalent
     """
+    ...
 
 def concatv[T](*seqs: collections.abc.Iterable[T]) -> collections.abc.Iterator[T]:
     """Variadic version of concat
@@ -369,10 +384,10 @@ def concatv[T](*seqs: collections.abc.Iterable[T]) -> collections.abc.Iterator[T
     >>> list(concatv([], ["a"], ["b", "c"]))
     ['a', 'b', 'c']
 
-    See Also
-    --------
+    See also:
         itertools.chain
     """
+    ...
 
 def mapcat[T, R](
     func: typing.Callable[[T], collections.abc.Iterable[R]],
@@ -384,6 +399,7 @@ def mapcat[T, R](
     ...             [["a", "b"], ["c", "d", "e"]]))
     ['A', 'B', 'C', 'D', 'E']
     """
+    ...
 
 def cons[T](el: T, seq: collections.abc.Iterable[T]) -> collections.abc.Iterator[T]:
     """Add el to beginning of (possibly infinite) sequence seq.
@@ -391,6 +407,7 @@ def cons[T](el: T, seq: collections.abc.Iterable[T]) -> collections.abc.Iterator
     >>> list(cons(1, [2, 3]))
     [1, 2, 3]
     """
+    ...
 
 def interpose[T](
     el: T, seq: collections.abc.Iterable[T]
@@ -400,6 +417,7 @@ def interpose[T](
     >>> list(interpose("a", [1, 2, 3]))
     [1, 'a', 2, 'a', 3]
     """
+    ...
 
 def frequencies[T](seq: collections.abc.Iterable[T]) -> dict[T, int]:
     """Find number of occurrences of each value in seq
@@ -407,11 +425,11 @@ def frequencies[T](seq: collections.abc.Iterable[T]) -> dict[T, int]:
     >>> frequencies(['cat', 'cat', 'ox', 'pig', 'pig', 'cat'])  #doctest: +SKIP
     {'cat': 3, 'ox': 1, 'pig': 2}
 
-    See Also
-    --------
+    See Also:
         countby
         groupby
     """
+    ...
 
 @typing.overload
 def reduceby[T, K](
@@ -505,6 +523,7 @@ def reduceby[T, K](
     {True:  set([2, 4]),
      False: set([1, 3])}
     """
+    ...
 
 def iterate[T](func: typing.Callable[[T], T], x: T) -> collections.abc.Iterator[T]:
     """Repeatedly apply a function func onto an original input
@@ -531,6 +550,7 @@ def iterate[T](func: typing.Callable[[T], T], x: T) -> collections.abc.Iterator[
     >>> next(powers_of_two)
     8
     """
+    ...
 
 def sliding_window[T](
     n: int, seq: collections.abc.Iterable[T]
@@ -547,6 +567,7 @@ def sliding_window[T](
     >>> list(map(mean, sliding_window(2, [1, 2, 3, 4])))
     [1.5, 2.5, 3.5]
     """
+    ...
 
 no_pad = "__no_pad__"
 
@@ -579,10 +600,10 @@ def partition[T, P](
     >>> list(partition(2, [1, 2, 3, 4, 5], pad=None))
     [(1, 2), (3, 4), (5, None)]
 
-    See Also
-    --------
+    See Also:
         partition_all
     """
+    ...
 
 @typing.overload
 def partition_all[T](
@@ -605,10 +626,10 @@ def partition_all[T](
     >>> list(partition_all(2, [1, 2, 3, 4, 5]))
     [(1, 2), (3, 4), (5,)]
 
-    See Also
-    --------
+    See Also:
         partition
     """
+    ...
 
 def count(seq: collections.abc.Iterable[typing.Any]) -> int:
     """Count the number of items in seq
@@ -617,10 +638,10 @@ def count(seq: collections.abc.Iterable[typing.Any]) -> int:
 
     Not to be confused with ``itertools.count``
 
-    See Also
-    --------
+    See also:
         len
     """
+    ...
 
 @typing.overload
 def pluck[T](
@@ -645,7 +666,7 @@ def pluck[T](
     ],
     default: T | _NoDefaultType = no_default,
 ) -> collections.abc.Iterator[T] | collections.abc.Iterator[tuple[T, ...]]:
-    """Plucks an element or several elements from each item in a sequence.
+    """plucks an element or several elements from each item in a sequence.
 
     ``pluck`` maps ``itertoolz.get`` over a sequence and returns one or more
     elements of each item in the sequence.
@@ -663,11 +684,11 @@ def pluck[T](
     >>> list(pluck([0, 1], [[1, 2, 3], [4, 5, 7]]))
     [(1, 2), (4, 5)]
 
-    See Also
-    --------
+    See Also:
         get
         map
     """
+    ...
 
 @typing.overload
 def getter[T](
@@ -898,6 +919,7 @@ def join[T, U, L, R](
     >>> # result = join(second, friends, first, cities)
     >>> result = join(1, friends, 0, cities)  # doctest: +SKIP
     """
+    ...
 
 @typing.overload
 def diff[T](
@@ -931,6 +953,7 @@ def diff[T](
     >>> list(diff(['apples', 'bananas'], ['Apples', 'Oranges'], key=str.lower))
     [('bananas', 'Oranges')]
     """
+    ...
 
 def topk[T](
     k: int,
@@ -949,10 +972,10 @@ def topk[T](
     >>> topk(2, ['Alice', 'Bob', 'Charlie', 'Dan'], key=len)
     ('Charlie', 'Alice')
 
-    See Also
-    --------
+    See also:
         heapq.nlargest
     """
+    ...
 
 def peek[T](
     seq: collections.abc.Iterable[T],
@@ -969,6 +992,7 @@ def peek[T](
     >>> list(seq)
     [0, 1, 2, 3, 4]
     """
+    ...
 
 def peekn[T](
     n: int, seq: collections.abc.Iterable[T]
@@ -985,6 +1009,7 @@ def peekn[T](
     >>> list(seq)
     [0, 1, 2, 3, 4]
     """
+    ...
 
 def random_sample[T](
     prob: float,
@@ -1022,3 +1047,4 @@ def random_sample[T](
     >>> list(random_sample(0.1, seq, random_state=randobj))
     [7, 9, 19, 25, 30, 32, 34, 48, 59, 60, 81, 98]
     """
+    ...

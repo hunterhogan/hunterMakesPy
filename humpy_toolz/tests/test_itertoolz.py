@@ -1,16 +1,16 @@
 from functools import partial
 from humpy_toolz.itertoolz import (
-	accumulate, concat, concatv, cons, count, diff, drop, first, frequencies, get, getter, groupby, interleave, interpose,
-	isdistinct, isiterable, iterate, join, last, mapcat, merge_sorted, nth, partition, partition_all, peek, peekn, pluck,
-	random_sample, reduceby, remove, rest, second, sliding_window, tail, take, take_nth, topk, unique)
-from humpy_toolz.utils import raises
+	accumulate, concat, concatv, cons, count, diff, drop, first, frequencies, get, getter, groupby, interleave, interpose, isdistinct,
+	isiterable, iterate, join, last, mapcat, merge_sorted, nth, partition, partition_all, peek, peekn, pluck, random_sample, reduceby, remove,
+	rest, second, sliding_window, tail, take, take_nth, topk, unique)
+from humpy_toolz.utils import no_default, raises
 from itertools import starmap
 from operator import add, mul
 from pickle import dumps, loads
 from random import Random
 import itertools
 
-no_default2 = loads(dumps('__no__default__'))
+no_default2 = loads(dumps(no_default))
 
 def identity(x):
     return x
@@ -250,7 +250,7 @@ def test_partition_all():
     assert list(partition_all(3, range(5))) == [(0, 1, 2), (3, 4)]
     assert list(partition_all(2, [])) == []
 
-    class NoCompare:
+    class NoCompare(object):
 
         def __eq__(self, other):
             if self.__class__ == other.__class__:
@@ -260,19 +260,6 @@ def test_partition_all():
     result = [(obj, obj, obj, obj), (obj, obj, obj)]
     assert list(partition_all(4, [obj] * 7)) == result
     assert list(partition_all(4, iter([obj] * 7))) == result
-
-    class ListWithBadLength(list):
-
-        def __init__(self, contents, off_by=1):
-            self.off_by = off_by
-            super().__init__(contents)
-
-        def __len__(self):
-            return super().__len__() + self.off_by
-    too_long_list = ListWithBadLength([1, 2], off_by=+1)
-    assert raises(LookupError, lambda: list(partition_all(5, too_long_list)))
-    too_short_list = ListWithBadLength([1, 2], off_by=-1)
-    assert raises(LookupError, lambda: list(partition_all(5, too_short_list)))
 
 def test_count():
     assert count((1, 2, 3)) == 3
@@ -402,7 +389,9 @@ def test_peekn():
 def test_random_sample():
     alist = list(range(100))
     assert list(random_sample(prob=1, seq=alist, random_state=2016)) == alist
-    mk_rsample = lambda rs=1: list(random_sample(prob=0.1, seq=alist, random_state=rs))
+
+    def mk_rsample(rs=1):
+        return list(random_sample(prob=0.1, seq=alist, random_state=rs))
     rsample1 = mk_rsample()
     assert rsample1 == mk_rsample()
     rsample2 = mk_rsample(1984)

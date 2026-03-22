@@ -12,15 +12,22 @@ modules.  More can be added as requested.  We don't guarantee full coverage.
 Everything in this module should be regarded as implementation details.
 Users should try to not use this module directly.
 """
+from __future__ import annotations
+
 from .functoolz import has_keywords, has_varargs, is_arity, is_partial_args, num_required_args
 from importlib import import_module
+from typing import Any, Callable, Mapping, TYPE_CHECKING
 import builtins
 import functools
 import inspect
 import itertools
 import operator
 
-module_info = {}
+if TYPE_CHECKING:
+    from types import ModuleType
+    ExpandSignatureTuple = tuple[int, Callable, tuple[str, ...], inspect.Signature | None]
+    ExpandSignatureInput = Callable | tuple[int, Callable] | tuple[int, Callable, tuple[str, ...]]
+module_info: dict[str | ModuleType, Any] = {}
 module_info[builtins] = dict(abs=[lambda x: None], all=[lambda iterable: None], anext=[lambda aiterator: None, lambda aiterator, default: None], any=[lambda iterable: None], apply=[lambda object: None, lambda object, args: None, lambda object, args, kwargs: None], ascii=[lambda obj: None], bin=[lambda number: None], bool=[lambda x=False: None], buffer=[lambda object: None, lambda object, offset: None, lambda object, offset, size: None], bytearray=[lambda: None, lambda int: None, lambda string, encoding='utf8', errors='strict': None], callable=[lambda obj: None], chr=[lambda i: None], classmethod=[lambda function: None], cmp=[lambda x, y: None], coerce=[lambda x, y: None], complex=[lambda real=0, imag=0: None], delattr=[lambda obj, name: None], dict=[lambda **kwargs: None, lambda mapping, **kwargs: None], dir=[lambda: None, lambda object: None], divmod=[lambda x, y: None], enumerate=[(0, lambda iterable, start=0: None)], eval=[lambda source: None, lambda source, globals: None, lambda source, globals, locals: None], execfile=[lambda filename: None, lambda filename, globals: None, lambda filename, globals, locals: None], file=[(0, lambda name, mode='r', buffering=-1: None)], filter=[lambda function, iterable: None], float=[lambda x=0.0: None], format=[lambda value: None, lambda value, format_spec: None], frozenset=[lambda: None, lambda iterable: None], getattr=[lambda object, name: None, lambda object, name, default: None], globals=[lambda: None], hasattr=[lambda obj, name: None], hash=[lambda obj: None], hex=[lambda number: None], id=[lambda obj: None], input=[lambda: None, lambda prompt: None], int=[lambda x=0: None, (0, lambda x, base=10: None)], intern=[lambda string: None], isinstance=[lambda obj, class_or_tuple: None], issubclass=[lambda cls, class_or_tuple: None], iter=[lambda iterable: None, lambda callable, sentinel: None], len=[lambda obj: None], list=[lambda: None, lambda iterable: None], locals=[lambda: None], long=[lambda x=0: None, (0, lambda x, base=10: None)], map=[lambda func, sequence, *iterables: None], memoryview=[(0, lambda object: None)], next=[lambda iterator: None, lambda iterator, default: None], object=[lambda: None], oct=[lambda number: None], ord=[lambda c: None], pow=[lambda x, y: None, lambda x, y, z: None], property=[lambda fget=None, fset=None, fdel=None, doc=None: None], range=[lambda stop: None, lambda start, stop: None, lambda start, stop, step: None], raw_input=[lambda: None, lambda prompt: None], reduce=[lambda function, sequence: None, lambda function, sequence, initial: None], reload=[lambda module: None], repr=[lambda obj: None], reversed=[lambda sequence: None], round=[(0, lambda number, ndigits=0: None)], set=[lambda: None, lambda iterable: None], setattr=[lambda obj, name, value: None], slice=[lambda stop: None, lambda start, stop: None, lambda start, stop, step: None], staticmethod=[lambda function: None], sum=[lambda iterable: None, lambda iterable, start: None], super=[lambda type: None, lambda type, obj: None], tuple=[lambda: None, lambda iterable: None], type=[lambda object: None, lambda name, bases, dict: None], unichr=[lambda i: None], unicode=[lambda object: None, lambda string='', encoding='utf8', errors='strict': None], vars=[lambda: None, lambda object: None], xrange=[lambda stop: None, lambda start, stop: None, lambda start, stop, step: None], zip=[lambda *iterables: None], __build_class__=[(2, lambda func, name, *bases, **kwds: None, ('metaclass',))], __import__=[(0, lambda name, globals=None, locals=None, fromlist=None, level=None: None)])
 module_info[builtins]['exec'] = [lambda source: None, lambda source, globals: None, lambda source, globals, locals: None]
 module_info[builtins].update(breakpoint=[lambda *args, **kws: None], bytes=[lambda: None, lambda int: None, lambda string, encoding='utf8', errors='strict': None], compile=[(0, lambda source, filename, mode, flags=0, dont_inherit=False, optimize=-1: None)], max=[(1, lambda iterable: None, ('default', 'key')), (1, lambda arg1, arg2, *args: None, ('key',))], min=[(1, lambda iterable: None, ('default', 'key')), (1, lambda arg1, arg2, *args: None, ('key',))], open=[(0, lambda file, mode='r', buffering=-1, encoding=None, errors=None, newline=None, closefd=True, opener=None: None)], sorted=[(1, lambda iterable: None, ('key', 'reverse'))], str=[lambda object='', encoding='utf', errors='strict': None])
@@ -31,13 +38,15 @@ module_info[operator] = dict(__abs__=[lambda a: None], __add__=[lambda a, b: Non
 module_info['humpy_toolz'] = dict(curry=[(0, lambda *args, **kwargs: None)], excepts=[(0, lambda exc, func, handler=None: None)], flip=[(0, lambda func=None, a=None, b=None: None)], juxt=[(0, lambda *funcs: None)], memoize=[(0, lambda func=None, cache=None, key=None: None)])
 module_info['humpy_toolz.functoolz'] = dict(Compose=[(0, lambda funcs: None)], InstanceProperty=[(0, lambda fget=None, fset=None, fdel=None, doc=None, classval=None: None)])
 
-def num_pos_args(sigspec):
+def num_pos_args(sigspec: inspect.Signature | None) -> int:
     """ Return the number of positional arguments.  ``f(x, y=1)`` has 1"""
+    if sigspec is None:
+        return -1
     return sum((1 for x in sigspec.parameters.values() if x.kind == x.POSITIONAL_OR_KEYWORD and x.default is x.empty))
 
-def get_exclude_keywords(num_pos_only, sigspec):
+def get_exclude_keywords(num_pos_only: int, sigspec: inspect.Signature | None) -> tuple[str, ...]:
     """ Return the names of position-only arguments if func has **kwargs"""
-    if num_pos_only == 0:
+    if num_pos_only == 0 or sigspec is None:
         return ()
     has_kwargs = any((x.kind == x.VAR_KEYWORD for x in sigspec.parameters.values()))
     if not has_kwargs:
@@ -45,13 +54,13 @@ def get_exclude_keywords(num_pos_only, sigspec):
     pos_args = list(sigspec.parameters.values())[:num_pos_only]
     return tuple((x.name for x in pos_args))
 
-def signature_or_spec(func):
+def signature_or_spec(func: Callable) -> inspect.Signature | None:
     try:
         return inspect.signature(func)
     except (ValueError, TypeError):
         return None
 
-def expand_sig(sig):
+def expand_sig(sig: ExpandSignatureInput) -> ExpandSignatureTuple:
     """ Convert the signature spec in ``module_info`` to add to ``signatures``
 
     The input signature spec is one of:
@@ -71,7 +80,6 @@ def expand_sig(sig):
     if isinstance(sig, tuple):
         if len(sig) == 3:
             num_pos_only, func, keyword_only = sig
-            assert isinstance(sig[-1], tuple)
         else:
             num_pos_only, func = sig
             keyword_only = ()
@@ -83,9 +91,9 @@ def expand_sig(sig):
         keyword_only = ()
     keyword_exclude = get_exclude_keywords(num_pos_only, sigspec)
     return (num_pos_only, func, keyword_only + keyword_exclude, sigspec)
-signatures = {}
+signatures: dict[Callable, tuple[ExpandSignatureTuple, ...]] = {}
 
-def create_signature_registry(module_info=module_info, signatures=signatures):
+def create_signature_registry(module_info: dict=module_info, signatures: dict[Callable, tuple[ExpandSignatureTuple, ...]]=signatures) -> None:
     for module, info in module_info.items():
         if isinstance(module, str):
             module = import_module(module)
@@ -94,7 +102,7 @@ def create_signature_registry(module_info=module_info, signatures=signatures):
                 new_sigs = tuple((expand_sig(sig) for sig in sigs))
                 signatures[getattr(module, name)] = new_sigs
 
-def check_valid(sig, args, kwargs):
+def check_valid(sig: ExpandSignatureTuple, args: tuple[Any, ...], kwargs: Mapping[str, Any]) -> bool | None:
     """ Like ``is_valid_args`` for the given signature spec"""
     num_pos_only, func, keyword_exclude, sigspec = sig
     if len(args) < num_pos_only:
@@ -109,14 +117,14 @@ def check_valid(sig, args, kwargs):
     except TypeError:
         return False
 
-def _is_valid_args(func, args, kwargs):
+def _is_valid_args(func: Callable, args: tuple[Any, ...], kwargs: Mapping[str, Any]) -> bool | None:
     """ Like ``is_valid_args`` for builtins in our ``signatures`` registry"""
     if func not in signatures:
         return None
     sigs = signatures[func]
     return any((check_valid(sig, args, kwargs) for sig in sigs))
 
-def check_partial(sig, args, kwargs):
+def check_partial(sig: ExpandSignatureTuple, args: tuple[Any, ...], kwargs: Mapping[str, Any]) -> bool | None:
     """ Like ``is_partial_args`` for the given signature spec"""
     num_pos_only, func, keyword_exclude, sigspec = sig
     if len(args) < num_pos_only:
@@ -128,67 +136,67 @@ def check_partial(sig, args, kwargs):
             kwargs.pop(item, None)
     return is_partial_args(func, args, kwargs, sigspec)
 
-def _is_partial_args(func, args, kwargs):
+def _is_partial_args(func: Callable, args: tuple[Any, ...], kwargs: Mapping[str, Any]) -> bool | None:
     """ Like ``is_partial_args`` for builtins in our ``signatures`` registry"""
     if func not in signatures:
         return None
     sigs = signatures[func]
     return any((check_partial(sig, args, kwargs) for sig in sigs))
 
-def check_arity(n, sig):
+def check_arity(n: int, sig: ExpandSignatureTuple) -> bool | None:
     num_pos_only, func, keyword_exclude, sigspec = sig
     if keyword_exclude or num_pos_only > n:
         return False
     return is_arity(n, func, sigspec)
 
-def _is_arity(n, func):
+def _is_arity(n: int, func: Callable) -> bool | None:
     if func not in signatures:
         return None
     sigs = signatures[func]
     checks = [check_arity(n, sig) for sig in sigs]
     if all(checks):
         return True
-    elif any(checks):
+    if any(checks):
         return None
     return False
 
-def check_varargs(sig):
+def check_varargs(sig: ExpandSignatureTuple) -> bool | None:
     num_pos_only, func, keyword_exclude, sigspec = sig
     return has_varargs(func, sigspec)
 
-def _has_varargs(func):
+def _has_varargs(func: Callable) -> bool | None:
     if func not in signatures:
         return None
     sigs = signatures[func]
     checks = [check_varargs(sig) for sig in sigs]
     if all(checks):
         return True
-    elif any(checks):
+    if any(checks):
         return None
     return False
 
-def check_keywords(sig):
+def check_keywords(sig: ExpandSignatureTuple) -> bool | None:
     num_pos_only, func, keyword_exclude, sigspec = sig
     if keyword_exclude:
         return True
     return has_keywords(func, sigspec)
 
-def _has_keywords(func):
+def _has_keywords(func: Callable) -> bool | None:
     if func not in signatures:
         return None
     sigs = signatures[func]
     checks = [check_keywords(sig) for sig in sigs]
     if all(checks):
         return True
-    elif any(checks):
+    if any(checks):
         return None
     return False
 
-def check_required_args(sig):
+def check_required_args(sig: ExpandSignatureTuple) -> int | bool | None:
     num_pos_only, func, keyword_exclude, sigspec = sig
     return num_required_args(func, sigspec)
 
-def _num_required_args(func):
+def _num_required_args(func: Callable) -> int | bool | None:
     if func not in signatures:
         return None
     sigs = signatures[func]

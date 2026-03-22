@@ -26,12 +26,12 @@ See Also:
 from . import operator
 from .exceptions import merge, merge_with
 from humpy_toolz import (
-	apply, comp, complement, compose, compose_left, concat, concatv, count, curry, diff, first, flip, frequencies,
-	identity, interleave, isdistinct, isiterable, juxt, last, memoize, merge_sorted, peek, pipe, second, thread_first,
-	thread_last)
+	comp, complement, compose, compose_left, concat, concatv, count, curry, diff, excepts, first, flip, frequencies, identity, interleave,
+	isdistinct, isiterable, juxt, last, memoize, merge_sorted, peek, pipe, second, thread_first, thread_last)
 import humpy_toolz
 
 accumulate = humpy_toolz.curry(humpy_toolz.accumulate)
+apply = humpy_toolz.curry(humpy_toolz.apply)
 assoc = humpy_toolz.curry(humpy_toolz.assoc)
 assoc_in = humpy_toolz.curry(humpy_toolz.assoc_in)
 cons = humpy_toolz.curry(humpy_toolz.cons)
@@ -39,8 +39,7 @@ countby = humpy_toolz.curry(humpy_toolz.countby)
 dissoc = humpy_toolz.curry(humpy_toolz.dissoc)
 do = humpy_toolz.curry(humpy_toolz.do)
 drop = humpy_toolz.curry(humpy_toolz.drop)
-excepts = humpy_toolz.curry(humpy_toolz.excepts)
-filter = humpy_toolz.curry(humpy_toolz.filter)
+filter: humpy_toolz.curry = humpy_toolz.curry(humpy_toolz.filter)
 get = humpy_toolz.curry(humpy_toolz.get)
 get_in = humpy_toolz.curry(humpy_toolz.get_in)
 groupby = humpy_toolz.curry(humpy_toolz.groupby)
@@ -74,5 +73,4 @@ unique = humpy_toolz.curry(humpy_toolz.unique)
 update_in = humpy_toolz.curry(humpy_toolz.update_in)
 valfilter = humpy_toolz.curry(humpy_toolz.valfilter)
 valmap = humpy_toolz.curry(humpy_toolz.valmap)
-del exceptions
 del humpy_toolz

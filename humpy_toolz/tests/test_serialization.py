@@ -1,4 +1,4 @@
-from humpy_toolz import *
+from humpy_toolz import complement, compose, curry, juxt
 from humpy_toolz.utils import raises
 import humpy_toolz
 import humpy_toolz.curried
