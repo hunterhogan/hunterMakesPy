@@ -4,6 +4,16 @@
 
 <https://docs.github.com/en/communities/setting-up-your-project-for-healthy-contributions/creating-a-default-community-health-file>
 
+## Documentation
+
+- Context7 clearly treats the README as the primary documentation source.
+- Would a README in humpy_cytoolz, for example, add value for humans and for AI assistants?
+- More explicitly describe context7/AI assistants as an audience for documentation?
+
+## dependabot
+
+- Learn more about it.
+
 ## "Packaging" and/or make it easier for people who clone the repo to set up the environment
 
 - AI instructions
@@ -12,17 +22,13 @@
 - How to intelligently include the tests?
 - Switch to uv?
 
-## More ty, less Pylance
-
-I don't understand the boundaries of the different roles, which I think are 1) language server and 2) type checker.
-
 ## A Python formatter that formats my style
 
 There seem to be some tools for creating formats that aren't "Black" or "PEP 8", but they all seem to be a huge pain in the ass.
 
 ## An easier way to type CJK
 
-I use code snippets to enter ideograms, which is limiting and annoying. I haven't been able to get alt-codes to work.
+I use code snippets to enter ideograms, which is limiting and annoying. I haven't been able to get alt-codes to work. Installing font with package?
 
 ## Simple sorting of functions
 

@@ -7,13 +7,25 @@ import re as regex
 import textwrap
 
 """# DEVELOPMENT
-Potentially dynamic sources go through the chop shop.
-https://github.com/pytoolz/toolz/
-https://github.com/pytoolz/cytoolz/
-https://github.com/mgrinshpon/toolz-stubs
+Current process:
+	Potentially dynamic sources go through the chop shop.
+	https://github.com/pytoolz/toolz/
+	https://github.com/pytoolz/cytoolz/
+	https://github.com/mgrinshpon/toolz-stubs
 
-Static sources should be ingested once, assimilated, and stored.
-https://github.com/getzze/toolz/tree/typed
+	Static sources should be ingested once, assimilated, and stored.
+	https://github.com/getzze/toolz/tree/typed
+
+Better process?
+	Potentially dynamic sources each have their own git branch.
+	On their branch, they are processed through the chop shop.
+	Desired changes are moved from the branch to main by a pull request.
+	If the sources do not change, the branch will stay unchanged, but main can improve.
+	My goal is to feed the changes in main back to the original source via a pull request. If the source updates, then the cycle continues.
+
+	https://github.com/getzze/toolz/tree/typed is 4000 lines and more-or-less static.
+	I could create a branch for it, and send it through the chop shop.
+	Then instead of trying to consolidate all of the changes at one time, I could process the changes per function.
 
 Consolidate settings.
 """

@@ -80,6 +80,7 @@ def autoDecodingRLE(arrayTarget: NDArray[integer[Any]], *, assumeAddSpaces: bool
 		"""`assumeAddSpaces` characters: `,` 1; `]*` 2."""
 		return len(string) + assumeAddSpaces * (string.count(',') + string.count(']*') * 2)
 
+	# TODO there is only ONE call to this. Refactor to inline it and remove the function definition.
 	def encoderConvertsTokenToString(token: int | tuple[int, int]) -> str:
 		string: str = str(token)
 		if isinstance(token, tuple):

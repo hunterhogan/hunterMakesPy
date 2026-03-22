@@ -120,11 +120,11 @@ packages = [
   "humpy_cytoolz.tests",
   "humpy_cytoolz",
   "humpy_tlz",
+  "humpy_toolz",
   "humpy_toolz.curried",
   "humpy_toolz.sandbox.tests",
   "humpy_toolz.sandbox",
   "humpy_toolz.tests",
-  "humpy_toolz",
   "hunterMakesPy",
   "hunterMakesPy.tests",
 ]
