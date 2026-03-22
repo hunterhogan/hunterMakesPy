@@ -6,7 +6,7 @@ from humpy_cytoolz.functoolz import identity
 from humpy_cytoolz.utils import raises
 import os
 
-def inc(x):
+def inc(x: int) -> int:
     return x + 1
 
 def iseven(i):

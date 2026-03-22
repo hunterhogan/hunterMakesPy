@@ -1,12 +1,6 @@
-...
 from collections.abc import Callable, Iterable, Mapping, MutableMapping
 from typing import overload, TypeGuard
-import sys
-
-if sys.version_info >= (3, 13):
-	from typing import TypeIs
-else:
-	from typing_extensions import TypeIs
+from typing_extensions import TypeIs
 
 __all__ = (
 	"assoc",
@@ -28,8 +22,6 @@ __all__ = (
 def assoc[K, V](d: Mapping[K, V], key: K, value: V) -> dict[K, V]: ...
 @overload
 def assoc[K, V](d: Mapping[K, V], key: K, value: V, factory: Callable[[], MutableMapping[K, V]]) -> MutableMapping[K, V]: ...
-def assoc[K, V](d: Mapping[K, V], key: K, value: V, factory: Callable[[], MutableMapping[K, V]] = dict) -> MutableMapping[K, V]:
-	...
 
 # Overloads for nested dictionaries with tuple keys (2-level nesting)
 @overload

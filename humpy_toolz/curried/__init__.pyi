@@ -1,5 +1,3 @@
-...
-
 from .. import dicttoolz as _dicttoolz, itertoolz as _itertoolz, recipes as _recipes
 from ..functoolz import (
 	apply as apply, complement as complement, compose as comp, compose as compose, compose_left as compose_left, curry as curry,
