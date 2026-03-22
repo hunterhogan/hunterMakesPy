@@ -3,7 +3,7 @@ from functools import reduce
 import collections
 import operator
 
-__all__ = ('merge', 'merge_with', 'valmap', 'keymap', 'itemmap', 'valfilter', 'keyfilter', 'itemfilter', 'assoc', 'dissoc', 'assoc_in', 'update_in', 'get_in')
+__all__ = ('assoc', 'assoc_in', 'dissoc', 'get_in', 'itemfilter', 'itemmap', 'keyfilter', 'keymap', 'merge', 'merge_with', 'update_in', 'valfilter', 'valmap')
 
 def _get_factory(f, kwargs):
     factory = kwargs.pop('factory', dict)

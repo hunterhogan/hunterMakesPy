@@ -68,5 +68,3 @@ for identifierTransformee in allTransformeePackages:
 
 	transformALLdot_pyHere.append((pathTransformee, identifierTransformee, getOtherName[identifierTransformee]))
 
-
-

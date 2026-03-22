@@ -1,7 +1,7 @@
 from .utils import no_default
 from _typeshed import SupportsRichComparison
-import collections.abc
-import typing
+from collections.abc import Callable, Hashable, Iterable, Iterator, Mapping, Sequence
+from typing import Any, Literal, overload, Protocol, TypeGuard
 
 __all__ = (
     "accumulate",
@@ -43,17 +43,17 @@ __all__ = (
 )
 
 ### Special types for toolz
-type _NoDefaultType = typing.Literal["__no_default__"]
-type _NoPadType = typing.Literal["__no_pad__"]
+type _NoDefaultType = Literal[__no_default__]
+type _NoPadType = Literal[__no_pad__]
 
-class _Randomable(typing.Protocol):
+class _Randomable(Protocol):
     def random(self) -> float: ...
 
 ### Toolz itself
 
 def remove[T](
-    predicate: typing.Callable[[T], bool], seq: collections.abc.Iterable[T]
-) -> collections.abc.Iterable[T]:
+    predicate: Callable[[T], bool], seq: Iterable[T]
+) -> Iterable[T]:
     """Return those items of sequence for which predicate(item) is False
 
     >>> def iseven(x):
@@ -62,20 +62,20 @@ def remove[T](
     [1, 3]
     """
 
-@typing.overload
+@overload
 def accumulate[T](
-    binop: typing.Callable[[T, T], T],
-    seq: collections.abc.Iterable[T],
-) -> collections.abc.Iterator[T]: ...
-@typing.overload
+    binop: Callable[[T, T], T],
+    seq: Iterable[T],
+) -> Iterator[T]: ...
+@overload
 def accumulate[T](
-    binop: typing.Callable[[T, T], T], seq: collections.abc.Iterable[T], initial: T
-) -> collections.abc.Iterator[T]: ...
+    binop: Callable[[T, T], T], seq: Iterable[T], initial: T
+) -> Iterator[T]: ...
 def accumulate[T](
-    binop: typing.Callable[[T, T], T],
-    seq: collections.abc.Iterable[T],
+    binop: Callable[[T, T], T],
+    seq: Iterable[T],
     initial: T | _NoDefaultType = no_default,
-) -> collections.abc.Iterator[T]:
+) -> Iterator[T]:
     """Repeatedly apply binary function to a sequence, accumulating results
 
     >>> from operator import add, mul
@@ -105,7 +105,7 @@ def accumulate[T](
     """
 
 def groupby[KT, T](
-    key: typing.Callable[[T], KT], seq: collections.abc.Iterable[T]
+    key: Callable[[T], KT], seq: Iterable[T]
 ) -> dict[KT, list[T]]:
     """Group a collection by a key function
 
@@ -134,8 +134,8 @@ def groupby[KT, T](
     """
 
 def merge_sorted[CT: SupportsRichComparison](
-    *seqs: collections.abc.Iterable[CT], key: typing.Callable[[CT], CT] | None = None
-) -> collections.abc.Iterator[CT]:
+    *seqs: Iterable[CT], key: Callable[[CT], CT] | None = None
+) -> Iterator[CT]:
     """Merge and sort a collection of sorted collections
 
     This works lazily and only keeps one value from each iterable in memory.
@@ -153,8 +153,8 @@ def merge_sorted[CT: SupportsRichComparison](
     """
 
 def interleave[T](
-    seqs: collections.abc.Iterable[collections.abc.Iterable[T]],
-) -> collections.abc.Iterator[T]:
+    seqs: Iterable[Iterable[T]],
+) -> Iterator[T]:
     """Interleave a sequence of sequences
 
     >>> list(interleave([[1, 2], [3, 4]]))
@@ -169,9 +169,9 @@ def interleave[T](
     """
 
 def unique[T](
-    seq: collections.abc.Iterable[T],
-    key: typing.Callable[[T], typing.Any] | None = None,
-) -> collections.abc.Iterator[T]:
+    seq: Iterable[T],
+    key: Callable[[T], Any] | None = None,
+) -> Iterator[T]:
     """Return only unique elements of a sequence
 
     >>> tuple(unique((1, 2, 3)))
@@ -185,7 +185,7 @@ def unique[T](
     ('cat', 'mouse')
     """
 
-def isiterable(x: typing.Any) -> typing.TypeGuard[collections.abc.Iterable[typing.Any]]:
+def isiterable(x: Any) -> TypeGuard[Iterable[Any]]:
     """Is x iterable?
 
     >>> isiterable([1, 2, 3])
@@ -197,7 +197,7 @@ def isiterable(x: typing.Any) -> typing.TypeGuard[collections.abc.Iterable[typin
     """
 
 def isdistinct(
-    seq: collections.abc.Iterable[typing.Any] | collections.abc.Sequence[typing.Any],
+    seq: Iterable[Any] | Sequence[Any],
 ) -> bool:
     """All values in sequence are distinct
 
@@ -212,7 +212,7 @@ def isdistinct(
     True
     """
 
-def take[T](n: int, seq: collections.abc.Iterable[T]) -> collections.abc.Iterator[T]:
+def take[T](n: int, seq: Iterable[T]) -> Iterator[T]:
     """The first n elements of a sequence
 
     >>> list(take(2, [10, 20, 30, 40, 50]))
@@ -224,7 +224,7 @@ def take[T](n: int, seq: collections.abc.Iterable[T]) -> collections.abc.Iterato
         tail
     """
 
-def tail[T](n: int, seq: collections.abc.Iterable[T]) -> collections.abc.Iterator[T]:
+def tail[T](n: int, seq: Iterable[T]) -> Iterator[T]:
     """The last n elements of a sequence
 
     >>> tail(2, [10, 20, 30, 40, 50])
@@ -236,7 +236,7 @@ def tail[T](n: int, seq: collections.abc.Iterable[T]) -> collections.abc.Iterato
         take
     """
 
-def drop[T](n: int, seq: collections.abc.Iterable[T]) -> collections.abc.Iterator[T]:
+def drop[T](n: int, seq: Iterable[T]) -> Iterator[T]:
     """The sequence following the first n elements
 
     >>> list(drop(2, [10, 20, 30, 40, 50]))
@@ -249,43 +249,43 @@ def drop[T](n: int, seq: collections.abc.Iterable[T]) -> collections.abc.Iterato
     """
 
 def take_nth[T](
-    n: int, seq: collections.abc.Iterable[T]
-) -> collections.abc.Iterator[T]:
+    n: int, seq: Iterable[T]
+) -> Iterator[T]:
     """Every nth item in seq
 
     >>> list(take_nth(2, [10, 20, 30, 40, 50]))
     [10, 30, 50]
     """
 
-def first[T](seq: collections.abc.Iterable[T]) -> T:
+def first[T](seq: Iterable[T]) -> T:
     """The first element in a sequence
 
     >>> first('ABC')
     'A'
     """
 
-def second[T](seq: collections.abc.Iterable[T]) -> T:
+def second[T](seq: Iterable[T]) -> T:
     """The second element in a sequence
 
     >>> second('ABC')
     'B'
     """
 
-def nth[T](n: int, seq: collections.abc.Iterable[T]) -> T:
+def nth[T](n: int, seq: Iterable[T]) -> T:
     """The nth element in a sequence
 
     >>> nth(1, 'ABC')
     'B'
     """
 
-def last[T](seq: collections.abc.Iterable[T]) -> T:
+def last[T](seq: Iterable[T]) -> T:
     """The last element in a sequence
 
     >>> last('ABC')
     'C'
     """
 
-def rest[T](seq: collections.abc.Iterable[T]) -> collections.abc.Iterable[T]:
+def rest[T](seq: Iterable[T]) -> Iterable[T]:
     """All but the first element in a sequence
 
     >>> rest('ABC')
@@ -293,21 +293,21 @@ def rest[T](seq: collections.abc.Iterable[T]) -> collections.abc.Iterable[T]:
     """
     # Warning - this function is not exposed via __all__ and should be considered private.
 
-@typing.overload
+@overload
 def get[T](
-    ind: list[typing.Any],
-    seq: collections.abc.Sequence[T] | collections.abc.Mapping[typing.Any, T],
+    ind: list[Any],
+    seq: Sequence[T] | Mapping[Any, T],
     default: T | _NoDefaultType = ...,
 ) -> tuple[T, ...]: ...
-@typing.overload
+@overload
 def get[T](
-    ind: typing.Any,
-    seq: collections.abc.Sequence[T] | collections.abc.Mapping[typing.Any, T],
+    ind: Any,
+    seq: Sequence[T] | Mapping[Any, T],
     default: T | _NoDefaultType = ...,
 ) -> T: ...
 def get[T](
-    ind: typing.Any | list[typing.Any],
-    seq: collections.abc.Sequence[T] | collections.abc.Mapping[typing.Any, T],
+    ind: Any | list[Any],
+    seq: Sequence[T] | Mapping[Any, T],
     default: T | _NoDefaultType = no_default,
 ) -> T | tuple[T, ...]:
     """Get element in a sequence or dict
@@ -345,8 +345,8 @@ def get[T](
     """
 
 def concat[T](
-    seqs: collections.abc.Iterable[collections.abc.Iterable[T]],
-) -> collections.abc.Iterator[T]:
+    seqs: Iterable[Iterable[T]],
+) -> Iterator[T]:
     """Concatenate zero or more iterables, any of which may be infinite.
 
     An infinite sequence will prevent the rest of the arguments from
@@ -363,7 +363,7 @@ def concat[T](
         itertools.chain.from_iterable  equivalent
     """
 
-def concatv[T](*seqs: collections.abc.Iterable[T]) -> collections.abc.Iterator[T]:
+def concatv[T](*seqs: Iterable[T]) -> Iterator[T]:
     """Variadic version of concat
 
     >>> list(concatv([], ["a"], ["b", "c"]))
@@ -375,9 +375,9 @@ def concatv[T](*seqs: collections.abc.Iterable[T]) -> collections.abc.Iterator[T
     """
 
 def mapcat[T, R](
-    func: typing.Callable[[T], collections.abc.Iterable[R]],
-    seqs: collections.abc.Iterable[T],
-) -> collections.abc.Iterator[R]:
+    func: Callable[[T], Iterable[R]],
+    seqs: Iterable[T],
+) -> Iterator[R]:
     """Apply func to each sequence in seqs, concatenating results.
 
     >>> list(mapcat(lambda s: [c.upper() for c in s],
@@ -385,7 +385,7 @@ def mapcat[T, R](
     ['A', 'B', 'C', 'D', 'E']
     """
 
-def cons[T](el: T, seq: collections.abc.Iterable[T]) -> collections.abc.Iterator[T]:
+def cons[T](el: T, seq: Iterable[T]) -> Iterator[T]:
     """Add el to beginning of (possibly infinite) sequence seq.
 
     >>> list(cons(1, [2, 3]))
@@ -393,15 +393,15 @@ def cons[T](el: T, seq: collections.abc.Iterable[T]) -> collections.abc.Iterator
     """
 
 def interpose[T](
-    el: T, seq: collections.abc.Iterable[T]
-) -> collections.abc.Iterator[T]:
+    el: T, seq: Iterable[T]
+) -> Iterator[T]:
     """Introduce element between each pair of elements in seq
 
     >>> list(interpose("a", [1, 2, 3]))
     [1, 'a', 2, 'a', 3]
     """
 
-def frequencies[T](seq: collections.abc.Iterable[T]) -> dict[T, int]:
+def frequencies[T](seq: Iterable[T]) -> dict[T, int]:
     """Find number of occurrences of each value in seq
 
     >>> frequencies(['cat', 'cat', 'ox', 'pig', 'pig', 'cat'])  #doctest: +SKIP
@@ -413,37 +413,37 @@ def frequencies[T](seq: collections.abc.Iterable[T]) -> dict[T, int]:
         groupby
     """
 
-@typing.overload
+@overload
 def reduceby[T, K](
-    key: typing.Callable[[T], K],
-    binop: typing.Callable[[T, T], T],
-    seq: collections.abc.Iterable[T],
+    key: Callable[[T], K],
+    binop: Callable[[T, T], T],
+    seq: Iterable[T],
 ) -> dict[K, T]: ...
-@typing.overload
+@overload
 def reduceby[T, K](
-    key: typing.Callable[[T], K],
-    binop: typing.Callable[[T, T], T],
-    seq: collections.abc.Iterable[T],
-    init: T | typing.Callable[[], T],
+    key: Callable[[T], K],
+    binop: Callable[[T, T], T],
+    seq: Iterable[T],
+    init: T | Callable[[], T],
 ) -> dict[K, T]: ...
-@typing.overload
+@overload
 def reduceby[T](
-    key: typing.Any,  # when not callable, use identity function
-    binop: typing.Callable[[T, T], T],
-    seq: collections.abc.Iterable[T],
+    key: Any,  # when not callable, use identity function
+    binop: Callable[[T, T], T],
+    seq: Iterable[T],
 ) -> dict[T, T]: ...
-@typing.overload
+@overload
 def reduceby[T](
-    key: typing.Any,  # when not callable, use identity function
-    binop: typing.Callable[[T, T], T],
-    seq: collections.abc.Iterable[T],
-    init: T | typing.Callable[[], T],
+    key: Any,  # when not callable, use identity function
+    binop: Callable[[T, T], T],
+    seq: Iterable[T],
+    init: T | Callable[[], T],
 ) -> dict[T, T]: ...
 def reduceby[T, K](
-    key: typing.Callable[[T], K] | typing.Any,
-    binop: typing.Callable[[T, T], T],
-    seq: collections.abc.Iterable[T],
-    init: T | typing.Callable[[], T] | _NoDefaultType = no_default,
+    key: Callable[[T], K] | Any,
+    binop: Callable[[T, T], T],
+    seq: Iterable[T],
+    init: T | Callable[[], T] | _NoDefaultType = no_default,
 ) -> dict[K, T]:
     """Perform a simultaneous groupby and reduction
 
@@ -506,7 +506,7 @@ def reduceby[T, K](
      False: set([1, 3])}
     """
 
-def iterate[T](func: typing.Callable[[T], T], x: T) -> collections.abc.Iterator[T]:
+def iterate[T](func: Callable[[T], T], x: T) -> Iterator[T]:
     """Repeatedly apply a function func onto an original input
 
     Yields x, then func(x), then func(func(x)), then func(func(func(x))), etc..
@@ -533,8 +533,8 @@ def iterate[T](func: typing.Callable[[T], T], x: T) -> collections.abc.Iterator[
     """
 
 def sliding_window[T](
-    n: int, seq: collections.abc.Iterable[T]
-) -> collections.abc.Iterator[tuple[T, ...]]:
+    n: int, seq: Iterable[T]
+) -> Iterator[tuple[T, ...]]:
     """A sequence of overlapping subsequences
 
     >>> list(sliding_window(2, [1, 2, 3, 4]))
@@ -550,21 +550,21 @@ def sliding_window[T](
 
 no_pad = "__no_pad__"
 
-@typing.overload
+@overload
 def partition[T, P](
-    n: typing.Literal[1], seq: collections.abc.Iterable[T], pad: typing.Any = ...
-) -> collections.abc.Iterator[tuple[T]]: ...
-@typing.overload
+    n: Literal[1], seq: Iterable[T], pad: Any = ...
+) -> Iterator[tuple[T]]: ...
+@overload
 def partition[T](
-    n: int, seq: collections.abc.Iterable[T], pad: _NoPadType = ...
-) -> collections.abc.Iterator[tuple[T, ...]]: ...
-@typing.overload
+    n: int, seq: Iterable[T], pad: _NoPadType = ...
+) -> Iterator[tuple[T, ...]]: ...
+@overload
 def partition[T, P](
-    n: int, seq: collections.abc.Iterable[T], pad: P
-) -> collections.abc.Iterator[tuple[T | P, ...]]: ...
+    n: int, seq: Iterable[T], pad: P
+) -> Iterator[tuple[T | P, ...]]: ...
 def partition[T, P](
-    n: int, seq: collections.abc.Iterable[T], pad: P | _NoPadType = no_pad
-) -> collections.abc.Iterator[tuple[T | P, ...]]:
+    n: int, seq: Iterable[T], pad: P | _NoPadType = no_pad
+) -> Iterator[tuple[T | P, ...]]:
     """Partition sequence into tuples of length n
 
     >>> list(partition(2, [1, 2, 3, 4]))
@@ -584,17 +584,17 @@ def partition[T, P](
         partition_all
     """
 
-@typing.overload
+@overload
 def partition_all[T](
-    n: typing.Literal[1], seq: collections.abc.Iterable[T]
-) -> collections.abc.Iterator[tuple[T]]: ...
-@typing.overload
+    n: Literal[1], seq: Iterable[T]
+) -> Iterator[tuple[T]]: ...
+@overload
 def partition_all[T](
-    n: int, seq: collections.abc.Iterable[T]
-) -> collections.abc.Iterator[tuple[T, ...]]: ...
+    n: int, seq: Iterable[T]
+) -> Iterator[tuple[T, ...]]: ...
 def partition_all[T](
-    n: int, seq: collections.abc.Iterable[T]
-) -> collections.abc.Iterator[tuple[T, ...]]:
+    n: int, seq: Iterable[T]
+) -> Iterator[tuple[T, ...]]:
     """Partition all elements of sequence into tuples of length at most n
 
     The final tuple may be shorter to accommodate extra elements.
@@ -610,7 +610,7 @@ def partition_all[T](
         partition
     """
 
-def count(seq: collections.abc.Iterable[typing.Any]) -> int:
+def count(seq: Iterable[Any]) -> int:
     """Count the number of items in seq
 
     Like the builtin ``len`` but works on lazy sequences.
@@ -622,29 +622,29 @@ def count(seq: collections.abc.Iterable[typing.Any]) -> int:
         len
     """
 
-@typing.overload
+@overload
 def pluck[T](
-    ind: list[typing.Any],
-    seqs: collections.abc.Iterable[
-        collections.abc.Sequence[T] | collections.abc.Mapping[typing.Any, T]
+    ind: list[Any],
+    seqs: Iterable[
+        Sequence[T] | Mapping[Any, T]
     ],
     default: T | _NoDefaultType = ...,
-) -> collections.abc.Iterator[tuple[T, ...]]: ...
-@typing.overload
+) -> Iterator[tuple[T, ...]]: ...
+@overload
 def pluck[T](
-    ind: typing.Any,
-    seqs: collections.abc.Iterable[
-        collections.abc.Sequence[T] | collections.abc.Mapping[typing.Any, T]
+    ind: Any,
+    seqs: Iterable[
+        Sequence[T] | Mapping[Any, T]
     ],
     default: T | _NoDefaultType = ...,
-) -> collections.abc.Iterator[T]: ...
+) -> Iterator[T]: ...
 def pluck[T](
-    ind: typing.Any | list[typing.Any],
-    seqs: collections.abc.Iterable[
-        collections.abc.Sequence[T] | collections.abc.Mapping[typing.Any, T]
+    ind: Any | list[Any],
+    seqs: Iterable[
+        Sequence[T] | Mapping[Any, T]
     ],
     default: T | _NoDefaultType = no_default,
-) -> collections.abc.Iterator[T] | collections.abc.Iterator[tuple[T, ...]]:
+) -> Iterator[T] | Iterator[tuple[T, ...]]:
     """Plucks an element or several elements from each item in a sequence.
 
     ``pluck`` maps ``itertoolz.get`` over a sequence and returns one or more
@@ -669,177 +669,177 @@ def pluck[T](
         map
     """
 
-@typing.overload
+@overload
 def getter[T](
-    index: list[typing.Any],
-) -> typing.Callable[
-    [collections.abc.Sequence[T] | collections.abc.Mapping[typing.Any, T]],
+    index: list[Any],
+) -> Callable[
+    [Sequence[T] | Mapping[Any, T]],
     tuple[T, ...],
 ]: ...
-@typing.overload
+@overload
 def getter[T](
-    index: typing.Any,
-) -> typing.Callable[
-    [collections.abc.Sequence[T] | collections.abc.Mapping[typing.Any, T]], T
+    index: Any,
+) -> Callable[
+    [Sequence[T] | Mapping[Any, T]], T
 ]: ...
 def getter[T](
-    index: typing.Any | list[typing.Any],
-) -> typing.Callable[
-    [collections.abc.Sequence[T] | collections.abc.Mapping[typing.Any, T]],
+    index: Any | list[Any],
+) -> Callable[
+    [Sequence[T] | Mapping[Any, T]],
     T | tuple[T, ...],
 ]:
     # Warning - this function is not exposed via __all__ and should be considered private.
     ...
 
 # === CALLABLE + CALLABLE (4 overloads) ===
-@typing.overload
+@overload
 def join[T, U](
-    leftkey: typing.Callable[[T], typing.Hashable],
-    leftseq: collections.abc.Iterable[T],
-    rightkey: typing.Callable[[U], typing.Hashable],
-    rightseq: collections.abc.Iterable[U],
-) -> collections.abc.Iterator[tuple[T, U]]: ...
-@typing.overload
+    leftkey: Callable[[T], Hashable],
+    leftseq: Iterable[T],
+    rightkey: Callable[[U], Hashable],
+    rightseq: Iterable[U],
+) -> Iterator[tuple[T, U]]: ...
+@overload
 def join[T, U, L](
-    leftkey: typing.Callable[[T], typing.Hashable],
-    leftseq: collections.abc.Iterable[T],
-    rightkey: typing.Callable[[U], typing.Hashable],
-    rightseq: collections.abc.Iterable[U],
+    leftkey: Callable[[T], Hashable],
+    leftseq: Iterable[T],
+    rightkey: Callable[[U], Hashable],
+    rightseq: Iterable[U],
     left_default: L,
-) -> collections.abc.Iterator[tuple[T | L, U]]: ...
-@typing.overload
+) -> Iterator[tuple[T | L, U]]: ...
+@overload
 def join[T, U, R](
-    leftkey: typing.Callable[[T], typing.Hashable],
-    leftseq: collections.abc.Iterable[T],
-    rightkey: typing.Callable[[U], typing.Hashable],
-    rightseq: collections.abc.Iterable[U],
+    leftkey: Callable[[T], Hashable],
+    leftseq: Iterable[T],
+    rightkey: Callable[[U], Hashable],
+    rightseq: Iterable[U],
     *,
     right_default: R,
-) -> collections.abc.Iterator[tuple[T, U | R]]: ...
-@typing.overload
+) -> Iterator[tuple[T, U | R]]: ...
+@overload
 def join[T, U, L, R](
-    leftkey: typing.Callable[[T], typing.Hashable],
-    leftseq: collections.abc.Iterable[T],
-    rightkey: typing.Callable[[U], typing.Hashable],
-    rightseq: collections.abc.Iterable[U],
+    leftkey: Callable[[T], Hashable],
+    leftseq: Iterable[T],
+    rightkey: Callable[[U], Hashable],
+    rightseq: Iterable[U],
     left_default: L,
     right_default: R,
-) -> collections.abc.Iterator[tuple[T | L, U | R]]: ...
+) -> Iterator[tuple[T | L, U | R]]: ...
 
 # === HASHABLE + CALLABLE (4 overloads) ===
-@typing.overload
+@overload
 def join[T, U](
-    leftkey: typing.Hashable,
-    leftseq: collections.abc.Iterable[T],
-    rightkey: typing.Callable[[U], typing.Hashable],
-    rightseq: collections.abc.Iterable[U],
-) -> collections.abc.Iterator[tuple[T, U]]: ...
-@typing.overload
+    leftkey: Hashable,
+    leftseq: Iterable[T],
+    rightkey: Callable[[U], Hashable],
+    rightseq: Iterable[U],
+) -> Iterator[tuple[T, U]]: ...
+@overload
 def join[T, U, L](
-    leftkey: typing.Hashable,
-    leftseq: collections.abc.Iterable[T],
-    rightkey: typing.Callable[[U], typing.Hashable],
-    rightseq: collections.abc.Iterable[U],
+    leftkey: Hashable,
+    leftseq: Iterable[T],
+    rightkey: Callable[[U], Hashable],
+    rightseq: Iterable[U],
     left_default: L,
-) -> collections.abc.Iterator[tuple[T | L, U]]: ...
-@typing.overload
+) -> Iterator[tuple[T | L, U]]: ...
+@overload
 def join[T, U, R](
-    leftkey: typing.Hashable,
-    leftseq: collections.abc.Iterable[T],
-    rightkey: typing.Callable[[U], typing.Hashable],
-    rightseq: collections.abc.Iterable[U],
+    leftkey: Hashable,
+    leftseq: Iterable[T],
+    rightkey: Callable[[U], Hashable],
+    rightseq: Iterable[U],
     *,
     right_default: R,
-) -> collections.abc.Iterator[tuple[T, U | R]]: ...
-@typing.overload
+) -> Iterator[tuple[T, U | R]]: ...
+@overload
 def join[T, U, L, R](
-    leftkey: typing.Hashable,
-    leftseq: collections.abc.Iterable[T],
-    rightkey: typing.Callable[[U], typing.Hashable],
-    rightseq: collections.abc.Iterable[U],
+    leftkey: Hashable,
+    leftseq: Iterable[T],
+    rightkey: Callable[[U], Hashable],
+    rightseq: Iterable[U],
     left_default: L,
     right_default: R,
-) -> collections.abc.Iterator[tuple[T | L, U | R]]: ...
+) -> Iterator[tuple[T | L, U | R]]: ...
 
 # === CALLABLE + HASHABLE (4 overloads) ===
-@typing.overload
+@overload
 def join[T, U](
-    leftkey: typing.Callable[[T], typing.Hashable],
-    leftseq: collections.abc.Iterable[T],
-    rightkey: typing.Hashable,
-    rightseq: collections.abc.Iterable[U],
-) -> collections.abc.Iterator[tuple[T, U]]: ...
-@typing.overload
+    leftkey: Callable[[T], Hashable],
+    leftseq: Iterable[T],
+    rightkey: Hashable,
+    rightseq: Iterable[U],
+) -> Iterator[tuple[T, U]]: ...
+@overload
 def join[T, U, L](
-    leftkey: typing.Callable[[T], typing.Hashable],
-    leftseq: collections.abc.Iterable[T],
-    rightkey: typing.Hashable,
-    rightseq: collections.abc.Iterable[U],
+    leftkey: Callable[[T], Hashable],
+    leftseq: Iterable[T],
+    rightkey: Hashable,
+    rightseq: Iterable[U],
     left_default: L,
-) -> collections.abc.Iterator[tuple[T | L, U]]: ...
-@typing.overload
+) -> Iterator[tuple[T | L, U]]: ...
+@overload
 def join[T, U, R](
-    leftkey: typing.Callable[[T], typing.Hashable],
-    leftseq: collections.abc.Iterable[T],
-    rightkey: typing.Hashable,
-    rightseq: collections.abc.Iterable[U],
+    leftkey: Callable[[T], Hashable],
+    leftseq: Iterable[T],
+    rightkey: Hashable,
+    rightseq: Iterable[U],
     *,
     right_default: R,
-) -> collections.abc.Iterator[tuple[T, U | R]]: ...
-@typing.overload
+) -> Iterator[tuple[T, U | R]]: ...
+@overload
 def join[T, U, L, R](
-    leftkey: typing.Callable[[T], typing.Hashable],
-    leftseq: collections.abc.Iterable[T],
-    rightkey: typing.Hashable,
-    rightseq: collections.abc.Iterable[U],
+    leftkey: Callable[[T], Hashable],
+    leftseq: Iterable[T],
+    rightkey: Hashable,
+    rightseq: Iterable[U],
     left_default: L,
     right_default: R,
-) -> collections.abc.Iterator[tuple[T | L, U | R]]: ...
+) -> Iterator[tuple[T | L, U | R]]: ...
 
 # === HASHABLE + HASHABLE (4 overloads) ===
-@typing.overload
+@overload
 def join[T, U](
-    leftkey: typing.Hashable,
-    leftseq: collections.abc.Iterable[T],
-    rightkey: typing.Hashable,
-    rightseq: collections.abc.Iterable[U],
-) -> collections.abc.Iterator[tuple[T, U]]: ...
-@typing.overload
+    leftkey: Hashable,
+    leftseq: Iterable[T],
+    rightkey: Hashable,
+    rightseq: Iterable[U],
+) -> Iterator[tuple[T, U]]: ...
+@overload
 def join[T, U, L](
-    leftkey: typing.Hashable,
-    leftseq: collections.abc.Iterable[T],
-    rightkey: typing.Hashable,
-    rightseq: collections.abc.Iterable[U],
+    leftkey: Hashable,
+    leftseq: Iterable[T],
+    rightkey: Hashable,
+    rightseq: Iterable[U],
     left_default: L,
-) -> collections.abc.Iterator[tuple[T | L, U]]: ...
-@typing.overload
+) -> Iterator[tuple[T | L, U]]: ...
+@overload
 def join[T, U, R](
-    leftkey: typing.Hashable,
-    leftseq: collections.abc.Iterable[T],
-    rightkey: typing.Hashable,
-    rightseq: collections.abc.Iterable[U],
+    leftkey: Hashable,
+    leftseq: Iterable[T],
+    rightkey: Hashable,
+    rightseq: Iterable[U],
     *,
     right_default: R,
-) -> collections.abc.Iterator[tuple[T, U | R]]: ...
-@typing.overload
+) -> Iterator[tuple[T, U | R]]: ...
+@overload
 def join[T, U, L, R](
-    leftkey: typing.Hashable,
-    leftseq: collections.abc.Iterable[T],
-    rightkey: typing.Hashable,
-    rightseq: collections.abc.Iterable[U],
+    leftkey: Hashable,
+    leftseq: Iterable[T],
+    rightkey: Hashable,
+    rightseq: Iterable[U],
     left_default: L,
     right_default: R,
-) -> collections.abc.Iterator[tuple[T | L, U | R]]: ...
+) -> Iterator[tuple[T | L, U | R]]: ...
 
 # Implementation signature
 def join[T, U, L, R](
-    leftkey: typing.Callable[[T], typing.Hashable] | typing.Hashable,
-    leftseq: collections.abc.Iterable[T],
-    rightkey: typing.Callable[[U], typing.Hashable] | typing.Hashable,
-    rightseq: collections.abc.Iterable[U],
+    leftkey: Callable[[T], Hashable] | Hashable,
+    leftseq: Iterable[T],
+    rightkey: Callable[[U], Hashable] | Hashable,
+    rightseq: Iterable[U],
     left_default: L | _NoDefaultType = no_default,
     right_default: R | _NoDefaultType = no_default,
-) -> collections.abc.Iterator[tuple[T | L, U | R]]:
+) -> Iterator[tuple[T | L, U | R]]:
     """Join two sequences on common attributes
 
     This is a semi-streaming operation.  The LEFT sequence is fully evaluated
@@ -899,22 +899,22 @@ def join[T, U, L, R](
     >>> result = join(1, friends, 0, cities)  # doctest: +SKIP
     """
 
-@typing.overload
+@overload
 def diff[T](
-    *seqs: collections.abc.Iterable[T],
-    key: typing.Callable[[T], typing.Any] | None = None,
-) -> collections.abc.Iterator[tuple[T, ...]]: ...
-@typing.overload
+    *seqs: Iterable[T],
+    key: Callable[[T], Any] | None = None,
+) -> Iterator[tuple[T, ...]]: ...
+@overload
 def diff[T](
-    *seqs: collections.abc.Iterable[T],
+    *seqs: Iterable[T],
     default: T,
-    key: typing.Callable[[T], typing.Any] | None = None,
-) -> collections.abc.Iterator[tuple[T, ...]]: ...
+    key: Callable[[T], Any] | None = None,
+) -> Iterator[tuple[T, ...]]: ...
 def diff[T](
-    *seqs: collections.abc.Iterable[T],
+    *seqs: Iterable[T],
     default: T | _NoDefaultType = no_default,
-    key: typing.Callable[[T], typing.Any] | None = None,
-) -> collections.abc.Iterator[tuple[T, ...]]:
+    key: Callable[[T], Any] | None = None,
+) -> Iterator[tuple[T, ...]]:
     """Return those items that differ between sequences
 
     >>> list(diff([1, 2, 3], [1, 2, 10, 100]))
@@ -934,8 +934,8 @@ def diff[T](
 
 def topk[T](
     k: int,
-    seq: collections.abc.Iterable[T],
-    key: typing.Callable[[T], SupportsRichComparison] | None = None,
+    seq: Iterable[T],
+    key: Callable[[T], SupportsRichComparison] | None = None,
 ) -> tuple[T, ...]:
     """Find the k largest elements of a sequence
 
@@ -955,8 +955,8 @@ def topk[T](
     """
 
 def peek[T](
-    seq: collections.abc.Iterable[T],
-) -> tuple[T, collections.abc.Iterator[T]]:
+    seq: Iterable[T],
+) -> tuple[T, Iterator[T]]:
     """Retrieve the next element of a sequence
 
     Returns the first element and an iterable equivalent to the original
@@ -971,8 +971,8 @@ def peek[T](
     """
 
 def peekn[T](
-    n: int, seq: collections.abc.Iterable[T]
-) -> tuple[tuple[T, ...], collections.abc.Iterator[T]]:
+    n: int, seq: Iterable[T]
+) -> tuple[tuple[T, ...], Iterator[T]]:
     """Retrieve the next n elements of a sequence
 
     Returns a tuple of the first n elements and an iterable equivalent
@@ -988,9 +988,9 @@ def peekn[T](
 
 def random_sample[T](
     prob: float,
-    seq: collections.abc.Iterable[T],
+    seq: Iterable[T],
     random_state: int | _Randomable | None = None,
-) -> collections.abc.Iterator[T]:
+) -> Iterator[T]:
     """Return elements from a sequence with probability of prob
 
     Returns a lazy iterator of random items from seq.

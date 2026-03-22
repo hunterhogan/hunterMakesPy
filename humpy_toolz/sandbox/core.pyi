@@ -1,8 +1,8 @@
-import collections.abc
-import typing
-
 # See #166: https://github.com/pytoolz/toolz/issues/166
 # See #173: https://github.com/pytoolz/toolz/pull/173
+from collections.abc import Callable, Hashable, Iterable, Iterator
+from typing import overload, override
+
 class EqualityHashKey:
     """Create a hash key that uses equality comparisons between items.
 
@@ -54,61 +54,58 @@ class EqualityHashKey:
     idiom in functional programming, and``EqualityHashKey`` easily allows
     the same idiom to be used by convention rather than strict requirement.
 
-    See Also:
+    See Also
+    --------
         identity
     """
 
     def __init__[T](
-        self, key: collections.abc.Callable[[T], typing.Hashable] | int | None, item: T
+        self, key: Callable[[T], Hashable] | int | None, item: T
     ) -> None: ...
-    @typing.override
+    @override
     def __hash__(self) -> int: ...
-    @typing.override
+    @override
     def __eq__(self, other: object) -> bool: ...
-    @typing.override
+    @override
     def __ne__(self, other: object) -> bool: ...
-    @typing.override
-    def __str__(self) -> str: ...
-    @typing.override
-    def __repr__(self) -> str: ...
 
 # See issue #293: https://github.com/pytoolz/toolz/issues/239
-@typing.overload
-def unzip(seq: collections.abc.Iterable[tuple[()]]) -> tuple[()]: ...
-@typing.overload
+@overload
+def unzip(seq: Iterable[tuple[()]]) -> tuple[()]: ...
+@overload
 def unzip[T1](
-    seq: collections.abc.Iterable[tuple[T1]],
-) -> tuple[collections.abc.Iterator[T1]]: ...
-@typing.overload
+    seq: Iterable[tuple[T1]],
+) -> tuple[Iterator[T1]]: ...
+@overload
 def unzip[T1, T2](
-    seq: collections.abc.Iterable[tuple[T1, T2]],
-) -> tuple[collections.abc.Iterator[T1], collections.abc.Iterator[T2]]: ...
-@typing.overload
+    seq: Iterable[tuple[T1, T2]],
+) -> tuple[Iterator[T1], Iterator[T2]]: ...
+@overload
 def unzip[T1, T2, T3](
-    seq: collections.abc.Iterable[tuple[T1, T2, T3]],
+    seq: Iterable[tuple[T1, T2, T3]],
 ) -> tuple[
-    collections.abc.Iterator[T1],
-    collections.abc.Iterator[T2],
-    collections.abc.Iterator[T3],
+    Iterator[T1],
+    Iterator[T2],
+    Iterator[T3],
 ]: ...
-@typing.overload
+@overload
 def unzip[T1, T2, T3, T4](
-    seq: collections.abc.Iterable[tuple[T1, T2, T3, T4]],
+    seq: Iterable[tuple[T1, T2, T3, T4]],
 ) -> tuple[
-    collections.abc.Iterator[T1],
-    collections.abc.Iterator[T2],
-    collections.abc.Iterator[T3],
-    collections.abc.Iterator[T4],
+    Iterator[T1],
+    Iterator[T2],
+    Iterator[T3],
+    Iterator[T4],
 ]: ...
-@typing.overload
+@overload
 def unzip[T](
-    seq: collections.abc.Iterable[tuple[T, ...]],
-) -> tuple[collections.abc.Iterator[T], ...]: ...
+    seq: Iterable[tuple[T, ...]],
+) -> tuple[Iterator[T], ...]: ...
 
 # Implementation signature
 def unzip[T](
-    seq: collections.abc.Iterable[tuple[T, ...]],
-) -> tuple[collections.abc.Iterator[T], ...]:
+    seq: Iterable[tuple[T, ...]],
+) -> tuple[Iterator[T], ...]:
     """Inverse of ``zip``
 
     >>> a, b = unzip([('a', 1), ('b', 2)])
@@ -130,4 +127,3 @@ def unzip[T](
       used if ``seq`` is a finite sequence of infinite sequences.
 
     """
-    ...

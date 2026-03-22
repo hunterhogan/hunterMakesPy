@@ -164,7 +164,7 @@ class InstanceProperty[Instance, T](property):
     @override
     def __reduce__(
         self,
-    ) -> tuple[type[InstanceProperty], _InstancePropertyState]:  # pyright: ignore[reportMissingTypeArgument]
+    ) -> tuple[type[InstanceProperty], _InstancePropertyState]:
         # TODO figure out how to type this correctly
         ...
 
