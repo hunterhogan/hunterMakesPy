@@ -54,7 +54,6 @@ def thread_last[T, U](
 	...
 
 class InstanceProperty[Instance, T](property):
-	...
 	def __init__(
 		self,
 		fget: _Getter[_Instance, _T] | None = None,
@@ -107,7 +106,6 @@ def instanceproperty(
 _CurryState = tuple
 
 class curry[**P, T]:
-	...
 	def __init__(
 		self,
 		func: curry[P, T] | functools.partial[T] | Callable[P, T],
@@ -361,7 +359,6 @@ def flip[T, U, R](func: Callable[[T, U], R], a: U, b: T) -> R:
 	...
 
 class excepts[T, **P]:
-	...
 	def __init__(
 		self,
 		exc: type[Exception] | tuple[type[Exception], ...],

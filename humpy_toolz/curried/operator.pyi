@@ -1,29 +1,10 @@
-...
-
-import operator
-
+from humpy_toolz.functoolz import curry
 # Unary operators and special cases - not curried (from IGNORE set in operator.py)
 from operator import (
-	__abs__ as __abs__,
-	__index__ as __index__,
-	__inv__ as __inv__,
-	__invert__ as __invert__,
-	__neg__ as __neg__,
-	__not__ as __not__,
-	__pos__ as __pos__,
-	abs as abs,
-	attrgetter as attrgetter,
-	index as index,
-	inv as inv,
-	invert as invert,
-	itemgetter as itemgetter,
-	neg as neg,
-	not_ as not_,
-	pos as pos,
-	truth as truth,
-)
-
-from toolz.functoolz import curry
+	__abs__ as __abs__, __index__ as __index__, __inv__ as __inv__, __invert__ as __invert__, __neg__ as __neg__, __not__ as __not__,
+	__pos__ as __pos__, abs as abs, attrgetter as attrgetter, index as index, inv as inv, invert as invert, itemgetter as itemgetter,
+	neg as neg, not_ as not_, pos as pos, truth as truth)
+import operator
 
 __all__ = [
 	# Unary operators and special cases (not curried)

@@ -4,8 +4,6 @@ from collections.abc import Callable, Hashable, Iterable, Iterator
 from typing import overload, override
 
 class EqualityHashKey:
-	...
-
 	def __init__[T](
 		self, key: Callable[[T], Hashable] | int | None, item: T
 	) -> None: ...

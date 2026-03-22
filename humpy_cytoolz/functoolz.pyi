@@ -1,5 +1,3 @@
-...
-
 from collections.abc import Callable, Iterable, Mapping
 from typing import Any, overload, override, Protocol, TypeVar
 import functools
