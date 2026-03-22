@@ -1,8 +1,7 @@
-# pyright: reportAny=false
-import collections.abc
+from collections.abc import Callable, Iterable, Mapping
+from typing import Any, Literal, overload, override, TypeVar
 import functools
 import inspect
-import typing
 
 __all__ = (
     "identity",
@@ -23,12 +22,12 @@ __all__ = (
 PYPY = bool
 
 ### Internal type stubs
-_T = typing.TypeVar("_T")
-_Instance = typing.TypeVar("_Instance")
-_Getter = typing.Callable[[_Instance], _T]
-_Setter = typing.Callable[[_Instance, _T], None]
-_Deleter = typing.Callable[[_Instance], None]
-_InstancePropertyState = tuple[
+_T = TypeVar("_T")
+_Instance = TypeVar("_Instance")
+type _Getter[_Instance, _T] = Callable[[_Instance], _T]
+type _Setter[_Instance, _T] = Callable[[_Instance, _T], None]
+type _Deleter[_Instance] = Callable[[_Instance], None]
+type _InstancePropertyState[_Instance, _T] = tuple[
     _Getter[_Instance, _T] | None,
     _Setter[_Instance, _T] | None,
     _Deleter[_Instance] | None,
@@ -46,7 +45,7 @@ def identity[T](x: T) -> T:
     """
     ...
 
-def apply[**P, T](func: typing.Callable[P, T], *args: P.args, **kwargs: P.kwargs) -> T:
+def apply[**P, T](func: Callable[P, T], *args: P.args, **kwargs: P.kwargs) -> T:
     """Applies a function and returns the results
 
     >>> def double(x): return 2*x
@@ -60,7 +59,7 @@ def apply[**P, T](func: typing.Callable[P, T], *args: P.args, **kwargs: P.kwargs
     ...
 
 def thread_first[T, R](
-    val: T, *forms: typing.Callable[[T], R] | tuple[typing.Callable[..., R], typing.Any]
+    val: T, *forms: Callable[[T], R] | tuple[Callable[..., R], Any]
 ) -> R:
     """Thread value through a sequence of functions/forms
 
@@ -88,7 +87,7 @@ def thread_first[T, R](
     ...
 
 def thread_last[T, U](
-    val: T, *forms: typing.Callable[[T], U] | tuple[typing.Callable[..., U]]
+    val: T, *forms: Callable[[T], U] | tuple[Callable[..., U]]
 ) -> U:
     """Thread value through a sequence of functions/forms
 
@@ -133,20 +132,20 @@ class InstanceProperty[_Instance, _T](property):
         doc: str | None = None,
         classval: _T | None = None,
     ) -> None: ...
-    @typing.overload
+    @overload
     def __get__(self, obj: None, type: type | None = ...) -> _T | None: ...
-    @typing.overload
+    @overload
     def __get__(self, obj: _Instance, type: type | None = ...) -> _T: ...
-    @typing.override
+    @override
     def __get__(self, obj: _Instance | None, type: type | None = None) -> _T | None: ...
-    @typing.override
+    @override
     def __reduce__(
         self,
-    ) -> tuple[type[InstanceProperty], _InstancePropertyState]:  # pyright: ignore[reportMissingTypeArgument]
+    ) -> tuple[type[InstanceProperty], _InstancePropertyState]:
         # TODO figure out how to type this correctly
         ...
 
-@typing.overload
+@overload
 def instanceproperty(
     fget: _Getter[_Instance, _T],
     fset: _Setter[_Instance, _T] | None = ...,
@@ -154,14 +153,14 @@ def instanceproperty(
     doc: str | None = ...,
     classval: _T | None = ...,
 ) -> InstanceProperty[_Instance, _T]: ...
-@typing.overload
+@overload
 def instanceproperty(
-    fget: typing.Literal[None] | None = None,
-    fset: _Setter[_Instance, _T] | None = ...,  # pyright: ignore[reportInvalidTypeVarUse]
+    fget: Literal[None] | None = None,
+    fset: _Setter[_Instance, _T] | None = ...,
     fdel: _Deleter[_Instance] | None = ...,
     doc: str | None = ...,
     classval: _T | None = ...,
-) -> typing.Callable[[_Getter[_Instance, _T]], InstanceProperty[_Instance, _T]]: ...
+) -> Callable[[_Getter[_Instance, _T]], InstanceProperty[_Instance, _T]]: ...
 def instanceproperty(
     fget: _Getter[_Instance, _T] | None = None,
     fset: _Setter[_Instance, _T] | None = None,
@@ -170,7 +169,7 @@ def instanceproperty(
     classval: _T | None = None,
 ) -> (
     InstanceProperty[_Instance, _T]
-    | typing.Callable[[_Getter[_Instance, _T]], InstanceProperty[_Instance, _T]]
+    | Callable[[_Getter[_Instance, _T]], InstanceProperty[_Instance, _T]]
 ):
     """Like @property, but returns ``classval`` when used as a class attribute
 
@@ -227,54 +226,50 @@ class curry[**P, T]:
     """
     def __init__(
         self,
-        func: curry[P, T] | functools.partial[T] | typing.Callable[P, T],
+        func: curry[P, T] | functools.partial[T] | Callable[P, T],
         /,  # Must be positional-only
-        *args: typing.Any,
-        **kwargs: typing.Any,
+        *args: Any,
+        **kwargs: Any,
     ) -> None: ...
     @instanceproperty
-    def func(self) -> typing.Callable[P, T]: ...
+    def func(self) -> Callable[P, T]: ...
     @instanceproperty
     def __signature__(self) -> inspect.Signature: ...
     @instanceproperty
-    def args(self) -> tuple[typing.Any, ...]: ...
+    def args(self) -> tuple[Any, ...]: ...
     @instanceproperty
-    def keywords(self) -> dict[str, typing.Any]: ...
+    def keywords(self) -> dict[str, Any]: ...
     @instanceproperty
     def func_name(self) -> str: ...
-    @typing.override
-    def __str__(self) -> str: ...
-    @typing.override
-    def __repr__(self) -> str: ...
-    @typing.override
+    @override
     def __hash__(self) -> int: ...
-    @typing.override
+    @override
     def __eq__(self, other: object) -> bool: ...
-    @typing.override
+    @override
     def __ne__(self, other: object) -> bool: ...
-    @typing.overload
+    @overload
     def __call__(self, *args: P.args, **kwargs: P.kwargs) -> T: ...
-    @typing.overload
+    @overload
     def __call__(
-        self, *args: typing.Any, **kwargs: typing.Any
+        self, *args: Any, **kwargs: Any
     ) -> functools.partial[T]: ...
-    def bind(self, *args: typing.Any, **kwargs: typing.Any) -> curry[P, T]: ...
-    def call(self, *args: typing.Any, **kwargs: typing.Any) -> T: ...
+    def bind(self, *args: Any, **kwargs: Any) -> curry[P, T]: ...
+    def call(self, *args: Any, **kwargs: Any) -> T: ...
     def __get__(self, instance: object, owner: type) -> curry[P, T]: ...
-    @typing.override
+    @override
     def __reduce__(
         self,
-    ) -> tuple[typing.Callable[..., T], _CurryState]: ...
+    ) -> tuple[Callable[..., T], _CurryState]: ...
 
 @curry
 def memoize[T](
-    func: typing.Callable[..., T],
-    cache: dict[typing.Any, T] | None = None,
-    key: typing.Callable[
-        [tuple[typing.Any, ...], collections.abc.Mapping[str, typing.Any]], typing.Any
+    func: Callable[..., T],
+    cache: dict[Any, T] | None = None,
+    key: Callable[
+        [tuple[Any, ...], Mapping[str, Any]], Any
     ]
     | None = None,
-) -> typing.Callable[..., T]:
+) -> Callable[..., T]:
     """Cache a function's result for speedy future evaluation
 
     Considerations:
@@ -310,51 +305,50 @@ def memoize[T](
     ...         print('Calculating %s + %s' % (x, y))
     ...     return x + y
     """
-    ...
 
-@typing.overload
-def compose[**P, T](fn_0: typing.Callable[P, T]) -> typing.Callable[P, T]: ...
-@typing.overload
+@overload
+def compose[**P, T](fn_0: Callable[P, T]) -> Callable[P, T]: ...
+@overload
 def compose[**P, T0, T1](
-    fn_0: typing.Callable[[T0], T1], fn_1: typing.Callable[P, T0]
-) -> typing.Callable[P, T1]: ...
-@typing.overload
+    fn_0: Callable[[T0], T1], fn_1: Callable[P, T0]
+) -> Callable[P, T1]: ...
+@overload
 def compose[**P, T0, T1, T2](
-    fn_0: typing.Callable[[T1], T2],
-    fn_1: typing.Callable[[T0], T1],
-    fn_2: typing.Callable[P, T0],
-) -> typing.Callable[P, T2]: ...
-@typing.overload
+    fn_0: Callable[[T1], T2],
+    fn_1: Callable[[T0], T1],
+    fn_2: Callable[P, T0],
+) -> Callable[P, T2]: ...
+@overload
 def compose[**P, T0, T1, T2, T3](
-    fn_0: typing.Callable[[T2], T3],
-    fn_1: typing.Callable[[T1], T2],
-    fn_2: typing.Callable[[T0], T1],
-    fn_3: typing.Callable[P, T0],
-) -> typing.Callable[P, T3]: ...
-@typing.overload
+    fn_0: Callable[[T2], T3],
+    fn_1: Callable[[T1], T2],
+    fn_2: Callable[[T0], T1],
+    fn_3: Callable[P, T0],
+) -> Callable[P, T3]: ...
+@overload
 def compose[**P, T0, T1, T2, T3, T4](
-    fn_0: typing.Callable[[T3], T4],
-    fn_1: typing.Callable[[T2], T3],
-    fn_2: typing.Callable[[T1], T2],
-    fn_3: typing.Callable[[T0], T1],
-    fn_4: typing.Callable[P, T0],
-) -> typing.Callable[P, T4]: ...
-@typing.overload
+    fn_0: Callable[[T3], T4],
+    fn_1: Callable[[T2], T3],
+    fn_2: Callable[[T1], T2],
+    fn_3: Callable[[T0], T1],
+    fn_4: Callable[P, T0],
+) -> Callable[P, T4]: ...
+@overload
 def compose[**P, T0, T1, T2, T3, T4, T5](
-    fn_0: typing.Callable[[T4], T5],
-    fn_1: typing.Callable[[T3], T4],
-    fn_2: typing.Callable[[T2], T3],
-    fn_3: typing.Callable[[T1], T2],
-    fn_4: typing.Callable[[T0], T1],
-    fn_5: typing.Callable[P, T0],
-) -> typing.Callable[P, T5]: ...
-@typing.overload
+    fn_0: Callable[[T4], T5],
+    fn_1: Callable[[T3], T4],
+    fn_2: Callable[[T2], T3],
+    fn_3: Callable[[T1], T2],
+    fn_4: Callable[[T0], T1],
+    fn_5: Callable[P, T0],
+) -> Callable[P, T5]: ...
+@overload
 def compose(
-    *funcs: typing.Callable[..., typing.Any],
-) -> typing.Callable[..., typing.Any]: ...
+    *funcs: Callable[..., Any],
+) -> Callable[..., Any]: ...
 def compose(
-    *funcs: typing.Callable[..., typing.Any],
-) -> typing.Callable[..., typing.Any]:
+    *funcs: Callable[..., Any],
+) -> Callable[..., Any]:
     """Compose functions to operate in series.
 
     Returns a function that applies other functions in sequence.
@@ -372,51 +366,50 @@ def compose(
         compose_left
         pipe
     """
-    ...
 
-@typing.overload
-def compose_left[**P, T](fn_0: typing.Callable[P, T]) -> typing.Callable[P, T]: ...
-@typing.overload
+@overload
+def compose_left[**P, T](fn_0: Callable[P, T]) -> Callable[P, T]: ...
+@overload
 def compose_left[**P, T0, T1](
-    fn_0: typing.Callable[P, T0], fn_1: typing.Callable[[T0], T1]
-) -> typing.Callable[P, T1]: ...
-@typing.overload
+    fn_0: Callable[P, T0], fn_1: Callable[[T0], T1]
+) -> Callable[P, T1]: ...
+@overload
 def compose_left[**P, T0, T1, T2](
-    fn_0: typing.Callable[P, T0],
-    fn_1: typing.Callable[[T0], T1],
-    fn_2: typing.Callable[[T1], T2],
-) -> typing.Callable[P, T2]: ...
-@typing.overload
+    fn_0: Callable[P, T0],
+    fn_1: Callable[[T0], T1],
+    fn_2: Callable[[T1], T2],
+) -> Callable[P, T2]: ...
+@overload
 def compose_left[**P, T0, T1, T2, T3](
-    fn_0: typing.Callable[P, T0],
-    fn_1: typing.Callable[[T0], T1],
-    fn_2: typing.Callable[[T1], T2],
-    fn_3: typing.Callable[[T2], T3],
-) -> typing.Callable[P, T3]: ...
-@typing.overload
+    fn_0: Callable[P, T0],
+    fn_1: Callable[[T0], T1],
+    fn_2: Callable[[T1], T2],
+    fn_3: Callable[[T2], T3],
+) -> Callable[P, T3]: ...
+@overload
 def compose_left[**P, T0, T1, T2, T3, T4](
-    fn_0: typing.Callable[P, T0],
-    fn_1: typing.Callable[[T0], T1],
-    fn_2: typing.Callable[[T1], T2],
-    fn_3: typing.Callable[[T2], T3],
-    fn_4: typing.Callable[[T3], T4],
-) -> typing.Callable[P, T4]: ...
-@typing.overload
+    fn_0: Callable[P, T0],
+    fn_1: Callable[[T0], T1],
+    fn_2: Callable[[T1], T2],
+    fn_3: Callable[[T2], T3],
+    fn_4: Callable[[T3], T4],
+) -> Callable[P, T4]: ...
+@overload
 def compose_left[**P, T0, T1, T2, T3, T4, T5](
-    fn_0: typing.Callable[P, T0],
-    fn_1: typing.Callable[[T0], T1],
-    fn_2: typing.Callable[[T1], T2],
-    fn_3: typing.Callable[[T2], T3],
-    fn_4: typing.Callable[[T3], T4],
-    fn_5: typing.Callable[[T4], T5],
-) -> typing.Callable[P, T5]: ...
-@typing.overload
+    fn_0: Callable[P, T0],
+    fn_1: Callable[[T0], T1],
+    fn_2: Callable[[T1], T2],
+    fn_3: Callable[[T2], T3],
+    fn_4: Callable[[T3], T4],
+    fn_5: Callable[[T4], T5],
+) -> Callable[P, T5]: ...
+@overload
 def compose_left(
-    *funcs: typing.Callable[..., typing.Any],
-) -> typing.Callable[..., typing.Any]: ...
+    *funcs: Callable[..., Any],
+) -> Callable[..., Any]: ...
 def compose_left(
-    *funcs: typing.Callable[..., typing.Any],
-) -> typing.Callable[..., typing.Any]:
+    *funcs: Callable[..., Any],
+) -> Callable[..., Any]:
     """Compose functions to operate in series.
 
     Returns a function that applies other functions in sequence.
@@ -436,54 +429,54 @@ def compose_left(
     """
     ...
 
-@typing.overload
+@overload
 def pipe[T0, T1](
     data: T0,
-    fn_0: typing.Callable[[T0], T1],
+    fn_0: Callable[[T0], T1],
 ) -> T1: ...
-@typing.overload
+@overload
 def pipe[T0, T1, T2](
     data: T0,
-    fn_0: typing.Callable[[T0], T1],
-    fn_1: typing.Callable[[T1], T2],
+    fn_0: Callable[[T0], T1],
+    fn_1: Callable[[T1], T2],
 ) -> T2: ...
-@typing.overload
+@overload
 def pipe[T0, T1, T2, T3](
     data: T0,
-    fn_0: typing.Callable[[T0], T1],
-    fn_1: typing.Callable[[T1], T2],
-    fn_2: typing.Callable[[T2], T3],
+    fn_0: Callable[[T0], T1],
+    fn_1: Callable[[T1], T2],
+    fn_2: Callable[[T2], T3],
 ) -> T3: ...
-@typing.overload
+@overload
 def pipe[T0, T1, T2, T3, T4](
     data: T0,
-    fn_0: typing.Callable[[T0], T1],
-    fn_1: typing.Callable[[T1], T2],
-    fn_2: typing.Callable[[T2], T3],
-    fn_3: typing.Callable[[T3], T4],
+    fn_0: Callable[[T0], T1],
+    fn_1: Callable[[T1], T2],
+    fn_2: Callable[[T2], T3],
+    fn_3: Callable[[T3], T4],
 ) -> T4: ...
-@typing.overload
+@overload
 def pipe[T0, T1, T2, T3, T4, T5](
     data: T0,
-    fn_0: typing.Callable[[T0], T1],
-    fn_1: typing.Callable[[T1], T2],
-    fn_2: typing.Callable[[T2], T3],
-    fn_3: typing.Callable[[T3], T4],
-    fn_4: typing.Callable[[T4], T5],
+    fn_0: Callable[[T0], T1],
+    fn_1: Callable[[T1], T2],
+    fn_2: Callable[[T2], T3],
+    fn_3: Callable[[T3], T4],
+    fn_4: Callable[[T4], T5],
 ) -> T5: ...
-@typing.overload
+@overload
 def pipe[T0, T1, T2, T3, T4, T5, T6](
     data: T0,
-    fn_0: typing.Callable[[T0], T1],
-    fn_1: typing.Callable[[T1], T2],
-    fn_2: typing.Callable[[T2], T3],
-    fn_3: typing.Callable[[T3], T4],
-    fn_4: typing.Callable[[T4], T5],
-    fn_5: typing.Callable[[T5], T6],
+    fn_0: Callable[[T0], T1],
+    fn_1: Callable[[T1], T2],
+    fn_2: Callable[[T2], T3],
+    fn_3: Callable[[T3], T4],
+    fn_4: Callable[[T4], T5],
+    fn_5: Callable[[T5], T6],
 ) -> T6: ...
-@typing.overload
-def pipe(data: typing.Any, *funcs: typing.Callable[..., typing.Any]) -> typing.Any: ...
-def pipe(data: typing.Any, *funcs: typing.Callable[..., typing.Any]) -> typing.Any:
+@overload
+def pipe(data: Any, *funcs: Callable[..., Any]) -> Any: ...
+def pipe(data: Any, *funcs: Callable[..., Any]) -> Any:
     """Pipe a value through a sequence of functions
 
     I.e. ``pipe(data, f, g, h)`` is equivalent to ``h(g(f(data)))``
@@ -505,7 +498,7 @@ def pipe(data: typing.Any, *funcs: typing.Callable[..., typing.Any]) -> typing.A
     """
     ...
 
-def complement[**P](func: typing.Callable[P, bool]) -> typing.Callable[P, bool]:
+def complement[**P](func: Callable[P, bool]) -> Callable[P, bool]:
     """Convert a predicate function to its logical complement.
 
     In other words, return a function that, for inputs that normally
@@ -518,60 +511,59 @@ def complement[**P](func: typing.Callable[P, bool]) -> typing.Callable[P, bool]:
     >>> isodd(2)
     False
     """
-    ...
 
-@typing.overload
-def juxt() -> typing.Callable[..., tuple[()]]: ...
-@typing.overload
+@overload
+def juxt() -> Callable[..., tuple[()]]: ...
+@overload
 def juxt[**P, T0](
-    fn_0: typing.Callable[P, T0],
-) -> typing.Callable[P, tuple[T0]]: ...
-@typing.overload
+    fn_0: Callable[P, T0],
+) -> Callable[P, tuple[T0]]: ...
+@overload
 def juxt[**P, T0, T1](
-    fn_0: typing.Callable[P, T0],
-    fn_1: typing.Callable[P, T1],
-) -> typing.Callable[P, tuple[T0, T1]]: ...
-@typing.overload
+    fn_0: Callable[P, T0],
+    fn_1: Callable[P, T1],
+) -> Callable[P, tuple[T0, T1]]: ...
+@overload
 def juxt[**P, T0, T1, T2](
-    fn_0: typing.Callable[P, T0],
-    fn_1: typing.Callable[P, T1],
-    fn_2: typing.Callable[P, T2],
-) -> typing.Callable[P, tuple[T0, T1, T2]]: ...
-@typing.overload
+    fn_0: Callable[P, T0],
+    fn_1: Callable[P, T1],
+    fn_2: Callable[P, T2],
+) -> Callable[P, tuple[T0, T1, T2]]: ...
+@overload
 def juxt[**P, T0, T1, T2, T3](
-    fn_0: typing.Callable[P, T0],
-    fn_1: typing.Callable[P, T1],
-    fn_2: typing.Callable[P, T2],
-    fn_3: typing.Callable[P, T3],
-) -> typing.Callable[P, tuple[T0, T1, T2, T3]]: ...
-@typing.overload
+    fn_0: Callable[P, T0],
+    fn_1: Callable[P, T1],
+    fn_2: Callable[P, T2],
+    fn_3: Callable[P, T3],
+) -> Callable[P, tuple[T0, T1, T2, T3]]: ...
+@overload
 def juxt[**P, T0, T1, T2, T3, T4](
-    fn_0: typing.Callable[P, T0],
-    fn_1: typing.Callable[P, T1],
-    fn_2: typing.Callable[P, T2],
-    fn_3: typing.Callable[P, T3],
-    fn_4: typing.Callable[P, T4],
-) -> typing.Callable[P, tuple[T0, T1, T2, T3, T4]]: ...
-@typing.overload
+    fn_0: Callable[P, T0],
+    fn_1: Callable[P, T1],
+    fn_2: Callable[P, T2],
+    fn_3: Callable[P, T3],
+    fn_4: Callable[P, T4],
+) -> Callable[P, tuple[T0, T1, T2, T3, T4]]: ...
+@overload
 def juxt[**P, T0, T1, T2, T3, T4, T5](
-    fn_0: typing.Callable[P, T0],
-    fn_1: typing.Callable[P, T1],
-    fn_2: typing.Callable[P, T2],
-    fn_3: typing.Callable[P, T3],
-    fn_4: typing.Callable[P, T4],
-    fn_5: typing.Callable[P, T5],
-) -> typing.Callable[P, tuple[T0, T1, T2, T3, T4, T5]]: ...
-@typing.overload
+    fn_0: Callable[P, T0],
+    fn_1: Callable[P, T1],
+    fn_2: Callable[P, T2],
+    fn_3: Callable[P, T3],
+    fn_4: Callable[P, T4],
+    fn_5: Callable[P, T5],
+) -> Callable[P, tuple[T0, T1, T2, T3, T4, T5]]: ...
+@overload
 def juxt[**P, T](
-    funcs: collections.abc.Iterable[typing.Callable[P, T]],
-) -> typing.Callable[P, tuple[T, ...]]: ...
-@typing.overload
+    funcs: Iterable[Callable[P, T]],
+) -> Callable[P, tuple[T, ...]]: ...
+@overload
 def juxt[**P, T](
-    *funcs: typing.Callable[P, T],
-) -> typing.Callable[P, tuple[T, ...]]: ...
+    *funcs: Callable[P, T],
+) -> Callable[P, tuple[T, ...]]: ...
 def juxt[**P, T](
-    *funcs: typing.Callable[P, T] | collections.abc.Iterable[typing.Callable[P, T]],
-) -> typing.Callable[P, tuple[T, ...]]:
+    *funcs: Callable[P, T] | Iterable[Callable[P, T]],
+) -> Callable[P, tuple[T, ...]]:
     """Creates a function that calls several functions with the same arguments
 
     Takes several functions and returns a function that applies its arguments
@@ -589,7 +581,7 @@ def juxt[**P, T](
     """
     ...
 
-def do[T](func: typing.Callable[[T], typing.Any], x: T) -> T:
+def do[T](func: Callable[[T], Any], x: T) -> T:
     """Runs ``func`` on ``x``, returns ``x``
 
     Because the results of ``func`` are not returned, only the side
@@ -614,7 +606,7 @@ def do[T](func: typing.Callable[[T], typing.Any], x: T) -> T:
     ...
 
 @curry
-def flip[T, U, R](func: typing.Callable[[T, U], R], a: U, b: T) -> R:
+def flip[T, U, R](func: Callable[[T, U], R], a: U, b: T) -> R:
     """Call the function call with the arguments flipped
 
     This function is curried.
@@ -671,8 +663,8 @@ class excepts[T, **P]:
     def __init__(
         self,
         exc: type[Exception] | tuple[type[Exception], ...],
-        func: typing.Callable[P, T],
-        handler: typing.Callable[[Exception], T] | None = None,
+        func: Callable[P, T],
+        handler: Callable[[Exception], T] | None = None,
     ) -> None: ...
     def __call__(self, *args: P.args, **kwargs: P.kwargs) -> T: ...
     @property

@@ -58,7 +58,6 @@ def transformPackages() -> None:  # noqa: D103
 			for pathFilename in pathTransformee.glob('*.pyx'):
 				writeStringToHere(cythonDirectives + regexChangeImports(pathFilename.read_text().replace(identifierTransformee, getOtherName[identifierTransformee])), settingsFor[humpyPackage].pathPackage / pathFilename.relative_to(pathTransformee))
 
-
 def copy_tools_stubs() -> None:  # noqa: D103
 	copytree(pathRoot_tools_stubs, settingsFor['humpy_toolz'].pathPackage, dirs_exist_ok=True)
 
@@ -70,9 +69,9 @@ r"""WTF
 (.venv) C:\apps\hunterMakesPy>py assimilate/chopShop.py
 Traceback (most recent call last):
   File "C:\apps\hunterMakesPy\assimilate\chopShop.py", line 2, in <module>
-    from assimilate import (
-        allTransformeePackages, cythonDirectives, getOtherName, pathRoot_tools_stubs, regexChangeImports, settingsFor, settingsWrite_astModule,
-        subModules, transformALLdot_pyHere)
+	from assimilate import (
+		allTransformeePackages, cythonDirectives, getOtherName, pathRoot_tools_stubs, regexChangeImports, settingsFor, settingsWrite_astModule,
+		subModules, transformALLdot_pyHere)
 ModuleNotFoundError: No module named 'assimilate'
 
 (.venv) C:\apps\hunterMakesPy>py

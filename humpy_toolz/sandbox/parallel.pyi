@@ -1,67 +1,65 @@
-import collections.abc
-import typing
+from collections.abc import Callable, Iterable
+from typing import Literal
 
-type _MapFunction[T] = collections.abc.Callable[
-    [
-        collections.abc.Callable[[collections.abc.Iterable[T]], T],
-        collections.abc.Iterable[collections.abc.Iterable[T]],
-    ],
-    collections.abc.Iterable[T],
+type _MapFunction[T] = Callable[
+	[
+		Callable[[Iterable[T]], T],
+		Iterable[Iterable[T]],
+	],
+	Iterable[T],
 ]
 
 def fold[T](
-    binop: typing.Callable[[T, T], T],
-    seq: collections.abc.Iterable[T],
-    default: typing.Literal["__no__default__"] | T = "__no_default__",
-    map: _MapFunction[T] = map,
-    chunksize: int = 128,
-    combine: typing.Callable[[T, T], T] | None = None,
+	binop: Callable[[T, T], T],
+	seq: Iterable[T],
+	default: Literal[__no__default__] | T = "__no_default__",
+	map: _MapFunction[T] = map,
+	chunksize: int = 128,
+	combine: Callable[[T, T], T] | None = None,
 ) -> T:
-    """
-    Reduce without guarantee of ordered reduction.
+	"""
+	Reduce without guarantee of ordered reduction.
 
-    Parameters
-    ----------
-    binops
-        Associative operator. The associative property allows us to
-        leverage a parallel map to perform reductions in parallel.
+	Parameters
+	----------
+	binops
+		Associative operator. The associative property allows us to
+		leverage a parallel map to perform reductions in parallel.
 
+	inputs:
 
-    inputs:
+	``binop``     - associative operator. The associative property allows us to
+					leverage a parallel map to perform reductions in parallel.
 
-    ``binop``     - associative operator. The associative property allows us to
-                    leverage a parallel map to perform reductions in parallel.
+	``seq``       - a sequence to be aggregated
+	``default``   - an identity element like 0 for ``add`` or 1 for mul
 
-    ``seq``       - a sequence to be aggregated
-    ``default``   - an identity element like 0 for ``add`` or 1 for mul
+	``map``       - an implementation of ``map``. This may be parallel and
+					determines how work is distributed.
+	``chunksize`` - Number of elements of ``seq`` that should be handled
+					within a single function call
+	``combine``   - Binary operator to combine two intermediate results.
+					If ``binop`` is of type (total, item) -> total
+					then ``combine`` is of type (total, total) -> total
+					Defaults to ``binop`` for common case of operators like add
 
-    ``map``       - an implementation of ``map``. This may be parallel and
-                    determines how work is distributed.
-    ``chunksize`` - Number of elements of ``seq`` that should be handled
-                    within a single function call
-    ``combine``   - Binary operator to combine two intermediate results.
-                    If ``binop`` is of type (total, item) -> total
-                    then ``combine`` is of type (total, total) -> total
-                    Defaults to ``binop`` for common case of operators like add
+	Fold chunks up the collection into blocks of size ``chunksize`` and then
+	feeds each of these to calls to ``reduce``. This work is distributed
+	with a call to ``map``, gathered back and then refolded to finish the
+	computation. In this way ``fold`` specifies only how to chunk up data but
+	leaves the distribution of this work to an externally provided ``map``
+	function. This function can be sequential or rely on multithreading,
+	multiprocessing, or even distributed solutions.
 
-    Fold chunks up the collection into blocks of size ``chunksize`` and then
-    feeds each of these to calls to ``reduce``. This work is distributed
-    with a call to ``map``, gathered back and then refolded to finish the
-    computation. In this way ``fold`` specifies only how to chunk up data but
-    leaves the distribution of this work to an externally provided ``map``
-    function. This function can be sequential or rely on multithreading,
-    multiprocessing, or even distributed solutions.
+	If ``map`` intends to serialize functions it should be prepared to accept
+	and serialize lambdas. Note that the standard ``pickle`` module fails
+	here.
 
-    If ``map`` intends to serialize functions it should be prepared to accept
-    and serialize lambdas. Note that the standard ``pickle`` module fails
-    here.
+	Example
+	-------
 
-    Example
-    -------
-
-    >>> # Provide a parallel map to accomplish a parallel sum
-    >>> from operator import add
-    >>> fold(add, [1, 2, 3, 4], chunksize=2, map=map)
-    10
-    """
-    ...
+	>>> # Provide a parallel map to accomplish a parallel sum
+	>>> from operator import add
+	>>> fold(add, [1, 2, 3, 4], chunksize=2, map=map)
+	10
+	"""

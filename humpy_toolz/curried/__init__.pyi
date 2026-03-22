@@ -1,4 +1,3 @@
-# pyright: reportAny=false, reportUnreachable=false
 """
 Stubs for toolz.curried - an alternate namespace where functions are curried.
 
@@ -11,56 +10,24 @@ This module uses three patterns:
     See https://github.com/mgrinshpon/toolz-stubs/issues/16 to help.
 """
 
-import collections.abc
-import functools
-import sys
-import typing
-
-from _typeshed import SupportsRichComparison
-
-if sys.version_info >= (3, 13):
-    from typing import TypeIs
-else:
-    from typing_extensions import TypeIs
-
 from .. import dicttoolz as _dicttoolz, itertoolz as _itertoolz, recipes as _recipes
 from ..functoolz import (
-    apply as apply,
-    complement as complement,
-    compose as comp,
-    compose as compose,
-    compose_left as compose_left,
-    curry as curry,
-    excepts as _excepts_class,
-    flip as flip,
-    identity as identity,
-    juxt as juxt,
-    memoize as memoize,
-    pipe as pipe,
-    thread_first as thread_first,
-    thread_last as thread_last,
-)
+	apply as apply, complement as complement, compose as comp, compose as compose, compose_left as compose_left, curry as curry,
+	excepts as _excepts_class, flip as flip, identity as identity, juxt as juxt, memoize as memoize, pipe as pipe,
+	thread_first as thread_first, thread_last as thread_last)
 from ..itertoolz import (
-    concat as concat,
-    concatv as concatv,
-    count as count,
-    diff as diff,
-    first as first,
-    frequencies as frequencies,
-    interleave as interleave,
-    isdistinct as isdistinct,
-    isiterable as isiterable,
-    last as last,
-    merge_sorted as merge_sorted,
-    peek as peek,
-    second as second,
-)
-
+	concat as concat, concatv as concatv, count as count, diff as diff, first as first, frequencies as frequencies, interleave as interleave,
+	isdistinct as isdistinct, isiterable as isiterable, last as last, merge_sorted as merge_sorted, peek as peek, second as second)
 # All functions from operator module are re-exported here.
 # Binary and n-ary functions are curried; unary functions are not.
 # From a typing perspective, curried functions have identical signatures.
 from . import operator
 from .exceptions import merge, merge_with
+from _typeshed import SupportsRichComparison
+from collections.abc import Callable, Hashable, Iterable, Iterator, Mapping, MutableMapping, Sequence
+from typing import Any, Literal, overload, TypeGuard
+from typing_extensions import TypeIs
+import functools
 
 __all__ = [
     # Curried functions (defined in this module)
@@ -143,34 +110,34 @@ __all__ = [
 
 # Curried accumulate with explicit overloads for type safety
 # Stage 0: No arguments - returns a callable
-@typing.overload
-def accumulate[T]() -> typing.Callable[..., collections.abc.Iterator[T]]: ...
+@overload
+def accumulate[T]() -> Callable[..., Iterator[T]]: ...
 
 # Stage 1: Just binop - returns callable waiting for seq (and optional initial)
-@typing.overload
+@overload
 def accumulate[T](
-    binop: typing.Callable[[T, T], T], /
-) -> typing.Callable[..., collections.abc.Iterator[T]]: ...
+    binop: Callable[[T, T], T], /
+) -> Callable[..., Iterator[T]]: ...
 
 # Stage 2a: binop + seq (no initial) - executes immediately
-@typing.overload
+@overload
 def accumulate[T](
-    binop: typing.Callable[[T, T], T], seq: collections.abc.Iterable[T], /
-) -> collections.abc.Iterator[T]: ...
+    binop: Callable[[T, T], T], seq: Iterable[T], /
+) -> Iterator[T]: ...
 
 # Stage 2b: binop + seq + initial - executes immediately
-@typing.overload
+@overload
 def accumulate[T](
-    binop: typing.Callable[[T, T], T],
-    seq: collections.abc.Iterable[T],
+    binop: Callable[[T, T], T],
+    seq: Iterable[T],
     initial: T,
     /,
-) -> collections.abc.Iterator[T]: ...
+) -> Iterator[T]: ...
 def accumulate[T](
-    binop: typing.Callable[[T, T], T] = ...,
-    seq: collections.abc.Iterable[T] = ...,
+    binop: Callable[[T, T], T] = ...,
+    seq: Iterable[T] = ...,
     initial: T = ...,
-) -> collections.abc.Iterator[T] | typing.Callable[..., collections.abc.Iterator[T]]:
+) -> Iterator[T] | Callable[..., Iterator[T]]:
     """Curried version of accumulate
 
     Repeatedly apply binary function to a sequence, accumulating results.
@@ -200,55 +167,55 @@ def accumulate[T](
     >>> list(pipe([1, 2, 3, 4], cumprod))
     [1, 2, 6, 24]
 
-    See Also:
+    See Also
+    --------
         reduce
         itertools.accumulate
     """
-    ...
 
-@typing.overload
-def assoc[K, V]() -> typing.Callable[
-    ..., dict[K, V] | collections.abc.MutableMapping[K, V]
+@overload
+def assoc[K, V]() -> Callable[
+    ..., dict[K, V] | MutableMapping[K, V]
 ]: ...
-@typing.overload
+@overload
 def assoc[K, V](
-    d: collections.abc.Mapping[K, V], /
-) -> typing.Callable[..., dict[K, V] | collections.abc.MutableMapping[K, V]]: ...
-@typing.overload
+    d: Mapping[K, V], /
+) -> Callable[..., dict[K, V] | MutableMapping[K, V]]: ...
+@overload
 def assoc[K, V](
-    d: collections.abc.Mapping[K, V], key: K, /
-) -> typing.Callable[[V], dict[K, V]]: ...
-@typing.overload
+    d: Mapping[K, V], key: K, /
+) -> Callable[[V], dict[K, V]]: ...
+@overload
 def assoc[K, V](
-    d: collections.abc.Mapping[K, V],
+    d: Mapping[K, V],
     key: K,
     /,
     *,
-    factory: typing.Callable[[], collections.abc.MutableMapping[K, V]],
-) -> typing.Callable[[V], collections.abc.MutableMapping[K, V]]: ...
-@typing.overload
+    factory: Callable[[], MutableMapping[K, V]],
+) -> Callable[[V], MutableMapping[K, V]]: ...
+@overload
 def assoc[K, V](
-    d: collections.abc.Mapping[K, V], key: K, value: V, /
+    d: Mapping[K, V], key: K, value: V, /
 ) -> dict[K, V]: ...
-@typing.overload
+@overload
 def assoc[K, V](
-    d: collections.abc.Mapping[K, V],
+    d: Mapping[K, V],
     key: K,
     value: V,
     /,
     *,
-    factory: typing.Callable[[], collections.abc.MutableMapping[K, V]],
-) -> collections.abc.MutableMapping[K, V]: ...
+    factory: Callable[[], MutableMapping[K, V]],
+) -> MutableMapping[K, V]: ...
 def assoc[K, V](
-    d: collections.abc.Mapping[K, V] = ...,
+    d: Mapping[K, V] = ...,
     key: K = ...,
     value: V = ...,
     *,
-    factory: typing.Callable[[], collections.abc.MutableMapping[K, V]] = dict,
+    factory: Callable[[], MutableMapping[K, V]] = dict,
 ) -> (
     dict[K, V]
-    | collections.abc.MutableMapping[K, V]
-    | typing.Callable[..., dict[K, V] | collections.abc.MutableMapping[K, V]]
+    | MutableMapping[K, V]
+    | Callable[..., dict[K, V] | MutableMapping[K, V]]
 ):
     """Curried version of assoc
 
@@ -280,37 +247,37 @@ def assoc[K, V](
     >>> list(map(lambda u: assoc(u, 'active', True), users))
     [{'name': 'Alice', 'active': True}, {'name': 'Bob', 'active': True}]
 
-    See Also:
+    See Also
+    --------
         dissoc
         update_in
         assoc_in
     """
-    ...
 
 assoc_in = curry(_dicttoolz.assoc_in)
 
 # Curried cons with explicit overloads for type safety
 # Stage 0: No arguments - returns a callable
-@typing.overload
-def cons[T]() -> typing.Callable[..., collections.abc.Iterator[T]]: ...
+@overload
+def cons[T]() -> Callable[..., Iterator[T]]: ...
 
 # Stage 1: Just el - returns callable waiting for seq
-@typing.overload
+@overload
 def cons[T](
     el: T, /
-) -> typing.Callable[[collections.abc.Iterable[T]], collections.abc.Iterator[T]]: ...
+) -> Callable[[Iterable[T]], Iterator[T]]: ...
 
 # Stage 2: Full application - executes immediately
-@typing.overload
+@overload
 def cons[T](
-    el: T, seq: collections.abc.Iterable[T], /
-) -> collections.abc.Iterator[T]: ...
+    el: T, seq: Iterable[T], /
+) -> Iterator[T]: ...
 def cons[T](
-    el: T = ..., seq: collections.abc.Iterable[T] = ...
+    el: T = ..., seq: Iterable[T] = ...
 ) -> (
-    collections.abc.Iterator[T]
-    | typing.Callable[[collections.abc.Iterable[T]], collections.abc.Iterator[T]]
-    | typing.Callable[..., collections.abc.Iterator[T]]
+    Iterator[T]
+    | Callable[[Iterable[T]], Iterator[T]]
+    | Callable[..., Iterator[T]]
 ):
     """Curried version of cons
 
@@ -330,29 +297,29 @@ def cons[T](
     >>> list(pipe([2, 3, 4], cons(1)))
     [1, 2, 3, 4]
 
-    See Also:
+    See Also
+    --------
         concat
     """
-    ...
 
 countby = curry(_recipes.countby)
 dissoc = curry(_dicttoolz.dissoc)
 
 # Curried do with explicit overloads for type safety
 # Stage 0: No arguments - returns a callable
-@typing.overload
-def do[T]() -> typing.Callable[..., T]: ...
+@overload
+def do[T]() -> Callable[..., T]: ...
 
 # Stage 1: Just func - returns callable waiting for x
-@typing.overload
-def do[T](func: typing.Callable[[T], typing.Any], /) -> typing.Callable[[T], T]: ...
+@overload
+def do[T](func: Callable[[T], Any], /) -> Callable[[T], T]: ...
 
 # Stage 2: Full application - executes immediately
-@typing.overload
-def do[T](func: typing.Callable[[T], typing.Any], x: T, /) -> T: ...
+@overload
+def do[T](func: Callable[[T], Any], x: T, /) -> T: ...
 def do[T](
-    func: typing.Callable[[T], typing.Any] = ..., x: T = ...
-) -> T | typing.Callable[[T], T] | typing.Callable[..., T]:
+    func: Callable[[T], Any] = ..., x: T = ...
+) -> T | Callable[[T], T] | Callable[..., T]:
     """Curried version of do
 
     Runs func on x, returns x.
@@ -378,28 +345,28 @@ def do[T](
     ...     lambda x: [i * 2 for i in x]
     ... )
 
-    See Also:
+    See Also
+    --------
         compose
         pipe
     """
-    ...
 
-@typing.overload
-def drop[T]() -> typing.Callable[..., collections.abc.Iterator[T]]: ...
-@typing.overload
+@overload
+def drop[T]() -> Callable[..., Iterator[T]]: ...
+@overload
 def drop[T](
     n: int, /
-) -> typing.Callable[[collections.abc.Iterable[T]], collections.abc.Iterator[T]]: ...
-@typing.overload
+) -> Callable[[Iterable[T]], Iterator[T]]: ...
+@overload
 def drop[T](
-    n: int, seq: collections.abc.Iterable[T], /
-) -> collections.abc.Iterator[T]: ...
+    n: int, seq: Iterable[T], /
+) -> Iterator[T]: ...
 def drop[T](
-    n: int = ..., seq: collections.abc.Iterable[T] = ...
+    n: int = ..., seq: Iterable[T] = ...
 ) -> (
-    collections.abc.Iterator[T]
-    | typing.Callable[[collections.abc.Iterable[T]], collections.abc.Iterator[T]]
-    | typing.Callable[..., collections.abc.Iterator[T]]
+    Iterator[T]
+    | Callable[[Iterable[T]], Iterator[T]]
+    | Callable[..., Iterator[T]]
 ):
     """Curried version of drop
 
@@ -420,42 +387,42 @@ def drop[T](
     >>> list(drop(1, data))
     [['a', 'b'], ['c', 'd']]
 
-    See Also:
+    See Also
+    --------
         take
         tail
     """
-    ...
 
-@typing.overload
-def excepts[T, **P]() -> typing.Callable[..., _excepts_class[T, P]]: ...
-@typing.overload
+@overload
+def excepts[T, **P]() -> Callable[..., _excepts_class[T, P]]: ...
+@overload
 def excepts[T, **P](
     exc: type[Exception] | tuple[type[Exception], ...], /
 ) -> (
-    typing.Callable[[typing.Callable[P, T]], _excepts_class[T, P]]
-    | typing.Callable[
-        [typing.Callable[P, T], typing.Callable[[Exception], T]],
+    Callable[[Callable[P, T]], _excepts_class[T, P]]
+    | Callable[
+        [Callable[P, T], Callable[[Exception], T]],
         _excepts_class[T, P],
     ]
 ): ...
-@typing.overload
+@overload
 def excepts[T, **P](
     exc: type[Exception] | tuple[type[Exception], ...],
-    func: typing.Callable[P, T],
+    func: Callable[P, T],
     /,
 ) -> _excepts_class[T, P]: ...
-@typing.overload
+@overload
 def excepts[T, **P](
     exc: type[Exception] | tuple[type[Exception], ...],
-    func: typing.Callable[P, T],
-    handler: typing.Callable[[Exception], T],
+    func: Callable[P, T],
+    handler: Callable[[Exception], T],
     /,
 ) -> _excepts_class[T, P]: ...
 def excepts[T, **P](
     exc: type[Exception] | tuple[type[Exception], ...] = ...,
-    func: typing.Callable[P, T] = ...,
-    handler: typing.Callable[[Exception], T] | None = ...,
-) -> _excepts_class[T, P] | typing.Callable[..., _excepts_class[T, P]]:
+    func: Callable[P, T] = ...,
+    handler: Callable[[Exception], T] | None = ...,
+) -> _excepts_class[T, P] | Callable[..., _excepts_class[T, P]]:
     """Curried version of excepts
 
     A wrapper around a function to catch exceptions and dispatch to a handler.
@@ -495,65 +462,65 @@ def excepts[T, **P](
     >>> safe_int("abc")
     0
 
-    See Also:
+    See Also
+    --------
         do
         complement
     """
-    ...
 
-@typing.overload
-def filter[T]() -> typing.Callable[
-    ..., collections.abc.Iterator[T] | typing.Callable[..., collections.abc.Iterator[T]]
+@overload
+def filter[T]() -> Callable[  # noqa: A001
+    ..., Iterator[T] | Callable[..., Iterator[T]]
 ]: ...
-@typing.overload
-def filter[T](
+@overload
+def filter[T](  # noqa: A001
     function: None, /
-) -> typing.Callable[
-    [collections.abc.Iterable[T | None]], collections.abc.Iterator[T]
+) -> Callable[
+    [Iterable[T | None]], Iterator[T]
 ]: ...
-@typing.overload
+@overload
 def filter[S, T](
-    function: typing.Callable[[S], typing.TypeGuard[T]], /
-) -> typing.Callable[[collections.abc.Iterable[S]], collections.abc.Iterator[T]]: ...
-@typing.overload
+    function: Callable[[S], TypeGuard[T]], /
+) -> Callable[[Iterable[S]], Iterator[T]]: ...
+@overload
 def filter[S, T](
-    function: typing.Callable[[S], TypeIs[T]], /
-) -> typing.Callable[[collections.abc.Iterable[S]], collections.abc.Iterator[T]]: ...
-@typing.overload
+    function: Callable[[S], TypeIs[T]], /
+) -> Callable[[Iterable[S]], Iterator[T]]: ...
+@overload
 def filter[T](
-    function: typing.Callable[[T], typing.Any], /
-) -> typing.Callable[[collections.abc.Iterable[T]], collections.abc.Iterator[T]]: ...
-@typing.overload
+    function: Callable[[T], Any], /
+) -> Callable[[Iterable[T]], Iterator[T]]: ...
+@overload
 def filter[T](
-    function: None, iterable: collections.abc.Iterable[T | None], /
-) -> collections.abc.Iterator[T]: ...
-@typing.overload
+    function: None, iterable: Iterable[T | None], /
+) -> Iterator[T]: ...
+@overload
 def filter[S, T](
-    function: typing.Callable[[S], typing.TypeGuard[T]],
-    iterable: collections.abc.Iterable[S],
+    function: Callable[[S], TypeGuard[T]],
+    iterable: Iterable[S],
     /,
-) -> collections.abc.Iterator[T]: ...
-@typing.overload
+) -> Iterator[T]: ...
+@overload
 def filter[S, T](
-    function: typing.Callable[[S], TypeIs[T]],
-    iterable: collections.abc.Iterable[S],
+    function: Callable[[S], TypeIs[T]],
+    iterable: Iterable[S],
     /,
-) -> collections.abc.Iterator[T]: ...
-@typing.overload
+) -> Iterator[T]: ...
+@overload
 def filter[T](
-    function: typing.Callable[[T], typing.Any],
-    iterable: collections.abc.Iterable[T],
+    function: Callable[[T], Any],
+    iterable: Iterable[T],
     /,
-) -> collections.abc.Iterator[T]: ...
+) -> Iterator[T]: ...
 def filter[T](
-    function: typing.Callable[[T], typing.Any] | None = ...,
-    iterable: collections.abc.Iterable[T] = ...,
+    function: Callable[[T], Any] | None = ...,
+    iterable: Iterable[T] = ...,
 ) -> (
-    collections.abc.Iterator[T]
-    | typing.Callable[[collections.abc.Iterable[T]], collections.abc.Iterator[T]]
-    | typing.Callable[
+    Iterator[T]
+    | Callable[[Iterable[T]], Iterator[T]]
+    | Callable[
         ...,
-        collections.abc.Iterator[T] | typing.Callable[..., collections.abc.Iterator[T]],
+        Iterator[T] | Callable[..., Iterator[T]],
     ]
 ):
     """Curried version of builtin filter function
@@ -574,65 +541,64 @@ def filter[T](
     >>> list(filter(None, [0, 1, False, True, '', 'hello']))
     [1, True, 'hello']
     """
-    ...
 
-@typing.overload
-def get[T]() -> typing.Callable[..., T | tuple[T, ...]]: ...
-@typing.overload
+@overload
+def get[T]() -> Callable[..., T | tuple[T, ...]]: ...
+@overload
 def get[T](
-    ind: collections.abc.Sequence[typing.Any], /
+    ind: Sequence[Any], /
 ) -> (
-    typing.Callable[
-        [collections.abc.Sequence[T] | collections.abc.Mapping[typing.Any, T]],
+    Callable[
+        [Sequence[T] | Mapping[Any, T]],
         tuple[T, ...],
     ]
-    | typing.Callable[
-        [collections.abc.Sequence[T] | collections.abc.Mapping[typing.Any, T], T],
+    | Callable[
+        [Sequence[T] | Mapping[Any, T], T],
         tuple[T, ...],
     ]
 ): ...
-@typing.overload
+@overload
 def get[T](
-    ind: typing.Any, /
+    ind: Any, /
 ) -> (
-    typing.Callable[
-        [collections.abc.Sequence[T] | collections.abc.Mapping[typing.Any, T]], T
+    Callable[
+        [Sequence[T] | Mapping[Any, T]], T
     ]
-    | typing.Callable[
-        [collections.abc.Sequence[T] | collections.abc.Mapping[typing.Any, T], T], T
+    | Callable[
+        [Sequence[T] | Mapping[Any, T], T], T
     ]
 ): ...
-@typing.overload
+@overload
 def get[T](
-    ind: collections.abc.Sequence[typing.Any],
-    seq: collections.abc.Sequence[T] | collections.abc.Mapping[typing.Any, T],
+    ind: Sequence[Any],
+    seq: Sequence[T] | Mapping[Any, T],
     /,
 ) -> tuple[T, ...]: ...
-@typing.overload
+@overload
 def get[T](
-    ind: typing.Any,
-    seq: collections.abc.Sequence[T] | collections.abc.Mapping[typing.Any, T],
+    ind: Any,
+    seq: Sequence[T] | Mapping[Any, T],
     /,
 ) -> T: ...
-@typing.overload
+@overload
 def get[T](
-    ind: collections.abc.Sequence[typing.Any],
-    seq: collections.abc.Sequence[T] | collections.abc.Mapping[typing.Any, T],
+    ind: Sequence[Any],
+    seq: Sequence[T] | Mapping[Any, T],
     default: T,
     /,
 ) -> tuple[T, ...]: ...
-@typing.overload
+@overload
 def get[T](
-    ind: typing.Any,
-    seq: collections.abc.Sequence[T] | collections.abc.Mapping[typing.Any, T],
+    ind: Any,
+    seq: Sequence[T] | Mapping[Any, T],
     default: T,
     /,
 ) -> T: ...
 def get[T](
-    ind: typing.Any | collections.abc.Sequence[typing.Any] = ...,
-    seq: collections.abc.Sequence[T] | collections.abc.Mapping[typing.Any, T] = ...,
+    ind: Any | Sequence[Any] = ...,
+    seq: Sequence[T] | Mapping[Any, T] = ...,
     default: T = ...,
-) -> T | tuple[T, ...] | typing.Callable[..., T | tuple[T, ...]]:
+) -> T | tuple[T, ...] | Callable[..., T | tuple[T, ...]]:
     """Curried version of get
 
     Get element(s) from a sequence or dict.
@@ -665,35 +631,34 @@ def get[T](
     >>> get('Charlie', phonebook, 'N/A')
     'N/A'
     """
-    ...
 
 get_in = curry(_dicttoolz.get_in)
 
-@typing.overload
-def groupby[KT, T]() -> typing.Callable[..., dict[KT, list[T]]]: ...
-@typing.overload
+@overload
+def groupby[KT, T]() -> Callable[..., dict[KT, list[T]]]: ...
+@overload
 def groupby[KT, T](
-    key: typing.Callable[[T], KT], /
-) -> typing.Callable[[collections.abc.Iterable[T]], dict[KT, list[T]]]: ...
-@typing.overload
+    key: Callable[[T], KT], /
+) -> Callable[[Iterable[T]], dict[KT, list[T]]]: ...
+@overload
 def groupby[T](
-    key: typing.Any, /
-) -> typing.Callable[[collections.abc.Iterable[T]], dict[typing.Any, list[T]]]: ...
-@typing.overload
+    key: Any, /
+) -> Callable[[Iterable[T]], dict[Any, list[T]]]: ...
+@overload
 def groupby[KT, T](
-    key: typing.Callable[[T], KT], seq: collections.abc.Iterable[T], /
+    key: Callable[[T], KT], seq: Iterable[T], /
 ) -> dict[KT, list[T]]: ...
-@typing.overload
+@overload
 def groupby[T](
-    key: typing.Any, seq: collections.abc.Iterable[T], /
-) -> dict[typing.Any, list[T]]: ...
+    key: Any, seq: Iterable[T], /
+) -> dict[Any, list[T]]: ...
 def groupby[KT, T](
-    key: typing.Callable[[T], KT] | typing.Any = ...,
-    seq: collections.abc.Iterable[T] = ...,
+    key: Callable[[T], KT] | Any = ...,
+    seq: Iterable[T] = ...,
 ) -> (
     dict[KT, list[T]]
-    | dict[typing.Any, list[T]]
-    | typing.Callable[..., dict[KT, list[T]] | dict[typing.Any, list[T]]]
+    | dict[Any, list[T]]
+    | Callable[..., dict[KT, list[T]] | dict[Any, list[T]]]
 ):
     """Curried version of groupby
 
@@ -715,30 +680,29 @@ def groupby[KT, T](
     {'F': [{'gender': 'F', 'name': 'Alice'}],
      'M': [{'gender': 'M', 'name': 'Bob'}]}
     """
-    ...
 
 # Curried interpose with explicit overloads for type safety
 # Stage 0: No arguments - returns a callable
-@typing.overload
-def interpose[T]() -> typing.Callable[..., collections.abc.Iterator[T]]: ...
+@overload
+def interpose[T]() -> Callable[..., Iterator[T]]: ...
 
 # Stage 1: Just el - returns callable waiting for seq
-@typing.overload
+@overload
 def interpose[T](
     el: T, /
-) -> typing.Callable[[collections.abc.Iterable[T]], collections.abc.Iterator[T]]: ...
+) -> Callable[[Iterable[T]], Iterator[T]]: ...
 
 # Stage 2: Full application - executes immediately
-@typing.overload
+@overload
 def interpose[T](
-    el: T, seq: collections.abc.Iterable[T], /
-) -> collections.abc.Iterator[T]: ...
+    el: T, seq: Iterable[T], /
+) -> Iterator[T]: ...
 def interpose[T](
-    el: T = ..., seq: collections.abc.Iterable[T] = ...
+    el: T = ..., seq: Iterable[T] = ...
 ) -> (
-    collections.abc.Iterator[T]
-    | typing.Callable[[collections.abc.Iterable[T]], collections.abc.Iterator[T]]
-    | typing.Callable[..., collections.abc.Iterator[T]]
+    Iterator[T]
+    | Callable[[Iterable[T]], Iterator[T]]
+    | Callable[..., Iterator[T]]
 ):
     """Curried version of interpose
 
@@ -758,59 +722,59 @@ def interpose[T](
     >>> list(pipe(['hello', 'world'], interpose(' ')))
     ['hello', ' ', 'world']
 
-    See Also:
+    See Also
+    --------
         concat
     """
-    ...
 
-@typing.overload
-def itemfilter[K, V]() -> typing.Callable[
-    ..., dict[K, V] | collections.abc.MutableMapping[K, V]
+@overload
+def itemfilter[K, V]() -> Callable[
+    ..., dict[K, V] | MutableMapping[K, V]
 ]: ...
 
 # Stage 1a: Just predicate (no factory) - returns callable waiting for dict
-@typing.overload
+@overload
 def itemfilter[K, V](
-    predicate: typing.Callable[[tuple[K, V]], bool], /
-) -> typing.Callable[[collections.abc.Mapping[K, V]], dict[K, V]]: ...
+    predicate: Callable[[tuple[K, V]], bool], /
+) -> Callable[[Mapping[K, V]], dict[K, V]]: ...
 
 # Stage 1b: Predicate with factory - returns callable waiting for dict
-@typing.overload
+@overload
 def itemfilter[K, V](
-    predicate: typing.Callable[[tuple[K, V]], bool],
+    predicate: Callable[[tuple[K, V]], bool],
     /,
     *,
-    factory: typing.Callable[[], collections.abc.MutableMapping[K, V]],
-) -> typing.Callable[
-    [collections.abc.Mapping[K, V]], collections.abc.MutableMapping[K, V]
+    factory: Callable[[], MutableMapping[K, V]],
+) -> Callable[
+    [Mapping[K, V]], MutableMapping[K, V]
 ]: ...
 
 # Stage 2a: Full application (no factory) - executes immediately
-@typing.overload
+@overload
 def itemfilter[K, V](
-    predicate: typing.Callable[[tuple[K, V]], bool],
-    d: collections.abc.Mapping[K, V],
+    predicate: Callable[[tuple[K, V]], bool],
+    d: Mapping[K, V],
     /,
 ) -> dict[K, V]: ...
 
 # Stage 2b: Full application (with factory) - executes immediately
-@typing.overload
+@overload
 def itemfilter[K, V](
-    predicate: typing.Callable[[tuple[K, V]], bool],
-    d: collections.abc.Mapping[K, V],
+    predicate: Callable[[tuple[K, V]], bool],
+    d: Mapping[K, V],
     /,
     *,
-    factory: typing.Callable[[], collections.abc.MutableMapping[K, V]],
-) -> collections.abc.MutableMapping[K, V]: ...
+    factory: Callable[[], MutableMapping[K, V]],
+) -> MutableMapping[K, V]: ...
 def itemfilter[K, V](
-    predicate: typing.Callable[[tuple[K, V]], bool] = ...,
-    d: collections.abc.Mapping[K, V] = ...,
+    predicate: Callable[[tuple[K, V]], bool] = ...,
+    d: Mapping[K, V] = ...,
     *,
-    factory: typing.Callable[[], collections.abc.MutableMapping[K, V]] = dict,
+    factory: Callable[[], MutableMapping[K, V]] = dict,
 ) -> (
     dict[K, V]
-    | collections.abc.MutableMapping[K, V]
-    | typing.Callable[..., dict[K, V] | collections.abc.MutableMapping[K, V]]
+    | MutableMapping[K, V]
+    | Callable[..., dict[K, V] | MutableMapping[K, V]]
 ):
     """Curried version of itemfilter
 
@@ -834,61 +798,61 @@ def itemfilter[K, V](
     >>> itemfilter(lambda item: item[0] < 'c' and item[1] > 1, data)
     {'b': 2}
 
-    See Also:
+    See Also
+    --------
         keyfilter
         valfilter
         itemmap
     """
-    ...
 
-@typing.overload
-def itemmap[K0, V0, K1, V1]() -> typing.Callable[
-    ..., dict[K1, V1] | collections.abc.MutableMapping[K1, V1]
+@overload
+def itemmap[K0, V0, K1, V1]() -> Callable[
+    ..., dict[K1, V1] | MutableMapping[K1, V1]
 ]: ...
 
 # Stage 1a: Just func (no factory) - returns callable waiting for dict
-@typing.overload
+@overload
 def itemmap[K0, V0, K1, V1](
-    func: typing.Callable[[tuple[K0, V0]], tuple[K1, V1]], /
-) -> typing.Callable[[collections.abc.Mapping[K0, V0]], dict[K1, V1]]: ...
+    func: Callable[[tuple[K0, V0]], tuple[K1, V1]], /
+) -> Callable[[Mapping[K0, V0]], dict[K1, V1]]: ...
 
 # Stage 1b: Func with factory - returns callable waiting for dict
-@typing.overload
+@overload
 def itemmap[K0, V0, K1, V1](
-    func: typing.Callable[[tuple[K0, V0]], tuple[K1, V1]],
+    func: Callable[[tuple[K0, V0]], tuple[K1, V1]],
     /,
     *,
-    factory: typing.Callable[[], collections.abc.MutableMapping[K1, V1]],
-) -> typing.Callable[
-    [collections.abc.Mapping[K0, V0]], collections.abc.MutableMapping[K1, V1]
+    factory: Callable[[], MutableMapping[K1, V1]],
+) -> Callable[
+    [Mapping[K0, V0]], MutableMapping[K1, V1]
 ]: ...
 
 # Stage 2a: Full application (no factory) - executes immediately
-@typing.overload
+@overload
 def itemmap[K0, V0, K1, V1](
-    func: typing.Callable[[tuple[K0, V0]], tuple[K1, V1]],
-    d: collections.abc.Mapping[K0, V0],
+    func: Callable[[tuple[K0, V0]], tuple[K1, V1]],
+    d: Mapping[K0, V0],
     /,
 ) -> dict[K1, V1]: ...
 
 # Stage 2b: Full application (with factory) - executes immediately
-@typing.overload
+@overload
 def itemmap[K0, V0, K1, V1](
-    func: typing.Callable[[tuple[K0, V0]], tuple[K1, V1]],
-    d: collections.abc.Mapping[K0, V0],
+    func: Callable[[tuple[K0, V0]], tuple[K1, V1]],
+    d: Mapping[K0, V0],
     /,
     *,
-    factory: typing.Callable[[], collections.abc.MutableMapping[K1, V1]],
-) -> collections.abc.MutableMapping[K1, V1]: ...
+    factory: Callable[[], MutableMapping[K1, V1]],
+) -> MutableMapping[K1, V1]: ...
 def itemmap[K0, V0, K1, V1](
-    func: typing.Callable[[tuple[K0, V0]], tuple[K1, V1]] = ...,
-    d: collections.abc.Mapping[K0, V0] = ...,
+    func: Callable[[tuple[K0, V0]], tuple[K1, V1]] = ...,
+    d: Mapping[K0, V0] = ...,
     *,
-    factory: typing.Callable[[], collections.abc.MutableMapping[K1, V1]] = dict,
+    factory: Callable[[], MutableMapping[K1, V1]] = dict,
 ) -> (
     dict[K1, V1]
-    | collections.abc.MutableMapping[K1, V1]
-    | typing.Callable[..., dict[K1, V1] | collections.abc.MutableMapping[K1, V1]]
+    | MutableMapping[K1, V1]
+    | Callable[..., dict[K1, V1] | MutableMapping[K1, V1]]
 ):
     """Curried version of itemmap
 
@@ -909,35 +873,35 @@ def itemmap[K0, V0, K1, V1](
     >>> itemmap(lambda item: (item[0].upper(), item[1] * 10), data)
     {'A': 10, 'B': 20, 'C': 30}
 
-    See Also:
+    See Also
+    --------
         keymap
         valmap
         itemfilter
     """
-    ...
 
 # Curried iterate with explicit overloads for type safety
 # Stage 0: No arguments - returns a callable
-@typing.overload
-def iterate[T]() -> typing.Callable[..., collections.abc.Iterator[T]]: ...
+@overload
+def iterate[T]() -> Callable[..., Iterator[T]]: ...
 
 # Stage 1: Just func - returns callable waiting for x
-@typing.overload
+@overload
 def iterate[T](
-    func: typing.Callable[[T], T], /
-) -> typing.Callable[[T], collections.abc.Iterator[T]]: ...
+    func: Callable[[T], T], /
+) -> Callable[[T], Iterator[T]]: ...
 
 # Stage 2: Full application - executes immediately
-@typing.overload
+@overload
 def iterate[T](
-    func: typing.Callable[[T], T], x: T, /
-) -> collections.abc.Iterator[T]: ...
+    func: Callable[[T], T], x: T, /
+) -> Iterator[T]: ...
 def iterate[T](
-    func: typing.Callable[[T], T] = ..., x: T = ...
+    func: Callable[[T], T] = ..., x: T = ...
 ) -> (
-    collections.abc.Iterator[T]
-    | typing.Callable[[T], collections.abc.Iterator[T]]
-    | typing.Callable[..., collections.abc.Iterator[T]]
+    Iterator[T]
+    | Callable[[T], Iterator[T]]
+    | Callable[..., Iterator[T]]
 ):
     """Curried version of iterate
 
@@ -971,114 +935,114 @@ def iterate[T](
     >>> list(take(5, iterate(lambda x: x * 2, 1)))
     [1, 2, 4, 8, 16]
 
-    See Also:
+    See Also
+    --------
         accumulate
     """
-    ...
 
 # Curried join with explicit overloads for type safety
 # Stage 0: No arguments - returns a callable
-@typing.overload
-def join[T, U]() -> typing.Callable[..., collections.abc.Iterator[tuple[T, U]]]: ...
+@overload
+def join[T, U]() -> Callable[..., Iterator[tuple[T, U]]]: ...
 
 # Stage 1: Just leftkey - returns a callable
-@typing.overload
+@overload
 def join[T, U](
-    leftkey: typing.Callable[[T], typing.Hashable], /
-) -> typing.Callable[..., collections.abc.Iterator[tuple[T, U]]]: ...
+    leftkey: Callable[[T], Hashable], /
+) -> Callable[..., Iterator[tuple[T, U]]]: ...
 
 # Stage 2: leftkey + leftseq - returns a callable
-@typing.overload
+@overload
 def join[T, U](
-    leftkey: typing.Callable[[T], typing.Hashable],
-    leftseq: collections.abc.Iterable[T],
+    leftkey: Callable[[T], Hashable],
+    leftseq: Iterable[T],
     /,
-) -> typing.Callable[..., collections.abc.Iterator[tuple[T, U]]]: ...
+) -> Callable[..., Iterator[tuple[T, U]]]: ...
 
 # Stage 3: leftkey + leftseq + rightkey - returns callable waiting for rightseq
 # This is the key overload for pipe usage!
 # Note: We use Any for U because U can't be inferred until rightseq is provided.
 # The callable will properly infer types when called with rightseq.
-@typing.overload
+@overload
 def join[T](
-    leftkey: typing.Callable[[T], typing.Hashable],
-    leftseq: collections.abc.Iterable[T],
-    rightkey: typing.Callable[..., typing.Hashable],
+    leftkey: Callable[[T], Hashable],
+    leftseq: Iterable[T],
+    rightkey: Callable[..., Hashable],
     /,
-) -> typing.Callable[
-    [collections.abc.Iterable[typing.Any]],
-    collections.abc.Iterator[tuple[T, typing.Any]],
+) -> Callable[
+    [Iterable[Any]],
+    Iterator[tuple[T, Any]],
 ]: ...
 
 # Stage 4a: Full application (inner join) - executes immediately
-@typing.overload
+@overload
 def join[T, U](
-    leftkey: typing.Callable[[T], typing.Hashable],
-    leftseq: collections.abc.Iterable[T],
-    rightkey: typing.Callable[[U], typing.Hashable],
-    rightseq: collections.abc.Iterable[U],
+    leftkey: Callable[[T], Hashable],
+    leftseq: Iterable[T],
+    rightkey: Callable[[U], Hashable],
+    rightseq: Iterable[U],
     /,
-) -> collections.abc.Iterator[tuple[T, U]]: ...
+) -> Iterator[tuple[T, U]]: ...
 
 # Stage 4b: Full application with left_default only (right outer join)
-@typing.overload
+@overload
 def join[T, U, L](
-    leftkey: typing.Callable[[T], typing.Hashable],
-    leftseq: collections.abc.Iterable[T],
-    rightkey: typing.Callable[[U], typing.Hashable],
-    rightseq: collections.abc.Iterable[U],
+    leftkey: Callable[[T], Hashable],
+    leftseq: Iterable[T],
+    rightkey: Callable[[U], Hashable],
+    rightseq: Iterable[U],
     /,
     left_default: L,
-) -> collections.abc.Iterator[tuple[T | L, U]]: ...
+) -> Iterator[tuple[T | L, U]]: ...
 
 # Stage 4c: Full application with right_default only (left outer join)
-@typing.overload
+@overload
 def join[T, U, R](
-    leftkey: typing.Callable[[T], typing.Hashable],
-    leftseq: collections.abc.Iterable[T],
-    rightkey: typing.Callable[[U], typing.Hashable],
-    rightseq: collections.abc.Iterable[U],
+    leftkey: Callable[[T], Hashable],
+    leftseq: Iterable[T],
+    rightkey: Callable[[U], Hashable],
+    rightseq: Iterable[U],
     /,
     *,
     right_default: R,
-) -> collections.abc.Iterator[tuple[T, U | R]]: ...
+) -> Iterator[tuple[T, U | R]]: ...
 
 # Stage 4d: Full application with both defaults (full outer join)
-@typing.overload
+@overload
 def join[T, U, L, R](
-    leftkey: typing.Callable[[T], typing.Hashable],
-    leftseq: collections.abc.Iterable[T],
-    rightkey: typing.Callable[[U], typing.Hashable],
-    rightseq: collections.abc.Iterable[U],
+    leftkey: Callable[[T], Hashable],
+    leftseq: Iterable[T],
+    rightkey: Callable[[U], Hashable],
+    rightseq: Iterable[U],
     /,
     left_default: L,
     right_default: R,
-) -> collections.abc.Iterator[tuple[T | L, U | R]]: ...
+) -> Iterator[tuple[T | L, U | R]]: ...
 
 # Stage 3 with defaults: leftkey + leftseq + rightkey + defaults - returns callable
-@typing.overload
+@overload
 def join[T, U, L, R](
-    leftkey: typing.Callable[[T], typing.Hashable],
-    leftseq: collections.abc.Iterable[T],
-    rightkey: typing.Callable[[U], typing.Hashable],
+    leftkey: Callable[[T], Hashable],
+    leftseq: Iterable[T],
+    rightkey: Callable[[U], Hashable],
     /,
     left_default: L,
     right_default: R,
-) -> typing.Callable[
-    [collections.abc.Iterable[U]], collections.abc.Iterator[tuple[T | L, U | R]]
+) -> Callable[
+    [Iterable[U]], Iterator[tuple[T | L, U | R]]
 ]: ...
 
 # Implementation signature
 def join[T, U, L, R](
-    leftkey: typing.Callable[[T], typing.Hashable] | typing.Hashable = ...,
-    leftseq: collections.abc.Iterable[T] = ...,
-    rightkey: typing.Callable[[U], typing.Hashable] | typing.Hashable = ...,
-    rightseq: collections.abc.Iterable[U] = ...,
+    leftkey: Callable[[T], Hashable] | Hashable = ...,
+    leftseq: Iterable[T] = ...,
+    rightkey: Callable[[U], Hashable] | Hashable = ...,
+    rightseq: Iterable[U] = ...,
     left_default: L = ...,
     right_default: R = ...,
 ) -> (
-    collections.abc.Iterator[tuple[T | L, U | R]]
-    | typing.Callable[..., collections.abc.Iterator[tuple[T | L, U | R]]]
+    Iterator[tuple[T | L, U | R]]
+    | Callable[..., Iterator[tuple[T | L, U | R]]]
 ):
     """Curried version of join
 
@@ -1102,61 +1066,61 @@ def join[T, U, L, R](
     ...           left_default=None, right_default=None))
     [(2, 2), (None, 3), (1, None)]
 
-    See Also:
+    See Also
+    --------
         itertoolz.join
     """
-    ...
 
 # Curried keyfilter with explicit overloads for type safety
 # Stage 0: No arguments - returns a callable
-@typing.overload
-def keyfilter[K, V]() -> typing.Callable[
-    ..., dict[K, V] | collections.abc.MutableMapping[K, V]
+@overload
+def keyfilter[K, V]() -> Callable[
+    ..., dict[K, V] | MutableMapping[K, V]
 ]: ...
 
 # Stage 1a: Just predicate (no factory) - returns callable waiting for dict
-@typing.overload
+@overload
 def keyfilter[K, V](
-    predicate: typing.Callable[[K], bool], /
-) -> typing.Callable[[collections.abc.Mapping[K, V]], dict[K, V]]: ...
+    predicate: Callable[[K], bool], /
+) -> Callable[[Mapping[K, V]], dict[K, V]]: ...
 
 # Stage 1b: Predicate with factory - returns callable waiting for dict
-@typing.overload
+@overload
 def keyfilter[K, V](
-    predicate: typing.Callable[[K], bool],
+    predicate: Callable[[K], bool],
     /,
     *,
-    factory: typing.Callable[[], collections.abc.MutableMapping[K, V]],
-) -> typing.Callable[
-    [collections.abc.Mapping[K, V]], collections.abc.MutableMapping[K, V]
+    factory: Callable[[], MutableMapping[K, V]],
+) -> Callable[
+    [Mapping[K, V]], MutableMapping[K, V]
 ]: ...
 
 # Stage 2a: Full application (no factory) - executes immediately
-@typing.overload
+@overload
 def keyfilter[K, V](
-    predicate: typing.Callable[[K], bool],
-    d: collections.abc.Mapping[K, V],
+    predicate: Callable[[K], bool],
+    d: Mapping[K, V],
     /,
 ) -> dict[K, V]: ...
 
 # Stage 2b: Full application (with factory) - executes immediately
-@typing.overload
+@overload
 def keyfilter[K, V](
-    predicate: typing.Callable[[K], bool],
-    d: collections.abc.Mapping[K, V],
+    predicate: Callable[[K], bool],
+    d: Mapping[K, V],
     /,
     *,
-    factory: typing.Callable[[], collections.abc.MutableMapping[K, V]],
-) -> collections.abc.MutableMapping[K, V]: ...
+    factory: Callable[[], MutableMapping[K, V]],
+) -> MutableMapping[K, V]: ...
 def keyfilter[K, V](
-    predicate: typing.Callable[[K], bool] = ...,
-    d: collections.abc.Mapping[K, V] = ...,
+    predicate: Callable[[K], bool] = ...,
+    d: Mapping[K, V] = ...,
     *,
-    factory: typing.Callable[[], collections.abc.MutableMapping[K, V]] = dict,
+    factory: Callable[[], MutableMapping[K, V]] = dict,
 ) -> (
     dict[K, V]
-    | collections.abc.MutableMapping[K, V]
-    | typing.Callable[..., dict[K, V] | collections.abc.MutableMapping[K, V]]
+    | MutableMapping[K, V]
+    | Callable[..., dict[K, V] | MutableMapping[K, V]]
 ):
     """Curried version of keyfilter
 
@@ -1179,61 +1143,61 @@ def keyfilter[K, V](
     >>> keyfilter(lambda k: k.startswith('admin_'), users)
     {'admin_alice': 1, 'admin_charlie': 3}
 
-    See Also:
+    See Also
+    --------
         valfilter
         itemfilter
         keymap
     """
-    ...
 
-@typing.overload
-def keymap[K0, K1, V]() -> typing.Callable[
-    ..., dict[K1, V] | collections.abc.MutableMapping[K1, V]
+@overload
+def keymap[K0, K1, V]() -> Callable[
+    ..., dict[K1, V] | MutableMapping[K1, V]
 ]: ...
 
 # Stage 1a: Just func (no factory) - returns callable waiting for dict
-@typing.overload
+@overload
 def keymap[K0, K1, V](
-    func: typing.Callable[[K0], K1], /
-) -> typing.Callable[[collections.abc.Mapping[K0, V]], dict[K1, V]]: ...
+    func: Callable[[K0], K1], /
+) -> Callable[[Mapping[K0, V]], dict[K1, V]]: ...
 
 # Stage 1b: Func with factory - returns callable waiting for dict
-@typing.overload
+@overload
 def keymap[K0, K1, V](
-    func: typing.Callable[[K0], K1],
+    func: Callable[[K0], K1],
     /,
     *,
-    factory: typing.Callable[[], collections.abc.MutableMapping[K1, V]],
-) -> typing.Callable[
-    [collections.abc.Mapping[K0, V]], collections.abc.MutableMapping[K1, V]
+    factory: Callable[[], MutableMapping[K1, V]],
+) -> Callable[
+    [Mapping[K0, V]], MutableMapping[K1, V]
 ]: ...
 
 # Stage 2a: Full application (no factory) - executes immediately
-@typing.overload
+@overload
 def keymap[K0, K1, V](
-    func: typing.Callable[[K0], K1],
-    d: collections.abc.Mapping[K0, V],
+    func: Callable[[K0], K1],
+    d: Mapping[K0, V],
     /,
 ) -> dict[K1, V]: ...
 
 # Stage 2b: Full application (with factory) - executes immediately
-@typing.overload
+@overload
 def keymap[K0, K1, V](
-    func: typing.Callable[[K0], K1],
-    d: collections.abc.Mapping[K0, V],
+    func: Callable[[K0], K1],
+    d: Mapping[K0, V],
     /,
     *,
-    factory: typing.Callable[[], collections.abc.MutableMapping[K1, V]],
-) -> collections.abc.MutableMapping[K1, V]: ...
+    factory: Callable[[], MutableMapping[K1, V]],
+) -> MutableMapping[K1, V]: ...
 def keymap[K0, K1, V](
-    func: typing.Callable[[K0], K1] = ...,
-    d: collections.abc.Mapping[K0, V] = ...,
+    func: Callable[[K0], K1] = ...,
+    d: Mapping[K0, V] = ...,
     *,
-    factory: typing.Callable[[], collections.abc.MutableMapping[K1, V]] = dict,
+    factory: Callable[[], MutableMapping[K1, V]] = dict,
 ) -> (
     dict[K1, V]
-    | collections.abc.MutableMapping[K1, V]
-    | typing.Callable[..., dict[K1, V] | collections.abc.MutableMapping[K1, V]]
+    | MutableMapping[K1, V]
+    | Callable[..., dict[K1, V] | MutableMapping[K1, V]]
 ):
     """Curried version of keymap
 
@@ -1254,123 +1218,123 @@ def keymap[K0, K1, V](
     >>> keymap(str.lower, data)
     {'name': 'Alice', 'age': 30, 'city': 'NYC'}
 
-    See Also:
+    See Also
+    --------
         valmap
         itemmap
         keyfilter
     """
-    ...
 
-@typing.overload
-def map[T1, S]() -> typing.Callable[
-    ..., collections.abc.Iterator[S] | typing.Callable[..., collections.abc.Iterator[S]]
+@overload
+def map[T1, S]() -> Callable[
+    ..., Iterator[S] | Callable[..., Iterator[S]]
 ]: ...
-@typing.overload
+@overload
 def map[T1, S](
-    func: typing.Callable[[T1], S], /
-) -> typing.Callable[[collections.abc.Iterable[T1]], collections.abc.Iterator[S]]: ...
-@typing.overload
+    func: Callable[[T1], S], /
+) -> Callable[[Iterable[T1]], Iterator[S]]: ...
+@overload
 def map[T1, T2, S](
-    func: typing.Callable[[T1, T2], S], /
-) -> typing.Callable[
-    [collections.abc.Iterable[T1], collections.abc.Iterable[T2]],
-    collections.abc.Iterator[S],
+    func: Callable[[T1, T2], S], /
+) -> Callable[
+    [Iterable[T1], Iterable[T2]],
+    Iterator[S],
 ]: ...
-@typing.overload
+@overload
 def map[T1, T2, T3, S](
-    func: typing.Callable[[T1, T2, T3], S], /
-) -> typing.Callable[
+    func: Callable[[T1, T2, T3], S], /
+) -> Callable[
     [
-        collections.abc.Iterable[T1],
-        collections.abc.Iterable[T2],
-        collections.abc.Iterable[T3],
+        Iterable[T1],
+        Iterable[T2],
+        Iterable[T3],
     ],
-    collections.abc.Iterator[S],
+    Iterator[S],
 ]: ...
-@typing.overload
+@overload
 def map[T1, T2, T3, T4, S](
-    func: typing.Callable[[T1, T2, T3, T4], S], /
-) -> typing.Callable[
+    func: Callable[[T1, T2, T3, T4], S], /
+) -> Callable[
     [
-        collections.abc.Iterable[T1],
-        collections.abc.Iterable[T2],
-        collections.abc.Iterable[T3],
-        collections.abc.Iterable[T4],
+        Iterable[T1],
+        Iterable[T2],
+        Iterable[T3],
+        Iterable[T4],
     ],
-    collections.abc.Iterator[S],
+    Iterator[S],
 ]: ...
-@typing.overload
+@overload
 def map[T1, T2, T3, T4, T5, S](
-    func: typing.Callable[[T1, T2, T3, T4, T5], S], /
-) -> typing.Callable[
+    func: Callable[[T1, T2, T3, T4, T5], S], /
+) -> Callable[
     [
-        collections.abc.Iterable[T1],
-        collections.abc.Iterable[T2],
-        collections.abc.Iterable[T3],
-        collections.abc.Iterable[T4],
-        collections.abc.Iterable[T5],
+        Iterable[T1],
+        Iterable[T2],
+        Iterable[T3],
+        Iterable[T4],
+        Iterable[T5],
     ],
-    collections.abc.Iterator[S],
+    Iterator[S],
 ]: ...
-@typing.overload
+@overload
 def map[T1, S](
-    func: typing.Callable[[T1], S], iterable: collections.abc.Iterable[T1], /
-) -> collections.abc.Iterator[S]: ...
-@typing.overload
+    func: Callable[[T1], S], iterable: Iterable[T1], /
+) -> Iterator[S]: ...
+@overload
 def map[T1, T2, S](
-    func: typing.Callable[[T1, T2], S],
-    iterable: collections.abc.Iterable[T1],
-    iter2: collections.abc.Iterable[T2],
+    func: Callable[[T1, T2], S],
+    iterable: Iterable[T1],
+    iter2: Iterable[T2],
     /,
-) -> collections.abc.Iterator[S]: ...
-@typing.overload
+) -> Iterator[S]: ...
+@overload
 def map[T1, T2, T3, S](
-    func: typing.Callable[[T1, T2, T3], S],
-    iterable: collections.abc.Iterable[T1],
-    iter2: collections.abc.Iterable[T2],
-    iter3: collections.abc.Iterable[T3],
+    func: Callable[[T1, T2, T3], S],
+    iterable: Iterable[T1],
+    iter2: Iterable[T2],
+    iter3: Iterable[T3],
     /,
-) -> collections.abc.Iterator[S]: ...
-@typing.overload
+) -> Iterator[S]: ...
+@overload
 def map[T1, T2, T3, T4, S](
-    func: typing.Callable[[T1, T2, T3, T4], S],
-    iterable: collections.abc.Iterable[T1],
-    iter2: collections.abc.Iterable[T2],
-    iter3: collections.abc.Iterable[T3],
-    iter4: collections.abc.Iterable[T4],
+    func: Callable[[T1, T2, T3, T4], S],
+    iterable: Iterable[T1],
+    iter2: Iterable[T2],
+    iter3: Iterable[T3],
+    iter4: Iterable[T4],
     /,
-) -> collections.abc.Iterator[S]: ...
-@typing.overload
+) -> Iterator[S]: ...
+@overload
 def map[T1, T2, T3, T4, T5, S](
-    func: typing.Callable[[T1, T2, T3, T4, T5], S],
-    iterable: collections.abc.Iterable[T1],
-    iter2: collections.abc.Iterable[T2],
-    iter3: collections.abc.Iterable[T3],
-    iter4: collections.abc.Iterable[T4],
-    iter5: collections.abc.Iterable[T5],
+    func: Callable[[T1, T2, T3, T4, T5], S],
+    iterable: Iterable[T1],
+    iter2: Iterable[T2],
+    iter3: Iterable[T3],
+    iter4: Iterable[T4],
+    iter5: Iterable[T5],
     /,
-) -> collections.abc.Iterator[S]: ...
-@typing.overload
+) -> Iterator[S]: ...
+@overload
 def map[S](
-    func: typing.Callable[..., S],
-    iterable: collections.abc.Iterable[typing.Any],
-    iter2: collections.abc.Iterable[typing.Any],
-    iter3: collections.abc.Iterable[typing.Any],
-    iter4: collections.abc.Iterable[typing.Any],
-    iter5: collections.abc.Iterable[typing.Any],
-    iter6: collections.abc.Iterable[typing.Any],
+    func: Callable[..., S],
+    iterable: Iterable[Any],
+    iter2: Iterable[Any],
+    iter3: Iterable[Any],
+    iter4: Iterable[Any],
+    iter5: Iterable[Any],
+    iter6: Iterable[Any],
     /,
-    *iterables: collections.abc.Iterable[typing.Any],
-) -> collections.abc.Iterator[S]: ...
+    *iterables: Iterable[Any],
+) -> Iterator[S]: ...
 def map[S](
-    func: typing.Callable[..., S] = ...,
-    *iterables: collections.abc.Iterable[typing.Any],
+    func: Callable[..., S] = ...,
+    *iterables: Iterable[Any],
 ) -> (
-    collections.abc.Iterator[S]
-    | typing.Callable[..., collections.abc.Iterator[S]]
-    | typing.Callable[
+    Iterator[S]
+    | Callable[..., Iterator[S]]
+    | Callable[
         ...,
-        collections.abc.Iterator[S] | typing.Callable[..., collections.abc.Iterator[S]],
+        Iterator[S] | Callable[..., Iterator[S]],
     ]
 ):
     """Curried version of builtin map function
@@ -1392,31 +1356,30 @@ def map[S](
     >>> list(map(add, [1, 2, 3], [10, 20, 30]))
     [11, 22, 33]
     """
-    ...
 
-@typing.overload
-def mapcat[T, R]() -> typing.Callable[
-    ..., collections.abc.Iterator[R] | typing.Callable[..., collections.abc.Iterator[R]]
+@overload
+def mapcat[T, R]() -> Callable[
+    ..., Iterator[R] | Callable[..., Iterator[R]]
 ]: ...
-@typing.overload
+@overload
 def mapcat[T, R](
-    func: typing.Callable[[T], collections.abc.Iterable[R]], /
-) -> typing.Callable[[collections.abc.Iterable[T]], collections.abc.Iterator[R]]: ...
-@typing.overload
+    func: Callable[[T], Iterable[R]], /
+) -> Callable[[Iterable[T]], Iterator[R]]: ...
+@overload
 def mapcat[T, R](
-    func: typing.Callable[[T], collections.abc.Iterable[R]],
-    seqs: collections.abc.Iterable[T],
+    func: Callable[[T], Iterable[R]],
+    seqs: Iterable[T],
     /,
-) -> collections.abc.Iterator[R]: ...
+) -> Iterator[R]: ...
 def mapcat[T, R](
-    func: typing.Callable[[T], collections.abc.Iterable[R]] = ...,
-    seqs: collections.abc.Iterable[T] = ...,
+    func: Callable[[T], Iterable[R]] = ...,
+    seqs: Iterable[T] = ...,
 ) -> (
-    collections.abc.Iterator[R]
-    | typing.Callable[[collections.abc.Iterable[T]], collections.abc.Iterator[R]]
-    | typing.Callable[
+    Iterator[R]
+    | Callable[[Iterable[T]], Iterator[R]]
+    | Callable[
         ...,
-        collections.abc.Iterator[R] | typing.Callable[..., collections.abc.Iterator[R]],
+        Iterator[R] | Callable[..., Iterator[R]],
     ]
 ):
     """Curried version of mapcat
@@ -1433,23 +1396,22 @@ def mapcat[T, R](
     >>> list(upper_all([["a", "b"], ["c", "d", "e"]]))
     ['A', 'B', 'C', 'D', 'E']
     """
-    ...
 
 # Curried nth with explicit overloads for type safety
 # Stage 0: No arguments - returns a callable
-@typing.overload
-def nth[T]() -> typing.Callable[..., T]: ...
+@overload
+def nth[T]() -> Callable[..., T]: ...
 
 # Stage 1: Just n - returns callable waiting for seq
-@typing.overload
-def nth[T](n: int, /) -> typing.Callable[[collections.abc.Iterable[T]], T]: ...
+@overload
+def nth[T](n: int, /) -> Callable[[Iterable[T]], T]: ...
 
 # Stage 2: Full application - executes immediately
-@typing.overload
-def nth[T](n: int, seq: collections.abc.Iterable[T], /) -> T: ...
+@overload
+def nth[T](n: int, seq: Iterable[T], /) -> T: ...
 def nth[T](
-    n: int = ..., seq: collections.abc.Iterable[T] = ...
-) -> T | typing.Callable[[collections.abc.Iterable[T]], T] | typing.Callable[..., T]:
+    n: int = ..., seq: Iterable[T] = ...
+) -> T | Callable[[Iterable[T]], T] | Callable[..., T]:
     """Curried version of nth
 
     The nth element in a sequence.
@@ -1471,48 +1433,48 @@ def nth[T](
     >>> list(map(nth(1), data))
     ['b', 'd', 'f']
 
-    See Also:
+    See Also
+    --------
         first
         second
         last
     """
-    ...
 
 partial = curry(functools.partial)
 
-@typing.overload
-def partition[T]() -> typing.Callable[..., collections.abc.Iterator[tuple[T, ...]]]: ...
-@typing.overload
+@overload
+def partition[T]() -> Callable[..., Iterator[tuple[T, ...]]]: ...
+@overload
 def partition[T](
     n: int, /
-) -> typing.Callable[..., collections.abc.Iterator[tuple[T, ...]]]: ...
-@typing.overload
+) -> Callable[..., Iterator[tuple[T, ...]]]: ...
+@overload
 def partition[T](
-    n: typing.Literal[1], seq: collections.abc.Iterable[T], /
-) -> collections.abc.Iterator[tuple[T]]: ...
-@typing.overload
+    n: Literal[1], seq: Iterable[T], /
+) -> Iterator[tuple[T]]: ...
+@overload
 def partition[T](
-    n: int, seq: collections.abc.Iterable[T], /
-) -> collections.abc.Iterator[tuple[T, ...]]: ...
-@typing.overload
+    n: int, seq: Iterable[T], /
+) -> Iterator[tuple[T, ...]]: ...
+@overload
 def partition[T](
-    n: typing.Literal[1], seq: collections.abc.Iterable[T], pad: typing.Any, /
-) -> collections.abc.Iterator[tuple[T]]:
+    n: Literal[1], seq: Iterable[T], pad: Any, /
+) -> Iterator[tuple[T]]:
     # Note: With n=1, tuples always have exactly 1 element, so pad is never used
     ...
 
-@typing.overload
+@overload
 def partition[T, P](
-    n: int, seq: collections.abc.Iterable[T], pad: P, /
-) -> collections.abc.Iterator[tuple[T | P, ...]]: ...
+    n: int, seq: Iterable[T], pad: P, /
+) -> Iterator[tuple[T | P, ...]]: ...
 def partition[T, P](
     n: int = ...,
-    seq: collections.abc.Iterable[T] = ...,
+    seq: Iterable[T] = ...,
     pad: P = ...,
 ) -> (
-    collections.abc.Iterator[tuple[T, ...]]
-    | collections.abc.Iterator[tuple[T | P, ...]]
-    | typing.Callable[..., collections.abc.Iterator[tuple[T | P, ...]]]
+    Iterator[tuple[T, ...]]
+    | Iterator[tuple[T | P, ...]]
+    | Callable[..., Iterator[tuple[T | P, ...]]]
 ):
     """Curried version of partition
 
@@ -1541,50 +1503,50 @@ def partition[T, P](
     >>> list(pipe(data, partition(3)))
     [(0, 1, 2), (3, 4, 5), (6, 7, 8)]
 
-    See Also:
+    See Also
+    --------
         partition_all
     """
-    ...
 
 # Curried partition_all with explicit overloads for type safety
 # Stage 0: No arguments - returns a callable
-@typing.overload
-def partition_all[T]() -> typing.Callable[
-    ..., collections.abc.Iterator[tuple[T, ...]]
+@overload
+def partition_all[T]() -> Callable[
+    ..., Iterator[tuple[T, ...]]
 ]: ...
 
 # Stage 1: Just n - returns callable waiting for seq
-@typing.overload
+@overload
 def partition_all[T](
-    n: typing.Literal[1], /
-) -> typing.Callable[
-    [collections.abc.Iterable[T]], collections.abc.Iterator[tuple[T]]
+    n: Literal[1], /
+) -> Callable[
+    [Iterable[T]], Iterator[tuple[T]]
 ]: ...
-@typing.overload
+@overload
 def partition_all[T](
     n: int, /
-) -> typing.Callable[
-    [collections.abc.Iterable[T]], collections.abc.Iterator[tuple[T, ...]]
+) -> Callable[
+    [Iterable[T]], Iterator[tuple[T, ...]]
 ]: ...
 
 # Stage 2: Full application - executes immediately
-@typing.overload
+@overload
 def partition_all[T](
-    n: typing.Literal[1], seq: collections.abc.Iterable[T], /
-) -> collections.abc.Iterator[tuple[T]]: ...
-@typing.overload
+    n: Literal[1], seq: Iterable[T], /
+) -> Iterator[tuple[T]]: ...
+@overload
 def partition_all[T](
-    n: int, seq: collections.abc.Iterable[T], /
-) -> collections.abc.Iterator[tuple[T, ...]]: ...
+    n: int, seq: Iterable[T], /
+) -> Iterator[tuple[T, ...]]: ...
 def partition_all[T](
-    n: int = ..., seq: collections.abc.Iterable[T] = ...
+    n: int = ..., seq: Iterable[T] = ...
 ) -> (
-    collections.abc.Iterator[tuple[T, ...]]
-    | typing.Callable[
-        [collections.abc.Iterable[T]],
-        collections.abc.Iterator[tuple[T, ...]] | collections.abc.Iterator[tuple[T]],
+    Iterator[tuple[T, ...]]
+    | Callable[
+        [Iterable[T]],
+        Iterator[tuple[T, ...]] | Iterator[tuple[T]],
     ]
-    | typing.Callable[..., collections.abc.Iterator[tuple[T, ...]]]
+    | Callable[..., Iterator[tuple[T, ...]]]
 ):
     """Curried version of partition_all
 
@@ -1610,107 +1572,107 @@ def partition_all[T](
     >>> list(pipe(data, partition_all(3)))
     [(0, 1, 2), (3, 4, 5), (6, 7, 8), (9,)]
 
-    See Also:
+    See Also
+    --------
         partition
     """
-    ...
 
 partitionby = curry(_recipes.partitionby)
 peekn = curry(_itertoolz.peekn)
 
-@typing.overload
-def pluck[T]() -> typing.Callable[
-    ..., collections.abc.Iterator[T] | collections.abc.Iterator[tuple[T, ...]]
+@overload
+def pluck[T]() -> Callable[
+    ..., Iterator[T] | Iterator[tuple[T, ...]]
 ]: ...
-@typing.overload
+@overload
 def pluck[T](
-    ind: collections.abc.Sequence[typing.Any], /
+    ind: Sequence[Any], /
 ) -> (
-    typing.Callable[
+    Callable[
         [
-            collections.abc.Iterable[
-                collections.abc.Sequence[T] | collections.abc.Mapping[typing.Any, T]
+            Iterable[
+                Sequence[T] | Mapping[Any, T]
             ]
         ],
-        collections.abc.Iterator[tuple[T, ...]],
+        Iterator[tuple[T, ...]],
     ]
-    | typing.Callable[
+    | Callable[
         [
-            collections.abc.Iterable[
-                collections.abc.Sequence[T] | collections.abc.Mapping[typing.Any, T]
+            Iterable[
+                Sequence[T] | Mapping[Any, T]
             ],
             T,
         ],
-        collections.abc.Iterator[tuple[T, ...]],
+        Iterator[tuple[T, ...]],
     ]
 ): ...
-@typing.overload
+@overload
 def pluck[T](
-    ind: typing.Any, /
+    ind: Any, /
 ) -> (
-    typing.Callable[
+    Callable[
         [
-            collections.abc.Iterable[
-                collections.abc.Sequence[T] | collections.abc.Mapping[typing.Any, T]
+            Iterable[
+                Sequence[T] | Mapping[Any, T]
             ]
         ],
-        collections.abc.Iterator[T],
+        Iterator[T],
     ]
-    | typing.Callable[
+    | Callable[
         [
-            collections.abc.Iterable[
-                collections.abc.Sequence[T] | collections.abc.Mapping[typing.Any, T]
+            Iterable[
+                Sequence[T] | Mapping[Any, T]
             ],
             T,
         ],
-        collections.abc.Iterator[T],
+        Iterator[T],
     ]
 ): ...
-@typing.overload
+@overload
 def pluck[T](
-    ind: collections.abc.Sequence[typing.Any],
-    seqs: collections.abc.Iterable[
-        collections.abc.Sequence[T] | collections.abc.Mapping[typing.Any, T]
+    ind: Sequence[Any],
+    seqs: Iterable[
+        Sequence[T] | Mapping[Any, T]
     ],
     /,
-) -> collections.abc.Iterator[tuple[T, ...]]: ...
-@typing.overload
+) -> Iterator[tuple[T, ...]]: ...
+@overload
 def pluck[T](
-    ind: typing.Any,
-    seqs: collections.abc.Iterable[
-        collections.abc.Sequence[T] | collections.abc.Mapping[typing.Any, T]
+    ind: Any,
+    seqs: Iterable[
+        Sequence[T] | Mapping[Any, T]
     ],
     /,
-) -> collections.abc.Iterator[T]: ...
-@typing.overload
+) -> Iterator[T]: ...
+@overload
 def pluck[T](
-    ind: collections.abc.Sequence[typing.Any],
-    seqs: collections.abc.Iterable[
-        collections.abc.Sequence[T] | collections.abc.Mapping[typing.Any, T]
-    ],
-    default: T,
-    /,
-) -> collections.abc.Iterator[tuple[T, ...]]: ...
-@typing.overload
-def pluck[T](
-    ind: typing.Any,
-    seqs: collections.abc.Iterable[
-        collections.abc.Sequence[T] | collections.abc.Mapping[typing.Any, T]
+    ind: Sequence[Any],
+    seqs: Iterable[
+        Sequence[T] | Mapping[Any, T]
     ],
     default: T,
     /,
-) -> collections.abc.Iterator[T]: ...
+) -> Iterator[tuple[T, ...]]: ...
+@overload
 def pluck[T](
-    ind: typing.Any | collections.abc.Sequence[typing.Any] = ...,
-    seqs: collections.abc.Iterable[
-        collections.abc.Sequence[T] | collections.abc.Mapping[typing.Any, T]
+    ind: Any,
+    seqs: Iterable[
+        Sequence[T] | Mapping[Any, T]
+    ],
+    default: T,
+    /,
+) -> Iterator[T]: ...
+def pluck[T](
+    ind: Any | Sequence[Any] = ...,
+    seqs: Iterable[
+        Sequence[T] | Mapping[Any, T]
     ] = ...,
     default: T = ...,
 ) -> (
-    collections.abc.Iterator[T]
-    | collections.abc.Iterator[tuple[T, ...]]
-    | typing.Callable[
-        ..., collections.abc.Iterator[T] | collections.abc.Iterator[tuple[T, ...]]
+    Iterator[T]
+    | Iterator[tuple[T, ...]]
+    | Callable[
+        ..., Iterator[T] | Iterator[tuple[T, ...]]
     ]
 ):
     """Curried version of pluck
@@ -1742,42 +1704,42 @@ def pluck[T](
     >>> list(pipe(users, pluck('name')))
     ['Alice', 'Bob']
 
-    See Also:
+    See Also
+    --------
         get
         map
     """
-    ...
 
 random_sample = curry(_itertoolz.random_sample)
 
-@typing.overload
-def reduce[T]() -> typing.Callable[..., T]: ...
-@typing.overload
+@overload
+def reduce[T]() -> Callable[..., T]: ...
+@overload
 def reduce[T](
-    function: typing.Callable[[T, T], T], /
-) -> typing.Callable[[collections.abc.Iterable[T]], T]: ...
-@typing.overload
+    function: Callable[[T, T], T], /
+) -> Callable[[Iterable[T]], T]: ...
+@overload
 def reduce[T, S](
-    function: typing.Callable[[T, S], T], /
-) -> typing.Callable[..., T]: ...
-@typing.overload
+    function: Callable[[T, S], T], /
+) -> Callable[..., T]: ...
+@overload
 def reduce[T](
-    function: typing.Callable[[T, T], T],
-    iterable: collections.abc.Iterable[T],
+    function: Callable[[T, T], T],
+    iterable: Iterable[T],
     /,
 ) -> T: ...
-@typing.overload
+@overload
 def reduce[T, S](
-    function: typing.Callable[[T, S], T],
-    iterable: collections.abc.Iterable[S],
+    function: Callable[[T, S], T],
+    iterable: Iterable[S],
     initial: T,
     /,
 ) -> T: ...
 def reduce[T, S](
-    function: typing.Callable[[T, S], T] = ...,
-    iterable: collections.abc.Iterable[S] = ...,
+    function: Callable[[T, S], T] = ...,
+    iterable: Iterable[S] = ...,
     initial: T = ...,
-) -> T | typing.Callable[..., T]:
+) -> T | Callable[..., T]:
     """Curried version of functools.reduce
 
     Apply a function of two arguments cumulatively to items of an iterable,
@@ -1797,32 +1759,31 @@ def reduce[T, S](
     >>> reduce(add, [1, 2, 3], 10)
     16
     """
-    ...
 
 reduceby = curry(_itertoolz.reduceby)
 
 # Curried remove with explicit overloads for type safety
 # Stage 0: No arguments - returns a callable
-@typing.overload
-def remove[T]() -> typing.Callable[..., collections.abc.Iterable[T]]: ...
+@overload
+def remove[T]() -> Callable[..., Iterable[T]]: ...
 
 # Stage 1: Just predicate - returns callable waiting for seq
-@typing.overload
+@overload
 def remove[T](
-    predicate: typing.Callable[[T], bool], /
-) -> typing.Callable[[collections.abc.Iterable[T]], collections.abc.Iterable[T]]: ...
+    predicate: Callable[[T], bool], /
+) -> Callable[[Iterable[T]], Iterable[T]]: ...
 
 # Stage 2: Full application - executes immediately
-@typing.overload
+@overload
 def remove[T](
-    predicate: typing.Callable[[T], bool], seq: collections.abc.Iterable[T], /
-) -> collections.abc.Iterable[T]: ...
+    predicate: Callable[[T], bool], seq: Iterable[T], /
+) -> Iterable[T]: ...
 def remove[T](
-    predicate: typing.Callable[[T], bool] = ..., seq: collections.abc.Iterable[T] = ...
+    predicate: Callable[[T], bool] = ..., seq: Iterable[T] = ...
 ) -> (
-    collections.abc.Iterable[T]
-    | typing.Callable[[collections.abc.Iterable[T]], collections.abc.Iterable[T]]
-    | typing.Callable[..., collections.abc.Iterable[T]]
+    Iterable[T]
+    | Callable[[Iterable[T]], Iterable[T]]
+    | Callable[..., Iterable[T]]
 ):
     """Curried version of remove
 
@@ -1843,81 +1804,81 @@ def remove[T](
     >>> list(pipe([1, 2, 3, 4], remove(lambda x: x < 3)))
     [3, 4]
 
-    See Also:
+    See Also
+    --------
         filter
     """
-    ...
 
 # Curried sliding_window with explicit overloads for type safety
 # Stage 0: No arguments - returns a callable
-@typing.overload
-def sliding_window[T]() -> typing.Callable[
-    ..., collections.abc.Iterator[tuple[T, ...]]
+@overload
+def sliding_window[T]() -> Callable[
+    ..., Iterator[tuple[T, ...]]
 ]: ...
 
 # Stage 1a: Just n=1 - returns callable waiting for seq
-@typing.overload
+@overload
 def sliding_window[T](
-    n: typing.Literal[1], /
-) -> typing.Callable[
-    [collections.abc.Iterable[T]], collections.abc.Iterator[tuple[T]]
+    n: Literal[1], /
+) -> Callable[
+    [Iterable[T]], Iterator[tuple[T]]
 ]: ...
 
 # Stage 1b: Just n=2 - returns callable waiting for seq
-@typing.overload
+@overload
 def sliding_window[T](
-    n: typing.Literal[2], /
-) -> typing.Callable[
-    [collections.abc.Iterable[T]], collections.abc.Iterator[tuple[T, T]]
+    n: Literal[2], /
+) -> Callable[
+    [Iterable[T]], Iterator[tuple[T, T]]
 ]: ...
 
 # Stage 1c: Just n=3 - returns callable waiting for seq
-@typing.overload
+@overload
 def sliding_window[T](
-    n: typing.Literal[3], /
-) -> typing.Callable[
-    [collections.abc.Iterable[T]], collections.abc.Iterator[tuple[T, T, T]]
+    n: Literal[3], /
+) -> Callable[
+    [Iterable[T]], Iterator[tuple[T, T, T]]
 ]: ...
 
 # Stage 1d: Just n (general) - returns callable waiting for seq
-@typing.overload
+@overload
 def sliding_window[T](
     n: int, /
-) -> typing.Callable[
-    [collections.abc.Iterable[T]], collections.abc.Iterator[tuple[T, ...]]
+) -> Callable[
+    [Iterable[T]], Iterator[tuple[T, ...]]
 ]: ...
 
 # Stage 2a: Full application with n=1 - executes immediately
-@typing.overload
+@overload
 def sliding_window[T](
-    n: typing.Literal[1], seq: collections.abc.Iterable[T], /
-) -> collections.abc.Iterator[tuple[T]]: ...
+    n: Literal[1], seq: Iterable[T], /
+) -> Iterator[tuple[T]]: ...
 
 # Stage 2b: Full application with n=2 - executes immediately
-@typing.overload
+@overload
 def sliding_window[T](
-    n: typing.Literal[2], seq: collections.abc.Iterable[T], /
-) -> collections.abc.Iterator[tuple[T, T]]: ...
+    n: Literal[2], seq: Iterable[T], /
+) -> Iterator[tuple[T, T]]: ...
 
 # Stage 2c: Full application with n=3 - executes immediately
-@typing.overload
+@overload
 def sliding_window[T](
-    n: typing.Literal[3], seq: collections.abc.Iterable[T], /
-) -> collections.abc.Iterator[tuple[T, T, T]]: ...
+    n: Literal[3], seq: Iterable[T], /
+) -> Iterator[tuple[T, T, T]]: ...
 
 # Stage 2d: Full application (general) - executes immediately
-@typing.overload
+@overload
 def sliding_window[T](
-    n: int, seq: collections.abc.Iterable[T], /
-) -> collections.abc.Iterator[tuple[T, ...]]: ...
+    n: int, seq: Iterable[T], /
+) -> Iterator[tuple[T, ...]]: ...
 def sliding_window[T](
-    n: int = ..., seq: collections.abc.Iterable[T] = ...
+    n: int = ..., seq: Iterable[T] = ...
 ) -> (
-    collections.abc.Iterator[tuple[T, ...]]
-    | typing.Callable[
-        [collections.abc.Iterable[T]], collections.abc.Iterator[tuple[T, ...]]
+    Iterator[tuple[T, ...]]
+    | Callable[
+        [Iterable[T]], Iterator[tuple[T, ...]]
     ]
-    | typing.Callable[..., collections.abc.Iterator[tuple[T, ...]]]
+    | Callable[..., Iterator[tuple[T, ...]]]
 ):
     """Curried version of sliding_window
 
@@ -1939,37 +1900,37 @@ def sliding_window[T](
     >>> list(pipe(data, sliding_window(2), map(mean)))
     [1.5, 2.5, 3.5, 4.5]
 
-    See Also:
+    See Also
+    --------
         partition
     """
-    ...
 
 # Curried sorted with explicit overloads for type safety
 # Note: key and reverse are keyword-only parameters in builtin sorted
 # Stage 0: No arguments - returns a callable
-@typing.overload
-def sorted[T]() -> typing.Callable[..., list[T]]: ...
+@overload
+def sorted[T]() -> Callable[..., list[T]]: ...
 
 # Stage 1a: Partial application with keyword args only (no key) - returns callable
-@typing.overload
+@overload
 def sorted[T](
     *,
     key: None = None,
     reverse: bool = False,
-) -> collections.abc.Callable[[collections.abc.Iterable[T]], list[T]]: ...
+) -> Callable[[Iterable[T]], list[T]]: ...
 
 # Stage 1b: Partial application with keyword args only (with key) - returns callable
-@typing.overload
+@overload
 def sorted[T](
     *,
-    key: collections.abc.Callable[[T], SupportsRichComparison],
+    key: Callable[[T], SupportsRichComparison],
     reverse: bool = False,
-) -> collections.abc.Callable[[collections.abc.Iterable[T]], list[T]]: ...
+) -> Callable[[Iterable[T]], list[T]]: ...
 
 # Stage 2a: Full application (no key) - executes immediately
-@typing.overload
+@overload
 def sorted[T](
-    iterable: collections.abc.Iterable[T],
+    iterable: Iterable[T],
     /,
     *,
     key: None = None,
@@ -1977,23 +1938,23 @@ def sorted[T](
 ) -> list[T]: ...
 
 # Stage 2b: Full application (with key function) - executes immediately
-@typing.overload
+@overload
 def sorted[T](
-    iterable: collections.abc.Iterable[T],
+    iterable: Iterable[T],
     /,
     *,
-    key: collections.abc.Callable[[T], SupportsRichComparison],
+    key: Callable[[T], SupportsRichComparison],
     reverse: bool = False,
 ) -> list[T]: ...
 
 # Implementation signature (catch-all)
 def sorted[T](
-    iterable: collections.abc.Iterable[T] = ...,
+    iterable: Iterable[T] = ...,
     /,
     *,
-    key: collections.abc.Callable[[T], SupportsRichComparison] | None = None,
+    key: Callable[[T], SupportsRichComparison] | None = None,
     reverse: bool = False,
-) -> list[T] | typing.Callable[..., list[T]]:
+) -> list[T] | Callable[..., list[T]]:
     """Curried version of builtin sorted
 
     Return a new sorted list from the items in iterable.
@@ -2020,34 +1981,34 @@ def sorted[T](
     >>> sorted(users, key=lambda u: u['age'])
     [{'name': 'Bob', 'age': 25}, {'name': 'Alice', 'age': 30}]
 
-    See Also:
+    See Also
+    --------
         groupby
         unique
     """
-    ...
 
 # Curried tail with explicit overloads for type safety
 # Stage 0: No arguments - returns a callable
-@typing.overload
-def tail[T]() -> typing.Callable[..., collections.abc.Iterator[T]]: ...
+@overload
+def tail[T]() -> Callable[..., Iterator[T]]: ...
 
 # Stage 1: Just n - returns callable waiting for seq
-@typing.overload
+@overload
 def tail[T](
     n: int, /
-) -> typing.Callable[[collections.abc.Iterable[T]], collections.abc.Iterator[T]]: ...
+) -> Callable[[Iterable[T]], Iterator[T]]: ...
 
 # Stage 2: Full application - executes immediately
-@typing.overload
+@overload
 def tail[T](
-    n: int, seq: collections.abc.Iterable[T], /
-) -> collections.abc.Iterator[T]: ...
+    n: int, seq: Iterable[T], /
+) -> Iterator[T]: ...
 def tail[T](
-    n: int = ..., seq: collections.abc.Iterable[T] = ...
+    n: int = ..., seq: Iterable[T] = ...
 ) -> (
-    collections.abc.Iterator[T]
-    | typing.Callable[[collections.abc.Iterable[T]], collections.abc.Iterator[T]]
-    | typing.Callable[..., collections.abc.Iterator[T]]
+    Iterator[T]
+    | Callable[[Iterable[T]], Iterator[T]]
+    | Callable[..., Iterator[T]]
 ):
     """Curried version of tail
 
@@ -2067,29 +2028,29 @@ def tail[T](
     >>> list(pipe([1, 2, 3, 4, 5], tail(2)))
     [4, 5]
 
-    See Also:
+    See Also
+    --------
         take
         drop
         last
     """
-    ...
 
-@typing.overload
-def take[T]() -> typing.Callable[..., collections.abc.Iterator[T]]: ...
-@typing.overload
+@overload
+def take[T]() -> Callable[..., Iterator[T]]: ...
+@overload
 def take[T](
     n: int, /
-) -> typing.Callable[[collections.abc.Iterable[T]], collections.abc.Iterator[T]]: ...
-@typing.overload
+) -> Callable[[Iterable[T]], Iterator[T]]: ...
+@overload
 def take[T](
-    n: int, seq: collections.abc.Iterable[T], /
-) -> collections.abc.Iterator[T]: ...
+    n: int, seq: Iterable[T], /
+) -> Iterator[T]: ...
 def take[T](
-    n: int = ..., seq: collections.abc.Iterable[T] = ...
+    n: int = ..., seq: Iterable[T] = ...
 ) -> (
-    collections.abc.Iterator[T]
-    | typing.Callable[[collections.abc.Iterable[T]], collections.abc.Iterator[T]]
-    | typing.Callable[..., collections.abc.Iterator[T]]
+    Iterator[T]
+    | Callable[[Iterable[T]], Iterator[T]]
+    | Callable[..., Iterator[T]]
 ):
     """Curried version of take
 
@@ -2110,34 +2071,34 @@ def take[T](
     >>> list(map(lambda seq: list(take(2, seq)), data))
     [[1, 2], [4, 5], [7, 8]]
 
-    See Also:
+    See Also
+    --------
         drop
         tail
     """
-    ...
 
 # Curried take_nth with explicit overloads for type safety
 # Stage 0: No arguments - returns a callable
-@typing.overload
-def take_nth[T]() -> typing.Callable[..., collections.abc.Iterator[T]]: ...
+@overload
+def take_nth[T]() -> Callable[..., Iterator[T]]: ...
 
 # Stage 1: Just n - returns callable waiting for seq
-@typing.overload
+@overload
 def take_nth[T](
     n: int, /
-) -> typing.Callable[[collections.abc.Iterable[T]], collections.abc.Iterator[T]]: ...
+) -> Callable[[Iterable[T]], Iterator[T]]: ...
 
 # Stage 2: Full application - executes immediately
-@typing.overload
+@overload
 def take_nth[T](
-    n: int, seq: collections.abc.Iterable[T], /
-) -> collections.abc.Iterator[T]: ...
+    n: int, seq: Iterable[T], /
+) -> Iterator[T]: ...
 def take_nth[T](
-    n: int = ..., seq: collections.abc.Iterable[T] = ...
+    n: int = ..., seq: Iterable[T] = ...
 ) -> (
-    collections.abc.Iterator[T]
-    | typing.Callable[[collections.abc.Iterable[T]], collections.abc.Iterator[T]]
-    | typing.Callable[..., collections.abc.Iterator[T]]
+    Iterator[T]
+    | Callable[[Iterable[T]], Iterator[T]]
+    | Callable[..., Iterator[T]]
 ):
     """Curried version of take_nth
 
@@ -2157,64 +2118,64 @@ def take_nth[T](
     >>> list(pipe(range(10), take_nth(2)))
     [0, 2, 4, 6, 8]
 
-    See Also:
+    See Also
+    --------
         take
         drop
     """
-    ...
 
 topk = curry(_itertoolz.topk)
 unique = curry(_itertoolz.unique)
 update_in = curry(_dicttoolz.update_in)
 
-@typing.overload
-def valfilter[K, V]() -> typing.Callable[
-    ..., dict[K, V] | collections.abc.MutableMapping[K, V]
+@overload
+def valfilter[K, V]() -> Callable[
+    ..., dict[K, V] | MutableMapping[K, V]
 ]: ...
 
 # Stage 1a: Just predicate (no factory) - returns callable waiting for dict
-@typing.overload
+@overload
 def valfilter[K, V](
-    predicate: typing.Callable[[V], bool], /
-) -> typing.Callable[[collections.abc.Mapping[K, V]], dict[K, V]]: ...
+    predicate: Callable[[V], bool], /
+) -> Callable[[Mapping[K, V]], dict[K, V]]: ...
 
 # Stage 1b: Predicate with factory - returns callable waiting for dict
-@typing.overload
+@overload
 def valfilter[K, V](
-    predicate: typing.Callable[[V], bool],
+    predicate: Callable[[V], bool],
     /,
     *,
-    factory: typing.Callable[[], collections.abc.MutableMapping[K, V]],
-) -> typing.Callable[
-    [collections.abc.Mapping[K, V]], collections.abc.MutableMapping[K, V]
+    factory: Callable[[], MutableMapping[K, V]],
+) -> Callable[
+    [Mapping[K, V]], MutableMapping[K, V]
 ]: ...
 
 # Stage 2a: Full application (no factory) - executes immediately
-@typing.overload
+@overload
 def valfilter[K, V](
-    predicate: typing.Callable[[V], bool],
-    d: collections.abc.Mapping[K, V],
+    predicate: Callable[[V], bool],
+    d: Mapping[K, V],
     /,
 ) -> dict[K, V]: ...
 
 # Stage 2b: Full application (with factory) - executes immediately
-@typing.overload
+@overload
 def valfilter[K, V](
-    predicate: typing.Callable[[V], bool],
-    d: collections.abc.Mapping[K, V],
+    predicate: Callable[[V], bool],
+    d: Mapping[K, V],
     /,
     *,
-    factory: typing.Callable[[], collections.abc.MutableMapping[K, V]],
-) -> collections.abc.MutableMapping[K, V]: ...
+    factory: Callable[[], MutableMapping[K, V]],
+) -> MutableMapping[K, V]: ...
 def valfilter[K, V](
-    predicate: typing.Callable[[V], bool] = ...,
-    d: collections.abc.Mapping[K, V] = ...,
+    predicate: Callable[[V], bool] = ...,
+    d: Mapping[K, V] = ...,
     *,
-    factory: typing.Callable[[], collections.abc.MutableMapping[K, V]] = dict,
+    factory: Callable[[], MutableMapping[K, V]] = dict,
 ) -> (
     dict[K, V]
-    | collections.abc.MutableMapping[K, V]
-    | typing.Callable[..., dict[K, V] | collections.abc.MutableMapping[K, V]]
+    | MutableMapping[K, V]
+    | Callable[..., dict[K, V] | MutableMapping[K, V]]
 ):
     """Curried version of valfilter
 
@@ -2237,61 +2198,61 @@ def valfilter[K, V](
     >>> valfilter(lambda v: v >= 90, scores)
     {'bob': 92, 'diana': 95}
 
-    See Also:
+    See Also
+    --------
         keyfilter
         itemfilter
         valmap
     """
-    ...
 
-@typing.overload
-def valmap[K, V0, V1]() -> typing.Callable[
-    ..., dict[K, V1] | collections.abc.MutableMapping[K, V1]
+@overload
+def valmap[K, V0, V1]() -> Callable[
+    ..., dict[K, V1] | MutableMapping[K, V1]
 ]: ...
 
 # Stage 1a: Just func (no factory) - returns callable waiting for dict
-@typing.overload
+@overload
 def valmap[K, V0, V1](
-    func: typing.Callable[[V0], V1], /
-) -> typing.Callable[[collections.abc.Mapping[K, V0]], dict[K, V1]]: ...
+    func: Callable[[V0], V1], /
+) -> Callable[[Mapping[K, V0]], dict[K, V1]]: ...
 
 # Stage 1b: Func with factory - returns callable waiting for dict
-@typing.overload
+@overload
 def valmap[K, V0, V1](
-    func: typing.Callable[[V0], V1],
+    func: Callable[[V0], V1],
     /,
     *,
-    factory: typing.Callable[[], collections.abc.MutableMapping[K, V1]],
-) -> typing.Callable[
-    [collections.abc.Mapping[K, V0]], collections.abc.MutableMapping[K, V1]
+    factory: Callable[[], MutableMapping[K, V1]],
+) -> Callable[
+    [Mapping[K, V0]], MutableMapping[K, V1]
 ]: ...
 
 # Stage 2a: Full application (no factory) - executes immediately
-@typing.overload
+@overload
 def valmap[K, V0, V1](
-    func: typing.Callable[[V0], V1],
-    d: collections.abc.Mapping[K, V0],
+    func: Callable[[V0], V1],
+    d: Mapping[K, V0],
     /,
 ) -> dict[K, V1]: ...
 
 # Stage 2b: Full application (with factory) - executes immediately
-@typing.overload
+@overload
 def valmap[K, V0, V1](
-    func: typing.Callable[[V0], V1],
-    d: collections.abc.Mapping[K, V0],
+    func: Callable[[V0], V1],
+    d: Mapping[K, V0],
     /,
     *,
-    factory: typing.Callable[[], collections.abc.MutableMapping[K, V1]],
-) -> collections.abc.MutableMapping[K, V1]: ...
+    factory: Callable[[], MutableMapping[K, V1]],
+) -> MutableMapping[K, V1]: ...
 def valmap[K, V0, V1](
-    func: typing.Callable[[V0], V1] = ...,
-    d: collections.abc.Mapping[K, V0] = ...,
+    func: Callable[[V0], V1] = ...,
+    d: Mapping[K, V0] = ...,
     *,
-    factory: typing.Callable[[], collections.abc.MutableMapping[K, V1]] = dict,
+    factory: Callable[[], MutableMapping[K, V1]] = dict,
 ) -> (
     dict[K, V1]
-    | collections.abc.MutableMapping[K, V1]
-    | typing.Callable[..., dict[K, V1] | collections.abc.MutableMapping[K, V1]]
+    | MutableMapping[K, V1]
+    | Callable[..., dict[K, V1] | MutableMapping[K, V1]]
 ):
     """Curried version of valmap
 
@@ -2312,9 +2273,9 @@ def valmap[K, V0, V1](
     >>> valmap(lambda x: 'pass' if x >= 80 else 'fail', scores)
     {'alice': 'pass', 'bob': 'pass', 'charlie': 'fail'}
 
-    See Also:
+    See Also
+    --------
         keymap
         itemmap
         valfilter
     """
-    ...

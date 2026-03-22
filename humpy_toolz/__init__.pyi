@@ -77,6 +77,8 @@ from .itertoolz import (
     unique as unique,
 )
 from .recipes import countby as countby, partitionby as partitionby
+from builtins import filter as filter, map as map, sorted as sorted  # noqa: A004
+from functools import partial as partial, reduce as reduce
 
 # Aliases
 comp = compose
