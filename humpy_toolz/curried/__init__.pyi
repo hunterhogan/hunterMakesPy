@@ -1,14 +1,4 @@
-"""
-Stubs for toolz.curried - an alternate namespace where functions are curried.
-
-This module uses three patterns:
-1. Direct re-exports: Non-curried functions imported from relative modules.
-2. Explicit overloads: Curried functions with bespoke type signatures for precise inference
-    (e.g., accumulate, assoc, do, filter, map).
-3. Curry wrappers: Curried functions using curry(module.func).
-    Placeholders until explicit overloads are added.
-    See https://github.com/mgrinshpon/toolz-stubs/issues/16 to help.
-"""
+...
 
 from .. import dicttoolz as _dicttoolz, itertoolz as _itertoolz, recipes as _recipes
 from ..functoolz import (
@@ -30,82 +20,82 @@ from typing_extensions import TypeIs
 import functools
 
 __all__ = [
-    # Curried functions (defined in this module)
-    "accumulate",
-    "assoc",
-    "assoc_in",
-    "cons",
-    "countby",
-    "dissoc",
-    "do",
-    "drop",
-    "excepts",
-    "filter",
-    "get",
-    "get_in",
-    "groupby",
-    "interpose",
-    "itemfilter",
-    "itemmap",
-    "iterate",
-    "join",
-    "keyfilter",
-    "keymap",
-    "map",
-    "mapcat",
-    "nth",
-    "partial",
-    "partition",
-    "partition_all",
-    "partitionby",
-    "peekn",
-    "pluck",
-    "random_sample",
-    "reduce",
-    "reduceby",
-    "remove",
-    "sliding_window",
-    "sorted",
-    "tail",
-    "take",
-    "take_nth",
-    "topk",
-    "unique",
-    "update_in",
-    "valfilter",
-    "valmap",
-    # Re-exported (not curried)
-    "apply",
-    "comp",
-    "complement",
-    "compose",
-    "compose_left",
-    "concat",
-    "concatv",
-    "count",
-    "curry",
-    "diff",
-    "first",
-    "flip",
-    "frequencies",
-    "identity",
-    "interleave",
-    "isdistinct",
-    "isiterable",
-    "juxt",
-    "last",
-    "memoize",
-    "merge_sorted",
-    "peek",
-    "pipe",
-    "second",
-    "thread_first",
-    "thread_last",
-    # Re-exported from .exceptions
-    "merge",
-    "merge_with",
-    # Submodule
-    "operator",
+	# Curried functions (defined in this module)
+	"accumulate",
+	"assoc",
+	"assoc_in",
+	"cons",
+	"countby",
+	"dissoc",
+	"do",
+	"drop",
+	"excepts",
+	"filter",
+	"get",
+	"get_in",
+	"groupby",
+	"interpose",
+	"itemfilter",
+	"itemmap",
+	"iterate",
+	"join",
+	"keyfilter",
+	"keymap",
+	"map",
+	"mapcat",
+	"nth",
+	"partial",
+	"partition",
+	"partition_all",
+	"partitionby",
+	"peekn",
+	"pluck",
+	"random_sample",
+	"reduce",
+	"reduceby",
+	"remove",
+	"sliding_window",
+	"sorted",
+	"tail",
+	"take",
+	"take_nth",
+	"topk",
+	"unique",
+	"update_in",
+	"valfilter",
+	"valmap",
+	# Re-exported (not curried)
+	"apply",
+	"comp",
+	"complement",
+	"compose",
+	"compose_left",
+	"concat",
+	"concatv",
+	"count",
+	"curry",
+	"diff",
+	"first",
+	"flip",
+	"frequencies",
+	"identity",
+	"interleave",
+	"isdistinct",
+	"isiterable",
+	"juxt",
+	"last",
+	"memoize",
+	"merge_sorted",
+	"peek",
+	"pipe",
+	"second",
+	"thread_first",
+	"thread_last",
+	# Re-exported from .exceptions
+	"merge",
+	"merge_with",
+	# Submodule
+	"operator",
 ]
 
 # Curried accumulate with explicit overloads for type safety
@@ -116,143 +106,75 @@ def accumulate[T]() -> Callable[..., Iterator[T]]: ...
 # Stage 1: Just binop - returns callable waiting for seq (and optional initial)
 @overload
 def accumulate[T](
-    binop: Callable[[T, T], T], /
+	binop: Callable[[T, T], T], /
 ) -> Callable[..., Iterator[T]]: ...
 
 # Stage 2a: binop + seq (no initial) - executes immediately
 @overload
 def accumulate[T](
-    binop: Callable[[T, T], T], seq: Iterable[T], /
+	binop: Callable[[T, T], T], seq: Iterable[T], /
 ) -> Iterator[T]: ...
 
 # Stage 2b: binop + seq + initial - executes immediately
 @overload
 def accumulate[T](
-    binop: Callable[[T, T], T],
-    seq: Iterable[T],
-    initial: T,
-    /,
+	binop: Callable[[T, T], T],
+	seq: Iterable[T],
+	initial: T,
+	/,
 ) -> Iterator[T]: ...
 def accumulate[T](
-    binop: Callable[[T, T], T] = ...,
-    seq: Iterable[T] = ...,
-    initial: T = ...,
+	binop: Callable[[T, T], T] = ...,
+	seq: Iterable[T] = ...,
+	initial: T = ...,
 ) -> Iterator[T] | Callable[..., Iterator[T]]:
-    """Curried version of accumulate
-
-    Repeatedly apply binary function to a sequence, accumulating results.
-
-    >>> from toolz.curried import accumulate
-    >>> from operator import add, mul
-    >>> list(accumulate(add, [1, 2, 3, 4, 5]))
-    [1, 3, 6, 10, 15]
-    >>> list(accumulate(mul, [1, 2, 3, 4, 5]))
-    [1, 2, 6, 24, 120]
-
-    Can be partially applied:
-    >>> cumsum = accumulate(add)
-    >>> list(cumsum([1, 2, 3, 4, 5]))
-    [1, 3, 6, 10, 15]
-
-    With initial value:
-    >>> list(accumulate(add, [1, 2, 3], -1))
-    [-1, 0, 2, 5]
-    >>> list(accumulate(add, [], 1))
-    [1]
-
-    Common pattern for cumulative operations:
-    >>> from toolz.curried import pipe
-    >>> from operator import mul
-    >>> cumprod = accumulate(mul)
-    >>> list(pipe([1, 2, 3, 4], cumprod))
-    [1, 2, 6, 24]
-
-    See Also
-    --------
-        reduce
-        itertools.accumulate
-    """
+	...
 
 @overload
 def assoc[K, V]() -> Callable[
-    ..., dict[K, V] | MutableMapping[K, V]
+	..., dict[K, V] | MutableMapping[K, V]
 ]: ...
 @overload
 def assoc[K, V](
-    d: Mapping[K, V], /
+	d: Mapping[K, V], /
 ) -> Callable[..., dict[K, V] | MutableMapping[K, V]]: ...
 @overload
 def assoc[K, V](
-    d: Mapping[K, V], key: K, /
+	d: Mapping[K, V], key: K, /
 ) -> Callable[[V], dict[K, V]]: ...
 @overload
 def assoc[K, V](
-    d: Mapping[K, V],
-    key: K,
-    /,
-    *,
-    factory: Callable[[], MutableMapping[K, V]],
+	d: Mapping[K, V],
+	key: K,
+	/,
+	*,
+	factory: Callable[[], MutableMapping[K, V]],
 ) -> Callable[[V], MutableMapping[K, V]]: ...
 @overload
 def assoc[K, V](
-    d: Mapping[K, V], key: K, value: V, /
+	d: Mapping[K, V], key: K, value: V, /
 ) -> dict[K, V]: ...
 @overload
 def assoc[K, V](
-    d: Mapping[K, V],
-    key: K,
-    value: V,
-    /,
-    *,
-    factory: Callable[[], MutableMapping[K, V]],
+	d: Mapping[K, V],
+	key: K,
+	value: V,
+	/,
+	*,
+	factory: Callable[[], MutableMapping[K, V]],
 ) -> MutableMapping[K, V]: ...
 def assoc[K, V](
-    d: Mapping[K, V] = ...,
-    key: K = ...,
-    value: V = ...,
-    *,
-    factory: Callable[[], MutableMapping[K, V]] = dict,
+	d: Mapping[K, V] = ...,
+	key: K = ...,
+	value: V = ...,
+	*,
+	factory: Callable[[], MutableMapping[K, V]] = dict,
 ) -> (
-    dict[K, V]
-    | MutableMapping[K, V]
-    | Callable[..., dict[K, V] | MutableMapping[K, V]]
+	dict[K, V]
+	| MutableMapping[K, V]
+	| Callable[..., dict[K, V] | MutableMapping[K, V]]
 ):
-    """Curried version of assoc
-
-    Return a new dict with new key value pair.
-
-    Does not modify the initial dictionary.
-
-    >>> from toolz.curried import assoc
-    >>> d = {'x': 1}
-    >>> assoc(d, 'y', 2)
-    {'x': 1, 'y': 2}
-
-    Can be partially applied:
-    >>> add_y = assoc(d, 'y')
-    >>> add_y(2)
-    {'x': 1, 'y': 2}
-
-    Common pattern for updating dicts immutably:
-    >>> user = {'name': 'Alice', 'age': 30}
-    >>> updated = assoc(user, 'age', 31)
-    >>> updated
-    {'name': 'Alice', 'age': 31}
-    >>> user  # Original unchanged
-    {'name': 'Alice', 'age': 30}
-
-    Partially applied for mapping:
-    >>> from toolz.curried import map
-    >>> users = [{'name': 'Alice'}, {'name': 'Bob'}]
-    >>> list(map(lambda u: assoc(u, 'active', True), users))
-    [{'name': 'Alice', 'active': True}, {'name': 'Bob', 'active': True}]
-
-    See Also
-    --------
-        dissoc
-        update_in
-        assoc_in
-    """
+	...
 
 assoc_in = curry(_dicttoolz.assoc_in)
 
@@ -264,43 +186,22 @@ def cons[T]() -> Callable[..., Iterator[T]]: ...
 # Stage 1: Just el - returns callable waiting for seq
 @overload
 def cons[T](
-    el: T, /
+	el: T, /
 ) -> Callable[[Iterable[T]], Iterator[T]]: ...
 
 # Stage 2: Full application - executes immediately
 @overload
 def cons[T](
-    el: T, seq: Iterable[T], /
+	el: T, seq: Iterable[T], /
 ) -> Iterator[T]: ...
 def cons[T](
-    el: T = ..., seq: Iterable[T] = ...
+	el: T = ..., seq: Iterable[T] = ...
 ) -> (
-    Iterator[T]
-    | Callable[[Iterable[T]], Iterator[T]]
-    | Callable[..., Iterator[T]]
+	Iterator[T]
+	| Callable[[Iterable[T]], Iterator[T]]
+	| Callable[..., Iterator[T]]
 ):
-    """Curried version of cons
-
-    Add el to beginning of (possibly infinite) sequence seq.
-
-    >>> from toolz.curried import cons
-    >>> list(cons(1, [2, 3]))
-    [1, 2, 3]
-
-    Can be partially applied:
-    >>> add_header = cons('header')
-    >>> list(add_header(['a', 'b', 'c']))
-    ['header', 'a', 'b', 'c']
-
-    Common pattern with pipe:
-    >>> from toolz.curried import pipe
-    >>> list(pipe([2, 3, 4], cons(1)))
-    [1, 2, 3, 4]
-
-    See Also
-    --------
-        concat
-    """
+	...
 
 countby = curry(_recipes.countby)
 dissoc = curry(_dicttoolz.dissoc)
@@ -318,319 +219,176 @@ def do[T](func: Callable[[T], Any], /) -> Callable[[T], T]: ...
 @overload
 def do[T](func: Callable[[T], Any], x: T, /) -> T: ...
 def do[T](
-    func: Callable[[T], Any] = ..., x: T = ...
+	func: Callable[[T], Any] = ..., x: T = ...
 ) -> T | Callable[[T], T] | Callable[..., T]:
-    """Curried version of do
-
-    Runs func on x, returns x.
-
-    Because the results of func are not returned, only the side
-    effects of func are relevant.
-
-    >>> from toolz.curried import do
-    >>> log = []
-    >>> inc = lambda x: x + 1
-    >>> log_and_inc = do(log.append)
-    >>> result = log_and_inc(5)
-    >>> result
-    5
-    >>> log
-    [5]
-
-    Common pattern for debugging in pipes:
-    >>> from toolz.curried import pipe
-    >>> result = pipe(
-    ...     [1, 2, 3],
-    ...     do(print),  # Prints [1, 2, 3]
-    ...     lambda x: [i * 2 for i in x]
-    ... )
-
-    See Also
-    --------
-        compose
-        pipe
-    """
+	...
 
 @overload
 def drop[T]() -> Callable[..., Iterator[T]]: ...
 @overload
 def drop[T](
-    n: int, /
+	n: int, /
 ) -> Callable[[Iterable[T]], Iterator[T]]: ...
 @overload
 def drop[T](
-    n: int, seq: Iterable[T], /
+	n: int, seq: Iterable[T], /
 ) -> Iterator[T]: ...
 def drop[T](
-    n: int = ..., seq: Iterable[T] = ...
+	n: int = ..., seq: Iterable[T] = ...
 ) -> (
-    Iterator[T]
-    | Callable[[Iterable[T]], Iterator[T]]
-    | Callable[..., Iterator[T]]
+	Iterator[T]
+	| Callable[[Iterable[T]], Iterator[T]]
+	| Callable[..., Iterator[T]]
 ):
-    """Curried version of drop
-
-    The sequence following the first n elements.
-
-    >>> from toolz.curried import drop
-    >>> list(drop(2, [10, 20, 30, 40, 50]))
-    [30, 40, 50]
-
-    Can be partially applied:
-    >>> drop_two = drop(2)
-    >>> list(drop_two([10, 20, 30, 40, 50]))
-    [30, 40, 50]
-
-    Common pattern for skipping headers:
-    >>> from toolz.curried import pipe
-    >>> data = [['header1', 'header2'], ['a', 'b'], ['c', 'd']]
-    >>> list(drop(1, data))
-    [['a', 'b'], ['c', 'd']]
-
-    See Also
-    --------
-        take
-        tail
-    """
+	...
 
 @overload
 def excepts[T, **P]() -> Callable[..., _excepts_class[T, P]]: ...
 @overload
 def excepts[T, **P](
-    exc: type[Exception] | tuple[type[Exception], ...], /
+	exc: type[Exception] | tuple[type[Exception], ...], /
 ) -> (
-    Callable[[Callable[P, T]], _excepts_class[T, P]]
-    | Callable[
-        [Callable[P, T], Callable[[Exception], T]],
-        _excepts_class[T, P],
-    ]
+	Callable[[Callable[P, T]], _excepts_class[T, P]]
+	| Callable[
+		[Callable[P, T], Callable[[Exception], T]],
+		_excepts_class[T, P],
+	]
 ): ...
 @overload
 def excepts[T, **P](
-    exc: type[Exception] | tuple[type[Exception], ...],
-    func: Callable[P, T],
-    /,
+	exc: type[Exception] | tuple[type[Exception], ...],
+	func: Callable[P, T],
+	/,
 ) -> _excepts_class[T, P]: ...
 @overload
 def excepts[T, **P](
-    exc: type[Exception] | tuple[type[Exception], ...],
-    func: Callable[P, T],
-    handler: Callable[[Exception], T],
-    /,
+	exc: type[Exception] | tuple[type[Exception], ...],
+	func: Callable[P, T],
+	handler: Callable[[Exception], T],
+	/,
 ) -> _excepts_class[T, P]: ...
 def excepts[T, **P](
-    exc: type[Exception] | tuple[type[Exception], ...] = ...,
-    func: Callable[P, T] = ...,
-    handler: Callable[[Exception], T] | None = ...,
+	exc: type[Exception] | tuple[type[Exception], ...] = ...,
+	func: Callable[P, T] = ...,
+	handler: Callable[[Exception], T] | None = ...,
 ) -> _excepts_class[T, P] | Callable[..., _excepts_class[T, P]]:
-    """Curried version of excepts
-
-    A wrapper around a function to catch exceptions and dispatch to a handler.
-
-    This is like a functional try/except block.
-
-    >>> from toolz.curried import excepts
-    >>> excepting = excepts(
-    ...     ValueError,
-    ...     lambda a: [1, 2].index(a),
-    ...     lambda _: -1,
-    ... )
-    >>> excepting(1)
-    0
-    >>> excepting(3)
-    -1
-
-    Can be partially applied:
-    >>> handle_value_error = excepts(ValueError)
-    >>> safe_index = handle_value_error(lambda a: [1, 2].index(a), lambda _: -1)
-    >>> safe_index(1)
-    0
-    >>> safe_index(3)
-    -1
-
-    Multiple exceptions:
-    >>> excepting = excepts((IndexError, KeyError), lambda a: a[0])
-    >>> excepting([1])
-    1
-    >>> excepting([])  # Returns None (default handler)
-
-    Common pattern for safe operations:
-    >>> from toolz.curried import pipe
-    >>> safe_int = excepts(ValueError, int, lambda _: 0)
-    >>> safe_int("123")
-    123
-    >>> safe_int("abc")
-    0
-
-    See Also
-    --------
-        do
-        complement
-    """
+	...
 
 @overload
 def filter[T]() -> Callable[  # noqa: A001
-    ..., Iterator[T] | Callable[..., Iterator[T]]
+	..., Iterator[T] | Callable[..., Iterator[T]]
 ]: ...
 @overload
 def filter[T](  # noqa: A001
-    function: None, /
+	function: None, /
 ) -> Callable[
-    [Iterable[T | None]], Iterator[T]
+	[Iterable[T | None]], Iterator[T]
 ]: ...
 @overload
 def filter[S, T](
-    function: Callable[[S], TypeGuard[T]], /
+	function: Callable[[S], TypeGuard[T]], /
 ) -> Callable[[Iterable[S]], Iterator[T]]: ...
 @overload
 def filter[S, T](
-    function: Callable[[S], TypeIs[T]], /
+	function: Callable[[S], TypeIs[T]], /
 ) -> Callable[[Iterable[S]], Iterator[T]]: ...
 @overload
 def filter[T](
-    function: Callable[[T], Any], /
+	function: Callable[[T], Any], /
 ) -> Callable[[Iterable[T]], Iterator[T]]: ...
 @overload
 def filter[T](
-    function: None, iterable: Iterable[T | None], /
+	function: None, iterable: Iterable[T | None], /
 ) -> Iterator[T]: ...
 @overload
 def filter[S, T](
-    function: Callable[[S], TypeGuard[T]],
-    iterable: Iterable[S],
-    /,
+	function: Callable[[S], TypeGuard[T]],
+	iterable: Iterable[S],
+	/,
 ) -> Iterator[T]: ...
 @overload
 def filter[S, T](
-    function: Callable[[S], TypeIs[T]],
-    iterable: Iterable[S],
-    /,
+	function: Callable[[S], TypeIs[T]],
+	iterable: Iterable[S],
+	/,
 ) -> Iterator[T]: ...
 @overload
 def filter[T](
-    function: Callable[[T], Any],
-    iterable: Iterable[T],
-    /,
+	function: Callable[[T], Any],
+	iterable: Iterable[T],
+	/,
 ) -> Iterator[T]: ...
 def filter[T](
-    function: Callable[[T], Any] | None = ...,
-    iterable: Iterable[T] = ...,
+	function: Callable[[T], Any] | None = ...,
+	iterable: Iterable[T] = ...,
 ) -> (
-    Iterator[T]
-    | Callable[[Iterable[T]], Iterator[T]]
-    | Callable[
-        ...,
-        Iterator[T] | Callable[..., Iterator[T]],
-    ]
+	Iterator[T]
+	| Callable[[Iterable[T]], Iterator[T]]
+	| Callable[
+		...,
+		Iterator[T] | Callable[..., Iterator[T]],
+	]
 ):
-    """Curried version of builtin filter function
-
-    Return elements from an iterable where the predicate is true.
-
-    >>> from toolz.curried import filter
-    >>> is_even = lambda x: x % 2 == 0
-    >>> list(filter(is_even, [1, 2, 3, 4, 5]))
-    [2, 4]
-
-    Can be partially applied:
-    >>> filter_even = filter(is_even)
-    >>> list(filter_even([1, 2, 3, 4, 5]))
-    [2, 4]
-
-    Filter with None removes falsy values:
-    >>> list(filter(None, [0, 1, False, True, '', 'hello']))
-    [1, True, 'hello']
-    """
+	...
 
 @overload
 def get[T]() -> Callable[..., T | tuple[T, ...]]: ...
 @overload
 def get[T](
-    ind: Sequence[Any], /
+	ind: Sequence[Any], /
 ) -> (
-    Callable[
-        [Sequence[T] | Mapping[Any, T]],
-        tuple[T, ...],
-    ]
-    | Callable[
-        [Sequence[T] | Mapping[Any, T], T],
-        tuple[T, ...],
-    ]
+	Callable[
+		[Sequence[T] | Mapping[Any, T]],
+		tuple[T, ...],
+	]
+	| Callable[
+		[Sequence[T] | Mapping[Any, T], T],
+		tuple[T, ...],
+	]
 ): ...
 @overload
 def get[T](
-    ind: Any, /
+	ind: Any, /
 ) -> (
-    Callable[
-        [Sequence[T] | Mapping[Any, T]], T
-    ]
-    | Callable[
-        [Sequence[T] | Mapping[Any, T], T], T
-    ]
+	Callable[
+		[Sequence[T] | Mapping[Any, T]], T
+	]
+	| Callable[
+		[Sequence[T] | Mapping[Any, T], T], T
+	]
 ): ...
 @overload
 def get[T](
-    ind: Sequence[Any],
-    seq: Sequence[T] | Mapping[Any, T],
-    /,
+	ind: Sequence[Any],
+	seq: Sequence[T] | Mapping[Any, T],
+	/,
 ) -> tuple[T, ...]: ...
 @overload
 def get[T](
-    ind: Any,
-    seq: Sequence[T] | Mapping[Any, T],
-    /,
+	ind: Any,
+	seq: Sequence[T] | Mapping[Any, T],
+	/,
 ) -> T: ...
 @overload
 def get[T](
-    ind: Sequence[Any],
-    seq: Sequence[T] | Mapping[Any, T],
-    default: T,
-    /,
+	ind: Sequence[Any],
+	seq: Sequence[T] | Mapping[Any, T],
+	default: T,
+	/,
 ) -> tuple[T, ...]: ...
 @overload
 def get[T](
-    ind: Any,
-    seq: Sequence[T] | Mapping[Any, T],
-    default: T,
-    /,
+	ind: Any,
+	seq: Sequence[T] | Mapping[Any, T],
+	default: T,
+	/,
 ) -> T: ...
 def get[T](
-    ind: Any | Sequence[Any] = ...,
-    seq: Sequence[T] | Mapping[Any, T] = ...,
-    default: T = ...,
+	ind: Any | Sequence[Any] = ...,
+	seq: Sequence[T] | Mapping[Any, T] = ...,
+	default: T = ...,
 ) -> T | tuple[T, ...] | Callable[..., T | tuple[T, ...]]:
-    """Curried version of get
-
-    Get element(s) from a sequence or dict.
-
-    >>> from toolz.curried import get
-    >>> get(1, 'ABC')
-    'B'
-
-    Can be partially applied:
-    >>> get_first = get(0)
-    >>> get_first([1, 2, 3])
-    1
-
-    Get multiple values:
-    >>> get([0, 2], 'ABC')
-    ('A', 'C')
-
-    Works with dicts:
-    >>> phonebook = {'Alice': '555-1234', 'Bob': '555-5678'}
-    >>> get('Alice', phonebook)
-    '555-1234'
-
-    Partially applied for mapping:
-    >>> from toolz.curried import map
-    >>> people = [{'name': 'Alice'}, {'name': 'Bob'}]
-    >>> list(map(get('name'), people))
-    ['Alice', 'Bob']
-
-    With defaults:
-    >>> get('Charlie', phonebook, 'N/A')
-    'N/A'
-    """
+	...
 
 get_in = curry(_dicttoolz.get_in)
 
@@ -638,48 +396,29 @@ get_in = curry(_dicttoolz.get_in)
 def groupby[KT, T]() -> Callable[..., dict[KT, list[T]]]: ...
 @overload
 def groupby[KT, T](
-    key: Callable[[T], KT], /
+	key: Callable[[T], KT], /
 ) -> Callable[[Iterable[T]], dict[KT, list[T]]]: ...
 @overload
 def groupby[T](
-    key: Any, /
+	key: Any, /
 ) -> Callable[[Iterable[T]], dict[Any, list[T]]]: ...
 @overload
 def groupby[KT, T](
-    key: Callable[[T], KT], seq: Iterable[T], /
+	key: Callable[[T], KT], seq: Iterable[T], /
 ) -> dict[KT, list[T]]: ...
 @overload
 def groupby[T](
-    key: Any, seq: Iterable[T], /
+	key: Any, seq: Iterable[T], /
 ) -> dict[Any, list[T]]: ...
 def groupby[KT, T](
-    key: Callable[[T], KT] | Any = ...,
-    seq: Iterable[T] = ...,
+	key: Callable[[T], KT] | Any = ...,
+	seq: Iterable[T] = ...,
 ) -> (
-    dict[KT, list[T]]
-    | dict[Any, list[T]]
-    | Callable[..., dict[KT, list[T]] | dict[Any, list[T]]]
+	dict[KT, list[T]]
+	| dict[Any, list[T]]
+	| Callable[..., dict[KT, list[T]] | dict[Any, list[T]]]
 ):
-    """Curried version of groupby
-
-    Group a collection by a key function.
-
-    >>> from toolz.curried import groupby
-    >>> names = ['Alice', 'Bob', 'Charlie', 'Dan', 'Edith', 'Frank']
-    >>> groupby(len, names)  # doctest: +SKIP
-    {3: ['Bob', 'Dan'], 5: ['Alice', 'Edith', 'Frank'], 7: ['Charlie']}
-
-    Can be partially applied:
-    >>> group_by_len = groupby(len)
-    >>> group_by_len(names)  # doctest: +SKIP
-    {3: ['Bob', 'Dan'], 5: ['Alice', 'Edith', 'Frank'], 7: ['Charlie']}
-
-    Non-callable keys imply grouping on a member:
-    >>> groupby('gender', [{'name': 'Alice', 'gender': 'F'},
-    ...                    {'name': 'Bob', 'gender': 'M'}])  # doctest: +SKIP
-    {'F': [{'gender': 'F', 'name': 'Alice'}],
-     'M': [{'gender': 'M', 'name': 'Bob'}]}
-    """
+	...
 
 # Curried interpose with explicit overloads for type safety
 # Stage 0: No arguments - returns a callable
@@ -689,196 +428,124 @@ def interpose[T]() -> Callable[..., Iterator[T]]: ...
 # Stage 1: Just el - returns callable waiting for seq
 @overload
 def interpose[T](
-    el: T, /
+	el: T, /
 ) -> Callable[[Iterable[T]], Iterator[T]]: ...
 
 # Stage 2: Full application - executes immediately
 @overload
 def interpose[T](
-    el: T, seq: Iterable[T], /
+	el: T, seq: Iterable[T], /
 ) -> Iterator[T]: ...
 def interpose[T](
-    el: T = ..., seq: Iterable[T] = ...
+	el: T = ..., seq: Iterable[T] = ...
 ) -> (
-    Iterator[T]
-    | Callable[[Iterable[T]], Iterator[T]]
-    | Callable[..., Iterator[T]]
+	Iterator[T]
+	| Callable[[Iterable[T]], Iterator[T]]
+	| Callable[..., Iterator[T]]
 ):
-    """Curried version of interpose
-
-    Introduce element between each pair of elements in seq.
-
-    >>> from toolz.curried import interpose
-    >>> list(interpose("a", [1, 2, 3]))
-    [1, 'a', 2, 'a', 3]
-
-    Can be partially applied:
-    >>> comma_separate = interpose(',')
-    >>> list(comma_separate(['a', 'b', 'c']))
-    ['a', ',', 'b', ',', 'c']
-
-    Common pattern for joining with delimiter:
-    >>> from toolz.curried import pipe
-    >>> list(pipe(['hello', 'world'], interpose(' ')))
-    ['hello', ' ', 'world']
-
-    See Also
-    --------
-        concat
-    """
+	...
 
 @overload
 def itemfilter[K, V]() -> Callable[
-    ..., dict[K, V] | MutableMapping[K, V]
+	..., dict[K, V] | MutableMapping[K, V]
 ]: ...
 
 # Stage 1a: Just predicate (no factory) - returns callable waiting for dict
 @overload
 def itemfilter[K, V](
-    predicate: Callable[[tuple[K, V]], bool], /
+	predicate: Callable[[tuple[K, V]], bool], /
 ) -> Callable[[Mapping[K, V]], dict[K, V]]: ...
 
 # Stage 1b: Predicate with factory - returns callable waiting for dict
 @overload
 def itemfilter[K, V](
-    predicate: Callable[[tuple[K, V]], bool],
-    /,
-    *,
-    factory: Callable[[], MutableMapping[K, V]],
+	predicate: Callable[[tuple[K, V]], bool],
+	/,
+	*,
+	factory: Callable[[], MutableMapping[K, V]],
 ) -> Callable[
-    [Mapping[K, V]], MutableMapping[K, V]
+	[Mapping[K, V]], MutableMapping[K, V]
 ]: ...
 
 # Stage 2a: Full application (no factory) - executes immediately
 @overload
 def itemfilter[K, V](
-    predicate: Callable[[tuple[K, V]], bool],
-    d: Mapping[K, V],
-    /,
+	predicate: Callable[[tuple[K, V]], bool],
+	d: Mapping[K, V],
+	/,
 ) -> dict[K, V]: ...
 
 # Stage 2b: Full application (with factory) - executes immediately
 @overload
 def itemfilter[K, V](
-    predicate: Callable[[tuple[K, V]], bool],
-    d: Mapping[K, V],
-    /,
-    *,
-    factory: Callable[[], MutableMapping[K, V]],
+	predicate: Callable[[tuple[K, V]], bool],
+	d: Mapping[K, V],
+	/,
+	*,
+	factory: Callable[[], MutableMapping[K, V]],
 ) -> MutableMapping[K, V]: ...
 def itemfilter[K, V](
-    predicate: Callable[[tuple[K, V]], bool] = ...,
-    d: Mapping[K, V] = ...,
-    *,
-    factory: Callable[[], MutableMapping[K, V]] = dict,
+	predicate: Callable[[tuple[K, V]], bool] = ...,
+	d: Mapping[K, V] = ...,
+	*,
+	factory: Callable[[], MutableMapping[K, V]] = dict,
 ) -> (
-    dict[K, V]
-    | MutableMapping[K, V]
-    | Callable[..., dict[K, V] | MutableMapping[K, V]]
+	dict[K, V]
+	| MutableMapping[K, V]
+	| Callable[..., dict[K, V] | MutableMapping[K, V]]
 ):
-    """Curried version of itemfilter
-
-    Filter items in dictionary by (key, value) tuple.
-
-    >>> from toolz.curried import itemfilter
-    >>> def isvalid(item):
-    ...     k, v = item
-    ...     return k % 2 == 0 and v < 4
-    >>> d = {1: 2, 2: 3, 3: 4, 4: 5}
-    >>> itemfilter(isvalid, d)
-    {2: 3}
-
-    Can be partially applied:
-    >>> filter_valid = itemfilter(isvalid)
-    >>> filter_valid(d)
-    {2: 3}
-
-    Common pattern for filtering by both key and value:
-    >>> data = {'a': 1, 'b': 2, 'c': 3, 'd': 4}
-    >>> itemfilter(lambda item: item[0] < 'c' and item[1] > 1, data)
-    {'b': 2}
-
-    See Also
-    --------
-        keyfilter
-        valfilter
-        itemmap
-    """
+	...
 
 @overload
 def itemmap[K0, V0, K1, V1]() -> Callable[
-    ..., dict[K1, V1] | MutableMapping[K1, V1]
+	..., dict[K1, V1] | MutableMapping[K1, V1]
 ]: ...
 
 # Stage 1a: Just func (no factory) - returns callable waiting for dict
 @overload
 def itemmap[K0, V0, K1, V1](
-    func: Callable[[tuple[K0, V0]], tuple[K1, V1]], /
+	func: Callable[[tuple[K0, V0]], tuple[K1, V1]], /
 ) -> Callable[[Mapping[K0, V0]], dict[K1, V1]]: ...
 
 # Stage 1b: Func with factory - returns callable waiting for dict
 @overload
 def itemmap[K0, V0, K1, V1](
-    func: Callable[[tuple[K0, V0]], tuple[K1, V1]],
-    /,
-    *,
-    factory: Callable[[], MutableMapping[K1, V1]],
+	func: Callable[[tuple[K0, V0]], tuple[K1, V1]],
+	/,
+	*,
+	factory: Callable[[], MutableMapping[K1, V1]],
 ) -> Callable[
-    [Mapping[K0, V0]], MutableMapping[K1, V1]
+	[Mapping[K0, V0]], MutableMapping[K1, V1]
 ]: ...
 
 # Stage 2a: Full application (no factory) - executes immediately
 @overload
 def itemmap[K0, V0, K1, V1](
-    func: Callable[[tuple[K0, V0]], tuple[K1, V1]],
-    d: Mapping[K0, V0],
-    /,
+	func: Callable[[tuple[K0, V0]], tuple[K1, V1]],
+	d: Mapping[K0, V0],
+	/,
 ) -> dict[K1, V1]: ...
 
 # Stage 2b: Full application (with factory) - executes immediately
 @overload
 def itemmap[K0, V0, K1, V1](
-    func: Callable[[tuple[K0, V0]], tuple[K1, V1]],
-    d: Mapping[K0, V0],
-    /,
-    *,
-    factory: Callable[[], MutableMapping[K1, V1]],
+	func: Callable[[tuple[K0, V0]], tuple[K1, V1]],
+	d: Mapping[K0, V0],
+	/,
+	*,
+	factory: Callable[[], MutableMapping[K1, V1]],
 ) -> MutableMapping[K1, V1]: ...
 def itemmap[K0, V0, K1, V1](
-    func: Callable[[tuple[K0, V0]], tuple[K1, V1]] = ...,
-    d: Mapping[K0, V0] = ...,
-    *,
-    factory: Callable[[], MutableMapping[K1, V1]] = dict,
+	func: Callable[[tuple[K0, V0]], tuple[K1, V1]] = ...,
+	d: Mapping[K0, V0] = ...,
+	*,
+	factory: Callable[[], MutableMapping[K1, V1]] = dict,
 ) -> (
-    dict[K1, V1]
-    | MutableMapping[K1, V1]
-    | Callable[..., dict[K1, V1] | MutableMapping[K1, V1]]
+	dict[K1, V1]
+	| MutableMapping[K1, V1]
+	| Callable[..., dict[K1, V1] | MutableMapping[K1, V1]]
 ):
-    """Curried version of itemmap
-
-    Apply function to (key, value) tuples of dictionary.
-
-    >>> from toolz.curried import itemmap
-    >>> accountids = {"Alice": 10, "Bob": 20}
-    >>> itemmap(reversed, accountids)  # doctest: +SKIP
-    {10: "Alice", 20: "Bob"}
-
-    Can be partially applied:
-    >>> swap_items = itemmap(reversed)
-    >>> swap_items(accountids)  # doctest: +SKIP
-    {10: "Alice", 20: "Bob"}
-
-    Common pattern for transforming both keys and values:
-    >>> data = {'a': 1, 'b': 2, 'c': 3}
-    >>> itemmap(lambda item: (item[0].upper(), item[1] * 10), data)
-    {'A': 10, 'B': 20, 'C': 30}
-
-    See Also
-    --------
-        keymap
-        valmap
-        itemfilter
-    """
+	...
 
 # Curried iterate with explicit overloads for type safety
 # Stage 0: No arguments - returns a callable
@@ -888,57 +555,22 @@ def iterate[T]() -> Callable[..., Iterator[T]]: ...
 # Stage 1: Just func - returns callable waiting for x
 @overload
 def iterate[T](
-    func: Callable[[T], T], /
+	func: Callable[[T], T], /
 ) -> Callable[[T], Iterator[T]]: ...
 
 # Stage 2: Full application - executes immediately
 @overload
 def iterate[T](
-    func: Callable[[T], T], x: T, /
+	func: Callable[[T], T], x: T, /
 ) -> Iterator[T]: ...
 def iterate[T](
-    func: Callable[[T], T] = ..., x: T = ...
+	func: Callable[[T], T] = ..., x: T = ...
 ) -> (
-    Iterator[T]
-    | Callable[[T], Iterator[T]]
-    | Callable[..., Iterator[T]]
+	Iterator[T]
+	| Callable[[T], Iterator[T]]
+	| Callable[..., Iterator[T]]
 ):
-    """Curried version of iterate
-
-    Repeatedly apply a function func onto an original input.
-
-    Yields x, then func(x), then func(func(x)), then func(func(func(x))), etc.
-
-    >>> from toolz.curried import iterate
-    >>> def inc(x): return x + 1
-    >>> counter = iterate(inc, 0)
-    >>> next(counter)
-    0
-    >>> next(counter)
-    1
-    >>> next(counter)
-    2
-
-    Can be partially applied:
-    >>> double = lambda x: x * 2
-    >>> powers_of_two = iterate(double)
-    >>> it = powers_of_two(1)
-    >>> next(it)
-    1
-    >>> next(it)
-    2
-    >>> next(it)
-    4
-
-    Common pattern for generating sequences:
-    >>> from toolz.curried import take
-    >>> list(take(5, iterate(lambda x: x * 2, 1)))
-    [1, 2, 4, 8, 16]
-
-    See Also
-    --------
-        accumulate
-    """
+	...
 
 # Curried join with explicit overloads for type safety
 # Stage 0: No arguments - returns a callable
@@ -948,15 +580,15 @@ def join[T, U]() -> Callable[..., Iterator[tuple[T, U]]]: ...
 # Stage 1: Just leftkey - returns a callable
 @overload
 def join[T, U](
-    leftkey: Callable[[T], Hashable], /
+	leftkey: Callable[[T], Hashable], /
 ) -> Callable[..., Iterator[tuple[T, U]]]: ...
 
 # Stage 2: leftkey + leftseq - returns a callable
 @overload
 def join[T, U](
-    leftkey: Callable[[T], Hashable],
-    leftseq: Iterable[T],
-    /,
+	leftkey: Callable[[T], Hashable],
+	leftseq: Iterable[T],
+	/,
 ) -> Callable[..., Iterator[tuple[T, U]]]: ...
 
 # Stage 3: leftkey + leftseq + rightkey - returns callable waiting for rightseq
@@ -965,437 +597,331 @@ def join[T, U](
 # The callable will properly infer types when called with rightseq.
 @overload
 def join[T](
-    leftkey: Callable[[T], Hashable],
-    leftseq: Iterable[T],
-    rightkey: Callable[..., Hashable],
-    /,
+	leftkey: Callable[[T], Hashable],
+	leftseq: Iterable[T],
+	rightkey: Callable[..., Hashable],
+	/,
 ) -> Callable[
-    [Iterable[Any]],
-    Iterator[tuple[T, Any]],
+	[Iterable[Any]],
+	Iterator[tuple[T, Any]],
 ]: ...
 
 # Stage 4a: Full application (inner join) - executes immediately
 @overload
 def join[T, U](
-    leftkey: Callable[[T], Hashable],
-    leftseq: Iterable[T],
-    rightkey: Callable[[U], Hashable],
-    rightseq: Iterable[U],
-    /,
+	leftkey: Callable[[T], Hashable],
+	leftseq: Iterable[T],
+	rightkey: Callable[[U], Hashable],
+	rightseq: Iterable[U],
+	/,
 ) -> Iterator[tuple[T, U]]: ...
 
 # Stage 4b: Full application with left_default only (right outer join)
 @overload
 def join[T, U, L](
-    leftkey: Callable[[T], Hashable],
-    leftseq: Iterable[T],
-    rightkey: Callable[[U], Hashable],
-    rightseq: Iterable[U],
-    /,
-    left_default: L,
+	leftkey: Callable[[T], Hashable],
+	leftseq: Iterable[T],
+	rightkey: Callable[[U], Hashable],
+	rightseq: Iterable[U],
+	/,
+	left_default: L,
 ) -> Iterator[tuple[T | L, U]]: ...
 
 # Stage 4c: Full application with right_default only (left outer join)
 @overload
 def join[T, U, R](
-    leftkey: Callable[[T], Hashable],
-    leftseq: Iterable[T],
-    rightkey: Callable[[U], Hashable],
-    rightseq: Iterable[U],
-    /,
-    *,
-    right_default: R,
+	leftkey: Callable[[T], Hashable],
+	leftseq: Iterable[T],
+	rightkey: Callable[[U], Hashable],
+	rightseq: Iterable[U],
+	/,
+	*,
+	right_default: R,
 ) -> Iterator[tuple[T, U | R]]: ...
 
 # Stage 4d: Full application with both defaults (full outer join)
 @overload
 def join[T, U, L, R](
-    leftkey: Callable[[T], Hashable],
-    leftseq: Iterable[T],
-    rightkey: Callable[[U], Hashable],
-    rightseq: Iterable[U],
-    /,
-    left_default: L,
-    right_default: R,
+	leftkey: Callable[[T], Hashable],
+	leftseq: Iterable[T],
+	rightkey: Callable[[U], Hashable],
+	rightseq: Iterable[U],
+	/,
+	left_default: L,
+	right_default: R,
 ) -> Iterator[tuple[T | L, U | R]]: ...
 
 # Stage 3 with defaults: leftkey + leftseq + rightkey + defaults - returns callable
 @overload
 def join[T, U, L, R](
-    leftkey: Callable[[T], Hashable],
-    leftseq: Iterable[T],
-    rightkey: Callable[[U], Hashable],
-    /,
-    left_default: L,
-    right_default: R,
+	leftkey: Callable[[T], Hashable],
+	leftseq: Iterable[T],
+	rightkey: Callable[[U], Hashable],
+	/,
+	left_default: L,
+	right_default: R,
 ) -> Callable[
-    [Iterable[U]], Iterator[tuple[T | L, U | R]]
+	[Iterable[U]], Iterator[tuple[T | L, U | R]]
 ]: ...
 
 # Implementation signature
 def join[T, U, L, R](
-    leftkey: Callable[[T], Hashable] | Hashable = ...,
-    leftseq: Iterable[T] = ...,
-    rightkey: Callable[[U], Hashable] | Hashable = ...,
-    rightseq: Iterable[U] = ...,
-    left_default: L = ...,
-    right_default: R = ...,
+	leftkey: Callable[[T], Hashable] | Hashable = ...,
+	leftseq: Iterable[T] = ...,
+	rightkey: Callable[[U], Hashable] | Hashable = ...,
+	rightseq: Iterable[U] = ...,
+	left_default: L = ...,
+	right_default: R = ...,
 ) -> (
-    Iterator[tuple[T | L, U | R]]
-    | Callable[..., Iterator[tuple[T | L, U | R]]]
+	Iterator[tuple[T | L, U | R]]
+	| Callable[..., Iterator[tuple[T | L, U | R]]]
 ):
-    """Curried version of join
-
-    Join two sequences on common attributes.
-
-    This is a semi-streaming operation. The LEFT sequence is fully evaluated
-    and placed into memory. The RIGHT sequence is evaluated lazily.
-
-    >>> from toolz.curried import join, pipe, second, first
-    >>> friends = [('Alice', 'Edith'), ('Bob', 'Alice')]
-    >>> cities = [('Alice', 'NYC'), ('Edith', 'Paris')]
-
-    Can be partially applied for use in pipes:
-    >>> find_friend_cities = join(second, friends, first)
-    >>> list(pipe(cities, find_friend_cities))  # doctest: +SKIP
-    [(('Alice', 'Edith'), ('Edith', 'Paris'))]
-
-    Full outer join with defaults:
-    >>> identity = lambda x: x
-    >>> list(join(identity, [1, 2], identity, [2, 3],
-    ...           left_default=None, right_default=None))
-    [(2, 2), (None, 3), (1, None)]
-
-    See Also
-    --------
-        itertoolz.join
-    """
+	...
 
 # Curried keyfilter with explicit overloads for type safety
 # Stage 0: No arguments - returns a callable
 @overload
 def keyfilter[K, V]() -> Callable[
-    ..., dict[K, V] | MutableMapping[K, V]
+	..., dict[K, V] | MutableMapping[K, V]
 ]: ...
 
 # Stage 1a: Just predicate (no factory) - returns callable waiting for dict
 @overload
 def keyfilter[K, V](
-    predicate: Callable[[K], bool], /
+	predicate: Callable[[K], bool], /
 ) -> Callable[[Mapping[K, V]], dict[K, V]]: ...
 
 # Stage 1b: Predicate with factory - returns callable waiting for dict
 @overload
 def keyfilter[K, V](
-    predicate: Callable[[K], bool],
-    /,
-    *,
-    factory: Callable[[], MutableMapping[K, V]],
+	predicate: Callable[[K], bool],
+	/,
+	*,
+	factory: Callable[[], MutableMapping[K, V]],
 ) -> Callable[
-    [Mapping[K, V]], MutableMapping[K, V]
+	[Mapping[K, V]], MutableMapping[K, V]
 ]: ...
 
 # Stage 2a: Full application (no factory) - executes immediately
 @overload
 def keyfilter[K, V](
-    predicate: Callable[[K], bool],
-    d: Mapping[K, V],
-    /,
+	predicate: Callable[[K], bool],
+	d: Mapping[K, V],
+	/,
 ) -> dict[K, V]: ...
 
 # Stage 2b: Full application (with factory) - executes immediately
 @overload
 def keyfilter[K, V](
-    predicate: Callable[[K], bool],
-    d: Mapping[K, V],
-    /,
-    *,
-    factory: Callable[[], MutableMapping[K, V]],
+	predicate: Callable[[K], bool],
+	d: Mapping[K, V],
+	/,
+	*,
+	factory: Callable[[], MutableMapping[K, V]],
 ) -> MutableMapping[K, V]: ...
 def keyfilter[K, V](
-    predicate: Callable[[K], bool] = ...,
-    d: Mapping[K, V] = ...,
-    *,
-    factory: Callable[[], MutableMapping[K, V]] = dict,
+	predicate: Callable[[K], bool] = ...,
+	d: Mapping[K, V] = ...,
+	*,
+	factory: Callable[[], MutableMapping[K, V]] = dict,
 ) -> (
-    dict[K, V]
-    | MutableMapping[K, V]
-    | Callable[..., dict[K, V] | MutableMapping[K, V]]
+	dict[K, V]
+	| MutableMapping[K, V]
+	| Callable[..., dict[K, V] | MutableMapping[K, V]]
 ):
-    """Curried version of keyfilter
-
-    Filter items in dictionary by key.
-
-    >>> from toolz.curried import keyfilter
-    >>> iseven = lambda x: x % 2 == 0
-    >>> d = {1: 2, 2: 3, 3: 4, 4: 5}
-    >>> keyfilter(iseven, d)
-    {2: 3, 4: 5}
-
-    Can be partially applied:
-    >>> filter_even_keys = keyfilter(iseven)
-    >>> filter_even_keys(d)
-    {2: 3, 4: 5}
-
-    Common pattern for filtering dict keys:
-    >>> from toolz.curried import pipe
-    >>> users = {'admin_alice': 1, 'user_bob': 2, 'admin_charlie': 3}
-    >>> keyfilter(lambda k: k.startswith('admin_'), users)
-    {'admin_alice': 1, 'admin_charlie': 3}
-
-    See Also
-    --------
-        valfilter
-        itemfilter
-        keymap
-    """
+	...
 
 @overload
 def keymap[K0, K1, V]() -> Callable[
-    ..., dict[K1, V] | MutableMapping[K1, V]
+	..., dict[K1, V] | MutableMapping[K1, V]
 ]: ...
 
 # Stage 1a: Just func (no factory) - returns callable waiting for dict
 @overload
 def keymap[K0, K1, V](
-    func: Callable[[K0], K1], /
+	func: Callable[[K0], K1], /
 ) -> Callable[[Mapping[K0, V]], dict[K1, V]]: ...
 
 # Stage 1b: Func with factory - returns callable waiting for dict
 @overload
 def keymap[K0, K1, V](
-    func: Callable[[K0], K1],
-    /,
-    *,
-    factory: Callable[[], MutableMapping[K1, V]],
+	func: Callable[[K0], K1],
+	/,
+	*,
+	factory: Callable[[], MutableMapping[K1, V]],
 ) -> Callable[
-    [Mapping[K0, V]], MutableMapping[K1, V]
+	[Mapping[K0, V]], MutableMapping[K1, V]
 ]: ...
 
 # Stage 2a: Full application (no factory) - executes immediately
 @overload
 def keymap[K0, K1, V](
-    func: Callable[[K0], K1],
-    d: Mapping[K0, V],
-    /,
+	func: Callable[[K0], K1],
+	d: Mapping[K0, V],
+	/,
 ) -> dict[K1, V]: ...
 
 # Stage 2b: Full application (with factory) - executes immediately
 @overload
 def keymap[K0, K1, V](
-    func: Callable[[K0], K1],
-    d: Mapping[K0, V],
-    /,
-    *,
-    factory: Callable[[], MutableMapping[K1, V]],
+	func: Callable[[K0], K1],
+	d: Mapping[K0, V],
+	/,
+	*,
+	factory: Callable[[], MutableMapping[K1, V]],
 ) -> MutableMapping[K1, V]: ...
 def keymap[K0, K1, V](
-    func: Callable[[K0], K1] = ...,
-    d: Mapping[K0, V] = ...,
-    *,
-    factory: Callable[[], MutableMapping[K1, V]] = dict,
+	func: Callable[[K0], K1] = ...,
+	d: Mapping[K0, V] = ...,
+	*,
+	factory: Callable[[], MutableMapping[K1, V]] = dict,
 ) -> (
-    dict[K1, V]
-    | MutableMapping[K1, V]
-    | Callable[..., dict[K1, V] | MutableMapping[K1, V]]
+	dict[K1, V]
+	| MutableMapping[K1, V]
+	| Callable[..., dict[K1, V] | MutableMapping[K1, V]]
 ):
-    """Curried version of keymap
-
-    Apply function to keys of dictionary.
-
-    >>> from toolz.curried import keymap
-    >>> bills = {"Alice": [20, 15, 30], "Bob": [10, 35]}
-    >>> keymap(str.lower, bills)  # doctest: +SKIP
-    {'alice': [20, 15, 30], 'bob': [10, 35]}
-
-    Can be partially applied:
-    >>> lowercase_keys = keymap(str.lower)
-    >>> lowercase_keys(bills)  # doctest: +SKIP
-    {'alice': [20, 15, 30], 'bob': [10, 35]}
-
-    Common pattern for normalizing keys:
-    >>> data = {'Name': 'Alice', 'Age': 30, 'City': 'NYC'}
-    >>> keymap(str.lower, data)
-    {'name': 'Alice', 'age': 30, 'city': 'NYC'}
-
-    See Also
-    --------
-        valmap
-        itemmap
-        keyfilter
-    """
+	...
 
 @overload
 def map[T1, S]() -> Callable[
-    ..., Iterator[S] | Callable[..., Iterator[S]]
+	..., Iterator[S] | Callable[..., Iterator[S]]
 ]: ...
 @overload
 def map[T1, S](
-    func: Callable[[T1], S], /
+	func: Callable[[T1], S], /
 ) -> Callable[[Iterable[T1]], Iterator[S]]: ...
 @overload
 def map[T1, T2, S](
-    func: Callable[[T1, T2], S], /
+	func: Callable[[T1, T2], S], /
 ) -> Callable[
-    [Iterable[T1], Iterable[T2]],
-    Iterator[S],
+	[Iterable[T1], Iterable[T2]],
+	Iterator[S],
 ]: ...
 @overload
 def map[T1, T2, T3, S](
-    func: Callable[[T1, T2, T3], S], /
+	func: Callable[[T1, T2, T3], S], /
 ) -> Callable[
-    [
-        Iterable[T1],
-        Iterable[T2],
-        Iterable[T3],
-    ],
-    Iterator[S],
+	[
+		Iterable[T1],
+		Iterable[T2],
+		Iterable[T3],
+	],
+	Iterator[S],
 ]: ...
 @overload
 def map[T1, T2, T3, T4, S](
-    func: Callable[[T1, T2, T3, T4], S], /
+	func: Callable[[T1, T2, T3, T4], S], /
 ) -> Callable[
-    [
-        Iterable[T1],
-        Iterable[T2],
-        Iterable[T3],
-        Iterable[T4],
-    ],
-    Iterator[S],
+	[
+		Iterable[T1],
+		Iterable[T2],
+		Iterable[T3],
+		Iterable[T4],
+	],
+	Iterator[S],
 ]: ...
 @overload
 def map[T1, T2, T3, T4, T5, S](
-    func: Callable[[T1, T2, T3, T4, T5], S], /
+	func: Callable[[T1, T2, T3, T4, T5], S], /
 ) -> Callable[
-    [
-        Iterable[T1],
-        Iterable[T2],
-        Iterable[T3],
-        Iterable[T4],
-        Iterable[T5],
-    ],
-    Iterator[S],
+	[
+		Iterable[T1],
+		Iterable[T2],
+		Iterable[T3],
+		Iterable[T4],
+		Iterable[T5],
+	],
+	Iterator[S],
 ]: ...
 @overload
 def map[T1, S](
-    func: Callable[[T1], S], iterable: Iterable[T1], /
+	func: Callable[[T1], S], iterable: Iterable[T1], /
 ) -> Iterator[S]: ...
 @overload
 def map[T1, T2, S](
-    func: Callable[[T1, T2], S],
-    iterable: Iterable[T1],
-    iter2: Iterable[T2],
-    /,
+	func: Callable[[T1, T2], S],
+	iterable: Iterable[T1],
+	iter2: Iterable[T2],
+	/,
 ) -> Iterator[S]: ...
 @overload
 def map[T1, T2, T3, S](
-    func: Callable[[T1, T2, T3], S],
-    iterable: Iterable[T1],
-    iter2: Iterable[T2],
-    iter3: Iterable[T3],
-    /,
+	func: Callable[[T1, T2, T3], S],
+	iterable: Iterable[T1],
+	iter2: Iterable[T2],
+	iter3: Iterable[T3],
+	/,
 ) -> Iterator[S]: ...
 @overload
 def map[T1, T2, T3, T4, S](
-    func: Callable[[T1, T2, T3, T4], S],
-    iterable: Iterable[T1],
-    iter2: Iterable[T2],
-    iter3: Iterable[T3],
-    iter4: Iterable[T4],
-    /,
+	func: Callable[[T1, T2, T3, T4], S],
+	iterable: Iterable[T1],
+	iter2: Iterable[T2],
+	iter3: Iterable[T3],
+	iter4: Iterable[T4],
+	/,
 ) -> Iterator[S]: ...
 @overload
 def map[T1, T2, T3, T4, T5, S](
-    func: Callable[[T1, T2, T3, T4, T5], S],
-    iterable: Iterable[T1],
-    iter2: Iterable[T2],
-    iter3: Iterable[T3],
-    iter4: Iterable[T4],
-    iter5: Iterable[T5],
-    /,
+	func: Callable[[T1, T2, T3, T4, T5], S],
+	iterable: Iterable[T1],
+	iter2: Iterable[T2],
+	iter3: Iterable[T3],
+	iter4: Iterable[T4],
+	iter5: Iterable[T5],
+	/,
 ) -> Iterator[S]: ...
 @overload
 def map[S](
-    func: Callable[..., S],
-    iterable: Iterable[Any],
-    iter2: Iterable[Any],
-    iter3: Iterable[Any],
-    iter4: Iterable[Any],
-    iter5: Iterable[Any],
-    iter6: Iterable[Any],
-    /,
-    *iterables: Iterable[Any],
+	func: Callable[..., S],
+	iterable: Iterable[Any],
+	iter2: Iterable[Any],
+	iter3: Iterable[Any],
+	iter4: Iterable[Any],
+	iter5: Iterable[Any],
+	iter6: Iterable[Any],
+	/,
+	*iterables: Iterable[Any],
 ) -> Iterator[S]: ...
 def map[S](
-    func: Callable[..., S] = ...,
-    *iterables: Iterable[Any],
+	func: Callable[..., S] = ...,
+	*iterables: Iterable[Any],
 ) -> (
-    Iterator[S]
-    | Callable[..., Iterator[S]]
-    | Callable[
-        ...,
-        Iterator[S] | Callable[..., Iterator[S]],
-    ]
+	Iterator[S]
+	| Callable[..., Iterator[S]]
+	| Callable[
+		...,
+		Iterator[S] | Callable[..., Iterator[S]],
+	]
 ):
-    """Curried version of builtin map function
-
-    Apply a function to every element of an iterable(s).
-
-    >>> from toolz.curried import map
-    >>> inc = lambda x: x + 1
-    >>> list(map(inc, [1, 2, 3]))
-    [2, 3, 4]
-
-    Can be partially applied:
-    >>> map_inc = map(inc)
-    >>> list(map_inc([1, 2, 3]))
-    [2, 3, 4]
-
-    Works with multiple iterables:
-    >>> add = lambda x, y: x + y
-    >>> list(map(add, [1, 2, 3], [10, 20, 30]))
-    [11, 22, 33]
-    """
+	...
 
 @overload
 def mapcat[T, R]() -> Callable[
-    ..., Iterator[R] | Callable[..., Iterator[R]]
+	..., Iterator[R] | Callable[..., Iterator[R]]
 ]: ...
 @overload
 def mapcat[T, R](
-    func: Callable[[T], Iterable[R]], /
+	func: Callable[[T], Iterable[R]], /
 ) -> Callable[[Iterable[T]], Iterator[R]]: ...
 @overload
 def mapcat[T, R](
-    func: Callable[[T], Iterable[R]],
-    seqs: Iterable[T],
-    /,
+	func: Callable[[T], Iterable[R]],
+	seqs: Iterable[T],
+	/,
 ) -> Iterator[R]: ...
 def mapcat[T, R](
-    func: Callable[[T], Iterable[R]] = ...,
-    seqs: Iterable[T] = ...,
+	func: Callable[[T], Iterable[R]] = ...,
+	seqs: Iterable[T] = ...,
 ) -> (
-    Iterator[R]
-    | Callable[[Iterable[T]], Iterator[R]]
-    | Callable[
-        ...,
-        Iterator[R] | Callable[..., Iterator[R]],
-    ]
+	Iterator[R]
+	| Callable[[Iterable[T]], Iterator[R]]
+	| Callable[
+		...,
+		Iterator[R] | Callable[..., Iterator[R]],
+	]
 ):
-    """Curried version of mapcat
-
-    Apply func to each sequence in seqs, concatenating results.
-
-    >>> from toolz.curried import mapcat
-    >>> list(mapcat(lambda s: [c.upper() for c in s],
-    ...             [["a", "b"], ["c", "d", "e"]]))
-    ['A', 'B', 'C', 'D', 'E']
-
-    Can be partially applied:
-    >>> upper_all = mapcat(lambda s: [c.upper() for c in s])
-    >>> list(upper_all([["a", "b"], ["c", "d", "e"]]))
-    ['A', 'B', 'C', 'D', 'E']
-    """
+	...
 
 # Curried nth with explicit overloads for type safety
 # Stage 0: No arguments - returns a callable
@@ -1410,35 +936,9 @@ def nth[T](n: int, /) -> Callable[[Iterable[T]], T]: ...
 @overload
 def nth[T](n: int, seq: Iterable[T], /) -> T: ...
 def nth[T](
-    n: int = ..., seq: Iterable[T] = ...
+	n: int = ..., seq: Iterable[T] = ...
 ) -> T | Callable[[Iterable[T]], T] | Callable[..., T]:
-    """Curried version of nth
-
-    The nth element in a sequence.
-
-    >>> from toolz.curried import nth
-    >>> nth(1, 'ABC')
-    'B'
-
-    Can be partially applied:
-    >>> get_second = nth(1)
-    >>> get_second('ABC')
-    'B'
-    >>> get_second([10, 20, 30])
-    20
-
-    Common pattern with map:
-    >>> from toolz.curried import map
-    >>> data = [['a', 'b'], ['c', 'd'], ['e', 'f']]
-    >>> list(map(nth(1), data))
-    ['b', 'd', 'f']
-
-    See Also
-    --------
-        first
-        second
-        last
-    """
+	...
 
 partial = curry(functools.partial)
 
@@ -1446,269 +946,179 @@ partial = curry(functools.partial)
 def partition[T]() -> Callable[..., Iterator[tuple[T, ...]]]: ...
 @overload
 def partition[T](
-    n: int, /
+	n: int, /
 ) -> Callable[..., Iterator[tuple[T, ...]]]: ...
 @overload
 def partition[T](
-    n: Literal[1], seq: Iterable[T], /
+	n: Literal[1], seq: Iterable[T], /
 ) -> Iterator[tuple[T]]: ...
 @overload
 def partition[T](
-    n: int, seq: Iterable[T], /
+	n: int, seq: Iterable[T], /
 ) -> Iterator[tuple[T, ...]]: ...
 @overload
 def partition[T](
-    n: Literal[1], seq: Iterable[T], pad: Any, /
+	n: Literal[1], seq: Iterable[T], pad: Any, /
 ) -> Iterator[tuple[T]]:
-    # Note: With n=1, tuples always have exactly 1 element, so pad is never used
-    ...
+	# Note: With n=1, tuples always have exactly 1 element, so pad is never used
+	...
 
 @overload
 def partition[T, P](
-    n: int, seq: Iterable[T], pad: P, /
+	n: int, seq: Iterable[T], pad: P, /
 ) -> Iterator[tuple[T | P, ...]]: ...
 def partition[T, P](
-    n: int = ...,
-    seq: Iterable[T] = ...,
-    pad: P = ...,
+	n: int = ...,
+	seq: Iterable[T] = ...,
+	pad: P = ...,
 ) -> (
-    Iterator[tuple[T, ...]]
-    | Iterator[tuple[T | P, ...]]
-    | Callable[..., Iterator[tuple[T | P, ...]]]
+	Iterator[tuple[T, ...]]
+	| Iterator[tuple[T | P, ...]]
+	| Callable[..., Iterator[tuple[T | P, ...]]]
 ):
-    """Curried version of partition
-
-    Partition sequence into tuples of length n.
-
-    >>> from toolz.curried import partition
-    >>> list(partition(2, [1, 2, 3, 4]))
-    [(1, 2), (3, 4)]
-
-    Can be partially applied:
-    >>> partition_pairs = partition(2)
-    >>> list(partition_pairs([1, 2, 3, 4]))
-    [(1, 2), (3, 4)]
-
-    If length not evenly divisible, final tuple is dropped without pad:
-    >>> list(partition(2, [1, 2, 3, 4, 5]))
-    [(1, 2), (3, 4)]
-
-    With pad, final tuple is filled:
-    >>> list(partition(2, [1, 2, 3, 4, 5], None))
-    [(1, 2), (3, 4), (5, None)]
-
-    Common pattern for chunking data:
-    >>> from toolz.curried import pipe
-    >>> data = range(10)
-    >>> list(pipe(data, partition(3)))
-    [(0, 1, 2), (3, 4, 5), (6, 7, 8)]
-
-    See Also
-    --------
-        partition_all
-    """
+	...
 
 # Curried partition_all with explicit overloads for type safety
 # Stage 0: No arguments - returns a callable
 @overload
 def partition_all[T]() -> Callable[
-    ..., Iterator[tuple[T, ...]]
+	..., Iterator[tuple[T, ...]]
 ]: ...
 
 # Stage 1: Just n - returns callable waiting for seq
 @overload
 def partition_all[T](
-    n: Literal[1], /
+	n: Literal[1], /
 ) -> Callable[
-    [Iterable[T]], Iterator[tuple[T]]
+	[Iterable[T]], Iterator[tuple[T]]
 ]: ...
 @overload
 def partition_all[T](
-    n: int, /
+	n: int, /
 ) -> Callable[
-    [Iterable[T]], Iterator[tuple[T, ...]]
+	[Iterable[T]], Iterator[tuple[T, ...]]
 ]: ...
 
 # Stage 2: Full application - executes immediately
 @overload
 def partition_all[T](
-    n: Literal[1], seq: Iterable[T], /
+	n: Literal[1], seq: Iterable[T], /
 ) -> Iterator[tuple[T]]: ...
 @overload
 def partition_all[T](
-    n: int, seq: Iterable[T], /
+	n: int, seq: Iterable[T], /
 ) -> Iterator[tuple[T, ...]]: ...
 def partition_all[T](
-    n: int = ..., seq: Iterable[T] = ...
+	n: int = ..., seq: Iterable[T] = ...
 ) -> (
-    Iterator[tuple[T, ...]]
-    | Callable[
-        [Iterable[T]],
-        Iterator[tuple[T, ...]] | Iterator[tuple[T]],
-    ]
-    | Callable[..., Iterator[tuple[T, ...]]]
+	Iterator[tuple[T, ...]]
+	| Callable[
+		[Iterable[T]],
+		Iterator[tuple[T, ...]] | Iterator[tuple[T]],
+	]
+	| Callable[..., Iterator[tuple[T, ...]]]
 ):
-    """Curried version of partition_all
-
-    Partition all elements of sequence into tuples of length at most n.
-
-    The final tuple may be shorter to accommodate extra elements.
-
-    >>> from toolz.curried import partition_all
-    >>> list(partition_all(2, [1, 2, 3, 4]))
-    [(1, 2), (3, 4)]
-
-    >>> list(partition_all(2, [1, 2, 3, 4, 5]))
-    [(1, 2), (3, 4), (5,)]
-
-    Can be partially applied:
-    >>> partition_pairs = partition_all(2)
-    >>> list(partition_pairs([1, 2, 3, 4, 5]))
-    [(1, 2), (3, 4), (5,)]
-
-    Common pattern for chunking data:
-    >>> from toolz.curried import pipe
-    >>> data = range(10)
-    >>> list(pipe(data, partition_all(3)))
-    [(0, 1, 2), (3, 4, 5), (6, 7, 8), (9,)]
-
-    See Also
-    --------
-        partition
-    """
+	...
 
 partitionby = curry(_recipes.partitionby)
 peekn = curry(_itertoolz.peekn)
 
 @overload
 def pluck[T]() -> Callable[
-    ..., Iterator[T] | Iterator[tuple[T, ...]]
+	..., Iterator[T] | Iterator[tuple[T, ...]]
 ]: ...
 @overload
 def pluck[T](
-    ind: Sequence[Any], /
+	ind: Sequence[Any], /
 ) -> (
-    Callable[
-        [
-            Iterable[
-                Sequence[T] | Mapping[Any, T]
-            ]
-        ],
-        Iterator[tuple[T, ...]],
-    ]
-    | Callable[
-        [
-            Iterable[
-                Sequence[T] | Mapping[Any, T]
-            ],
-            T,
-        ],
-        Iterator[tuple[T, ...]],
-    ]
+	Callable[
+		[
+			Iterable[
+				Sequence[T] | Mapping[Any, T]
+			]
+		],
+		Iterator[tuple[T, ...]],
+	]
+	| Callable[
+		[
+			Iterable[
+				Sequence[T] | Mapping[Any, T]
+			],
+			T,
+		],
+		Iterator[tuple[T, ...]],
+	]
 ): ...
 @overload
 def pluck[T](
-    ind: Any, /
+	ind: Any, /
 ) -> (
-    Callable[
-        [
-            Iterable[
-                Sequence[T] | Mapping[Any, T]
-            ]
-        ],
-        Iterator[T],
-    ]
-    | Callable[
-        [
-            Iterable[
-                Sequence[T] | Mapping[Any, T]
-            ],
-            T,
-        ],
-        Iterator[T],
-    ]
+	Callable[
+		[
+			Iterable[
+				Sequence[T] | Mapping[Any, T]
+			]
+		],
+		Iterator[T],
+	]
+	| Callable[
+		[
+			Iterable[
+				Sequence[T] | Mapping[Any, T]
+			],
+			T,
+		],
+		Iterator[T],
+	]
 ): ...
 @overload
 def pluck[T](
-    ind: Sequence[Any],
-    seqs: Iterable[
-        Sequence[T] | Mapping[Any, T]
-    ],
-    /,
+	ind: Sequence[Any],
+	seqs: Iterable[
+		Sequence[T] | Mapping[Any, T]
+	],
+	/,
 ) -> Iterator[tuple[T, ...]]: ...
 @overload
 def pluck[T](
-    ind: Any,
-    seqs: Iterable[
-        Sequence[T] | Mapping[Any, T]
-    ],
-    /,
+	ind: Any,
+	seqs: Iterable[
+		Sequence[T] | Mapping[Any, T]
+	],
+	/,
 ) -> Iterator[T]: ...
 @overload
 def pluck[T](
-    ind: Sequence[Any],
-    seqs: Iterable[
-        Sequence[T] | Mapping[Any, T]
-    ],
-    default: T,
-    /,
+	ind: Sequence[Any],
+	seqs: Iterable[
+		Sequence[T] | Mapping[Any, T]
+	],
+	default: T,
+	/,
 ) -> Iterator[tuple[T, ...]]: ...
 @overload
 def pluck[T](
-    ind: Any,
-    seqs: Iterable[
-        Sequence[T] | Mapping[Any, T]
-    ],
-    default: T,
-    /,
+	ind: Any,
+	seqs: Iterable[
+		Sequence[T] | Mapping[Any, T]
+	],
+	default: T,
+	/,
 ) -> Iterator[T]: ...
 def pluck[T](
-    ind: Any | Sequence[Any] = ...,
-    seqs: Iterable[
-        Sequence[T] | Mapping[Any, T]
-    ] = ...,
-    default: T = ...,
+	ind: Any | Sequence[Any] = ...,
+	seqs: Iterable[
+		Sequence[T] | Mapping[Any, T]
+	] = ...,
+	default: T = ...,
 ) -> (
-    Iterator[T]
-    | Iterator[tuple[T, ...]]
-    | Callable[
-        ..., Iterator[T] | Iterator[tuple[T, ...]]
-    ]
+	Iterator[T]
+	| Iterator[tuple[T, ...]]
+	| Callable[
+		..., Iterator[T] | Iterator[tuple[T, ...]]
+	]
 ):
-    """Curried version of pluck
-
-    Pluck an element or several elements from each item in a sequence.
-
-    >>> from toolz.curried import pluck
-    >>> data = [{'name': 'Alice', 'age': 30}, {'name': 'Bob', 'age': 25}]
-    >>> list(pluck('name', data))
-    ['Alice', 'Bob']
-
-    Can be partially applied:
-    >>> get_names = pluck('name')
-    >>> list(get_names(data))
-    ['Alice', 'Bob']
-
-    Pluck multiple fields:
-    >>> list(pluck(['name', 'age'], data))
-    [('Alice', 30), ('Bob', 25)]
-
-    With default for missing keys:
-    >>> data_incomplete = [{'name': 'Alice'}, {'name': 'Bob', 'age': 25}]
-    >>> list(pluck('age', data_incomplete, default=None))
-    [None, 25]
-
-    Common pattern with pipe:
-    >>> from toolz.curried import pipe
-    >>> users = [{'id': 1, 'name': 'Alice'}, {'id': 2, 'name': 'Bob'}]
-    >>> list(pipe(users, pluck('name')))
-    ['Alice', 'Bob']
-
-    See Also
-    --------
-        get
-        map
-    """
+	...
 
 random_sample = curry(_itertoolz.random_sample)
 
@@ -1716,49 +1126,31 @@ random_sample = curry(_itertoolz.random_sample)
 def reduce[T]() -> Callable[..., T]: ...
 @overload
 def reduce[T](
-    function: Callable[[T, T], T], /
+	function: Callable[[T, T], T], /
 ) -> Callable[[Iterable[T]], T]: ...
 @overload
 def reduce[T, S](
-    function: Callable[[T, S], T], /
+	function: Callable[[T, S], T], /
 ) -> Callable[..., T]: ...
 @overload
 def reduce[T](
-    function: Callable[[T, T], T],
-    iterable: Iterable[T],
-    /,
+	function: Callable[[T, T], T],
+	iterable: Iterable[T],
+	/,
 ) -> T: ...
 @overload
 def reduce[T, S](
-    function: Callable[[T, S], T],
-    iterable: Iterable[S],
-    initial: T,
-    /,
+	function: Callable[[T, S], T],
+	iterable: Iterable[S],
+	initial: T,
+	/,
 ) -> T: ...
 def reduce[T, S](
-    function: Callable[[T, S], T] = ...,
-    iterable: Iterable[S] = ...,
-    initial: T = ...,
+	function: Callable[[T, S], T] = ...,
+	iterable: Iterable[S] = ...,
+	initial: T = ...,
 ) -> T | Callable[..., T]:
-    """Curried version of functools.reduce
-
-    Apply a function of two arguments cumulatively to items of an iterable,
-    reducing it to a single value.
-
-    >>> from toolz.curried import reduce
-    >>> from operator import add
-    >>> reduce(add, [1, 2, 3, 4])
-    10
-
-    Can be partially applied:
-    >>> sum_all = reduce(add)
-    >>> sum_all([1, 2, 3, 4])
-    10
-
-    With initial value:
-    >>> reduce(add, [1, 2, 3], 10)
-    16
-    """
+	...
 
 reduceby = curry(_itertoolz.reduceby)
 
@@ -1770,140 +1162,95 @@ def remove[T]() -> Callable[..., Iterable[T]]: ...
 # Stage 1: Just predicate - returns callable waiting for seq
 @overload
 def remove[T](
-    predicate: Callable[[T], bool], /
+	predicate: Callable[[T], bool], /
 ) -> Callable[[Iterable[T]], Iterable[T]]: ...
 
 # Stage 2: Full application - executes immediately
 @overload
 def remove[T](
-    predicate: Callable[[T], bool], seq: Iterable[T], /
+	predicate: Callable[[T], bool], seq: Iterable[T], /
 ) -> Iterable[T]: ...
 def remove[T](
-    predicate: Callable[[T], bool] = ..., seq: Iterable[T] = ...
+	predicate: Callable[[T], bool] = ..., seq: Iterable[T] = ...
 ) -> (
-    Iterable[T]
-    | Callable[[Iterable[T]], Iterable[T]]
-    | Callable[..., Iterable[T]]
+	Iterable[T]
+	| Callable[[Iterable[T]], Iterable[T]]
+	| Callable[..., Iterable[T]]
 ):
-    """Curried version of remove
-
-    Return those items of sequence for which predicate(item) is False.
-
-    >>> from toolz.curried import remove
-    >>> def iseven(x): return x % 2 == 0
-    >>> list(remove(iseven, [1, 2, 3, 4]))
-    [1, 3]
-
-    Can be partially applied:
-    >>> remove_evens = remove(iseven)
-    >>> list(remove_evens([1, 2, 3, 4, 5]))
-    [1, 3, 5]
-
-    Common pattern (opposite of filter):
-    >>> from toolz.curried import pipe
-    >>> list(pipe([1, 2, 3, 4], remove(lambda x: x < 3)))
-    [3, 4]
-
-    See Also
-    --------
-        filter
-    """
+	...
 
 # Curried sliding_window with explicit overloads for type safety
 # Stage 0: No arguments - returns a callable
 @overload
 def sliding_window[T]() -> Callable[
-    ..., Iterator[tuple[T, ...]]
+	..., Iterator[tuple[T, ...]]
 ]: ...
 
 # Stage 1a: Just n=1 - returns callable waiting for seq
 @overload
 def sliding_window[T](
-    n: Literal[1], /
+	n: Literal[1], /
 ) -> Callable[
-    [Iterable[T]], Iterator[tuple[T]]
+	[Iterable[T]], Iterator[tuple[T]]
 ]: ...
 
 # Stage 1b: Just n=2 - returns callable waiting for seq
 @overload
 def sliding_window[T](
-    n: Literal[2], /
+	n: Literal[2], /
 ) -> Callable[
-    [Iterable[T]], Iterator[tuple[T, T]]
+	[Iterable[T]], Iterator[tuple[T, T]]
 ]: ...
 
 # Stage 1c: Just n=3 - returns callable waiting for seq
 @overload
 def sliding_window[T](
-    n: Literal[3], /
+	n: Literal[3], /
 ) -> Callable[
-    [Iterable[T]], Iterator[tuple[T, T, T]]
+	[Iterable[T]], Iterator[tuple[T, T, T]]
 ]: ...
 
 # Stage 1d: Just n (general) - returns callable waiting for seq
 @overload
 def sliding_window[T](
-    n: int, /
+	n: int, /
 ) -> Callable[
-    [Iterable[T]], Iterator[tuple[T, ...]]
+	[Iterable[T]], Iterator[tuple[T, ...]]
 ]: ...
 
 # Stage 2a: Full application with n=1 - executes immediately
 @overload
 def sliding_window[T](
-    n: Literal[1], seq: Iterable[T], /
+	n: Literal[1], seq: Iterable[T], /
 ) -> Iterator[tuple[T]]: ...
 
 # Stage 2b: Full application with n=2 - executes immediately
 @overload
 def sliding_window[T](
-    n: Literal[2], seq: Iterable[T], /
+	n: Literal[2], seq: Iterable[T], /
 ) -> Iterator[tuple[T, T]]: ...
 
 # Stage 2c: Full application with n=3 - executes immediately
 @overload
 def sliding_window[T](
-    n: Literal[3], seq: Iterable[T], /
+	n: Literal[3], seq: Iterable[T], /
 ) -> Iterator[tuple[T, T, T]]: ...
 
 # Stage 2d: Full application (general) - executes immediately
 @overload
 def sliding_window[T](
-    n: int, seq: Iterable[T], /
+	n: int, seq: Iterable[T], /
 ) -> Iterator[tuple[T, ...]]: ...
 def sliding_window[T](
-    n: int = ..., seq: Iterable[T] = ...
+	n: int = ..., seq: Iterable[T] = ...
 ) -> (
-    Iterator[tuple[T, ...]]
-    | Callable[
-        [Iterable[T]], Iterator[tuple[T, ...]]
-    ]
-    | Callable[..., Iterator[tuple[T, ...]]]
+	Iterator[tuple[T, ...]]
+	| Callable[
+		[Iterable[T]], Iterator[tuple[T, ...]]
+	]
+	| Callable[..., Iterator[tuple[T, ...]]]
 ):
-    """Curried version of sliding_window
-
-    A sequence of overlapping subsequences.
-
-    >>> from toolz.curried import sliding_window
-    >>> list(sliding_window(2, [1, 2, 3, 4]))
-    [(1, 2), (2, 3), (3, 4)]
-
-    Can be partially applied:
-    >>> window_of_3 = sliding_window(3)
-    >>> list(window_of_3([1, 2, 3, 4, 5]))
-    [(1, 2, 3), (2, 3, 4), (3, 4, 5)]
-
-    Common pattern for smoothing:
-    >>> from toolz.curried import pipe, map
-    >>> mean = lambda seq: float(sum(seq)) / len(seq)
-    >>> data = [1, 2, 3, 4, 5]
-    >>> list(pipe(data, sliding_window(2), map(mean)))
-    [1.5, 2.5, 3.5, 4.5]
-
-    See Also
-    --------
-        partition
-    """
+	...
 
 # Curried sorted with explicit overloads for type safety
 # Note: key and reverse are keyword-only parameters in builtin sorted
@@ -1914,78 +1261,48 @@ def sorted[T]() -> Callable[..., list[T]]: ...
 # Stage 1a: Partial application with keyword args only (no key) - returns callable
 @overload
 def sorted[T](
-    *,
-    key: None = None,
-    reverse: bool = False,
+	*,
+	key: None = None,
+	reverse: bool = False,
 ) -> Callable[[Iterable[T]], list[T]]: ...
 
 # Stage 1b: Partial application with keyword args only (with key) - returns callable
 @overload
 def sorted[T](
-    *,
-    key: Callable[[T], SupportsRichComparison],
-    reverse: bool = False,
+	*,
+	key: Callable[[T], SupportsRichComparison],
+	reverse: bool = False,
 ) -> Callable[[Iterable[T]], list[T]]: ...
 
 # Stage 2a: Full application (no key) - executes immediately
 @overload
 def sorted[T](
-    iterable: Iterable[T],
-    /,
-    *,
-    key: None = None,
-    reverse: bool = False,
+	iterable: Iterable[T],
+	/,
+	*,
+	key: None = None,
+	reverse: bool = False,
 ) -> list[T]: ...
 
 # Stage 2b: Full application (with key function) - executes immediately
 @overload
 def sorted[T](
-    iterable: Iterable[T],
-    /,
-    *,
-    key: Callable[[T], SupportsRichComparison],
-    reverse: bool = False,
+	iterable: Iterable[T],
+	/,
+	*,
+	key: Callable[[T], SupportsRichComparison],
+	reverse: bool = False,
 ) -> list[T]: ...
 
 # Implementation signature (catch-all)
 def sorted[T](
-    iterable: Iterable[T] = ...,
-    /,
-    *,
-    key: Callable[[T], SupportsRichComparison] | None = None,
-    reverse: bool = False,
+	iterable: Iterable[T] = ...,
+	/,
+	*,
+	key: Callable[[T], SupportsRichComparison] | None = None,
+	reverse: bool = False,
 ) -> list[T] | Callable[..., list[T]]:
-    """Curried version of builtin sorted
-
-    Return a new sorted list from the items in iterable.
-
-    >>> from toolz.curried import sorted
-    >>> sorted([3, 1, 2])
-    [1, 2, 3]
-
-    With key function:
-    >>> sorted(['alice', 'Bob', 'Charlie'], key=str.lower)
-    ['alice', 'Bob', 'Charlie']
-
-    With reverse:
-    >>> sorted([3, 1, 2], reverse=True)
-    [3, 2, 1]
-
-    Partial application with keyword args:
-    >>> case_insensitive_sort = sorted(key=str.lower)
-    >>> case_insensitive_sort(['Bob', 'alice', 'Charlie'])
-    ['alice', 'Bob', 'Charlie']
-
-    Common pattern for sorting by attribute:
-    >>> users = [{'name': 'Alice', 'age': 30}, {'name': 'Bob', 'age': 25}]
-    >>> sorted(users, key=lambda u: u['age'])
-    [{'name': 'Bob', 'age': 25}, {'name': 'Alice', 'age': 30}]
-
-    See Also
-    --------
-        groupby
-        unique
-    """
+	...
 
 # Curried tail with explicit overloads for type safety
 # Stage 0: No arguments - returns a callable
@@ -1995,87 +1312,41 @@ def tail[T]() -> Callable[..., Iterator[T]]: ...
 # Stage 1: Just n - returns callable waiting for seq
 @overload
 def tail[T](
-    n: int, /
+	n: int, /
 ) -> Callable[[Iterable[T]], Iterator[T]]: ...
 
 # Stage 2: Full application - executes immediately
 @overload
 def tail[T](
-    n: int, seq: Iterable[T], /
+	n: int, seq: Iterable[T], /
 ) -> Iterator[T]: ...
 def tail[T](
-    n: int = ..., seq: Iterable[T] = ...
+	n: int = ..., seq: Iterable[T] = ...
 ) -> (
-    Iterator[T]
-    | Callable[[Iterable[T]], Iterator[T]]
-    | Callable[..., Iterator[T]]
+	Iterator[T]
+	| Callable[[Iterable[T]], Iterator[T]]
+	| Callable[..., Iterator[T]]
 ):
-    """Curried version of tail
-
-    The last n elements of a sequence.
-
-    >>> from toolz.curried import tail
-    >>> list(tail(2, [10, 20, 30, 40, 50]))
-    [40, 50]
-
-    Can be partially applied:
-    >>> last_three = tail(3)
-    >>> list(last_three([1, 2, 3, 4, 5]))
-    [3, 4, 5]
-
-    Common pattern with pipe:
-    >>> from toolz.curried import pipe
-    >>> list(pipe([1, 2, 3, 4, 5], tail(2)))
-    [4, 5]
-
-    See Also
-    --------
-        take
-        drop
-        last
-    """
+	...
 
 @overload
 def take[T]() -> Callable[..., Iterator[T]]: ...
 @overload
 def take[T](
-    n: int, /
+	n: int, /
 ) -> Callable[[Iterable[T]], Iterator[T]]: ...
 @overload
 def take[T](
-    n: int, seq: Iterable[T], /
+	n: int, seq: Iterable[T], /
 ) -> Iterator[T]: ...
 def take[T](
-    n: int = ..., seq: Iterable[T] = ...
+	n: int = ..., seq: Iterable[T] = ...
 ) -> (
-    Iterator[T]
-    | Callable[[Iterable[T]], Iterator[T]]
-    | Callable[..., Iterator[T]]
+	Iterator[T]
+	| Callable[[Iterable[T]], Iterator[T]]
+	| Callable[..., Iterator[T]]
 ):
-    """Curried version of take
-
-    The first n elements of a sequence.
-
-    >>> from toolz.curried import take
-    >>> list(take(2, [10, 20, 30, 40, 50]))
-    [10, 20]
-
-    Can be partially applied:
-    >>> take_two = take(2)
-    >>> list(take_two([10, 20, 30, 40, 50]))
-    [10, 20]
-
-    Common pattern with map:
-    >>> from toolz.curried import map
-    >>> data = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
-    >>> list(map(lambda seq: list(take(2, seq)), data))
-    [[1, 2], [4, 5], [7, 8]]
-
-    See Also
-    --------
-        drop
-        tail
-    """
+	...
 
 # Curried take_nth with explicit overloads for type safety
 # Stage 0: No arguments - returns a callable
@@ -2085,44 +1356,22 @@ def take_nth[T]() -> Callable[..., Iterator[T]]: ...
 # Stage 1: Just n - returns callable waiting for seq
 @overload
 def take_nth[T](
-    n: int, /
+	n: int, /
 ) -> Callable[[Iterable[T]], Iterator[T]]: ...
 
 # Stage 2: Full application - executes immediately
 @overload
 def take_nth[T](
-    n: int, seq: Iterable[T], /
+	n: int, seq: Iterable[T], /
 ) -> Iterator[T]: ...
 def take_nth[T](
-    n: int = ..., seq: Iterable[T] = ...
+	n: int = ..., seq: Iterable[T] = ...
 ) -> (
-    Iterator[T]
-    | Callable[[Iterable[T]], Iterator[T]]
-    | Callable[..., Iterator[T]]
+	Iterator[T]
+	| Callable[[Iterable[T]], Iterator[T]]
+	| Callable[..., Iterator[T]]
 ):
-    """Curried version of take_nth
-
-    Every nth item in seq.
-
-    >>> from toolz.curried import take_nth
-    >>> list(take_nth(2, [10, 20, 30, 40, 50]))
-    [10, 30, 50]
-
-    Can be partially applied:
-    >>> every_third = take_nth(3)
-    >>> list(every_third([1, 2, 3, 4, 5, 6, 7, 8, 9]))
-    [1, 4, 7]
-
-    Common pattern for sampling:
-    >>> from toolz.curried import pipe
-    >>> list(pipe(range(10), take_nth(2)))
-    [0, 2, 4, 6, 8]
-
-    See Also
-    --------
-        take
-        drop
-    """
+	...
 
 topk = curry(_itertoolz.topk)
 unique = curry(_itertoolz.unique)
@@ -2130,152 +1379,102 @@ update_in = curry(_dicttoolz.update_in)
 
 @overload
 def valfilter[K, V]() -> Callable[
-    ..., dict[K, V] | MutableMapping[K, V]
+	..., dict[K, V] | MutableMapping[K, V]
 ]: ...
 
 # Stage 1a: Just predicate (no factory) - returns callable waiting for dict
 @overload
 def valfilter[K, V](
-    predicate: Callable[[V], bool], /
+	predicate: Callable[[V], bool], /
 ) -> Callable[[Mapping[K, V]], dict[K, V]]: ...
 
 # Stage 1b: Predicate with factory - returns callable waiting for dict
 @overload
 def valfilter[K, V](
-    predicate: Callable[[V], bool],
-    /,
-    *,
-    factory: Callable[[], MutableMapping[K, V]],
+	predicate: Callable[[V], bool],
+	/,
+	*,
+	factory: Callable[[], MutableMapping[K, V]],
 ) -> Callable[
-    [Mapping[K, V]], MutableMapping[K, V]
+	[Mapping[K, V]], MutableMapping[K, V]
 ]: ...
 
 # Stage 2a: Full application (no factory) - executes immediately
 @overload
 def valfilter[K, V](
-    predicate: Callable[[V], bool],
-    d: Mapping[K, V],
-    /,
+	predicate: Callable[[V], bool],
+	d: Mapping[K, V],
+	/,
 ) -> dict[K, V]: ...
 
 # Stage 2b: Full application (with factory) - executes immediately
 @overload
 def valfilter[K, V](
-    predicate: Callable[[V], bool],
-    d: Mapping[K, V],
-    /,
-    *,
-    factory: Callable[[], MutableMapping[K, V]],
+	predicate: Callable[[V], bool],
+	d: Mapping[K, V],
+	/,
+	*,
+	factory: Callable[[], MutableMapping[K, V]],
 ) -> MutableMapping[K, V]: ...
 def valfilter[K, V](
-    predicate: Callable[[V], bool] = ...,
-    d: Mapping[K, V] = ...,
-    *,
-    factory: Callable[[], MutableMapping[K, V]] = dict,
+	predicate: Callable[[V], bool] = ...,
+	d: Mapping[K, V] = ...,
+	*,
+	factory: Callable[[], MutableMapping[K, V]] = dict,
 ) -> (
-    dict[K, V]
-    | MutableMapping[K, V]
-    | Callable[..., dict[K, V] | MutableMapping[K, V]]
+	dict[K, V]
+	| MutableMapping[K, V]
+	| Callable[..., dict[K, V] | MutableMapping[K, V]]
 ):
-    """Curried version of valfilter
-
-    Filter items in dictionary by value.
-
-    >>> from toolz.curried import valfilter
-    >>> iseven = lambda x: x % 2 == 0
-    >>> d = {1: 2, 2: 3, 3: 4, 4: 5}
-    >>> valfilter(iseven, d)
-    {1: 2, 3: 4}
-
-    Can be partially applied:
-    >>> filter_even_vals = valfilter(iseven)
-    >>> filter_even_vals(d)
-    {1: 2, 3: 4}
-
-    Common pattern for filtering dict values:
-    >>> from toolz.curried import pipe
-    >>> scores = {'alice': 85, 'bob': 92, 'charlie': 78, 'diana': 95}
-    >>> valfilter(lambda v: v >= 90, scores)
-    {'bob': 92, 'diana': 95}
-
-    See Also
-    --------
-        keyfilter
-        itemfilter
-        valmap
-    """
+	...
 
 @overload
 def valmap[K, V0, V1]() -> Callable[
-    ..., dict[K, V1] | MutableMapping[K, V1]
+	..., dict[K, V1] | MutableMapping[K, V1]
 ]: ...
 
 # Stage 1a: Just func (no factory) - returns callable waiting for dict
 @overload
 def valmap[K, V0, V1](
-    func: Callable[[V0], V1], /
+	func: Callable[[V0], V1], /
 ) -> Callable[[Mapping[K, V0]], dict[K, V1]]: ...
 
 # Stage 1b: Func with factory - returns callable waiting for dict
 @overload
 def valmap[K, V0, V1](
-    func: Callable[[V0], V1],
-    /,
-    *,
-    factory: Callable[[], MutableMapping[K, V1]],
+	func: Callable[[V0], V1],
+	/,
+	*,
+	factory: Callable[[], MutableMapping[K, V1]],
 ) -> Callable[
-    [Mapping[K, V0]], MutableMapping[K, V1]
+	[Mapping[K, V0]], MutableMapping[K, V1]
 ]: ...
 
 # Stage 2a: Full application (no factory) - executes immediately
 @overload
 def valmap[K, V0, V1](
-    func: Callable[[V0], V1],
-    d: Mapping[K, V0],
-    /,
+	func: Callable[[V0], V1],
+	d: Mapping[K, V0],
+	/,
 ) -> dict[K, V1]: ...
 
 # Stage 2b: Full application (with factory) - executes immediately
 @overload
 def valmap[K, V0, V1](
-    func: Callable[[V0], V1],
-    d: Mapping[K, V0],
-    /,
-    *,
-    factory: Callable[[], MutableMapping[K, V1]],
+	func: Callable[[V0], V1],
+	d: Mapping[K, V0],
+	/,
+	*,
+	factory: Callable[[], MutableMapping[K, V1]],
 ) -> MutableMapping[K, V1]: ...
 def valmap[K, V0, V1](
-    func: Callable[[V0], V1] = ...,
-    d: Mapping[K, V0] = ...,
-    *,
-    factory: Callable[[], MutableMapping[K, V1]] = dict,
+	func: Callable[[V0], V1] = ...,
+	d: Mapping[K, V0] = ...,
+	*,
+	factory: Callable[[], MutableMapping[K, V1]] = dict,
 ) -> (
-    dict[K, V1]
-    | MutableMapping[K, V1]
-    | Callable[..., dict[K, V1] | MutableMapping[K, V1]]
+	dict[K, V1]
+	| MutableMapping[K, V1]
+	| Callable[..., dict[K, V1] | MutableMapping[K, V1]]
 ):
-    """Curried version of valmap
-
-    Apply function to values of dictionary.
-
-    >>> from toolz.curried import valmap
-    >>> bills = {"Alice": [20, 15, 30], "Bob": [10, 35]}
-    >>> valmap(sum, bills)  # doctest: +SKIP
-    {'Alice': 65, 'Bob': 45}
-
-    Can be partially applied:
-    >>> sum_values = valmap(sum)
-    >>> sum_values(bills)  # doctest: +SKIP
-    {'Alice': 65, 'Bob': 45}
-
-    Common pattern for transforming values:
-    >>> scores = {'alice': 85, 'bob': 92, 'charlie': 78}
-    >>> valmap(lambda x: 'pass' if x >= 80 else 'fail', scores)
-    {'alice': 'pass', 'bob': 'pass', 'charlie': 'fail'}
-
-    See Also
-    --------
-        keymap
-        itemmap
-        valfilter
-    """
+	...
