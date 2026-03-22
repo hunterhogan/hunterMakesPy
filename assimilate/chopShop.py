@@ -58,7 +58,29 @@ def transformPackages() -> None:  # noqa: D103
 			for pathFilename in pathTransformee.glob('*.pyx'):
 				writeStringToHere(cythonDirectives + regexChangeImports(pathFilename.read_text().replace(identifierTransformee, getOtherName[identifierTransformee])), settingsFor[humpyPackage].pathPackage / pathFilename.relative_to(pathTransformee))
 
-#-------- Copy stub files. ---------
 
-copytree(pathRoot_tools_stubs, settingsFor['humpy_toolz'].pathPackage, dirs_exist_ok=True)
+def copy_tools_stubs() -> None:  # noqa: D103
+	copytree(pathRoot_tools_stubs, settingsFor['humpy_toolz'].pathPackage, dirs_exist_ok=True)
 
+if __name__ == '__main__':
+	transformPackages()
+	copy_tools_stubs()
+
+r"""WTF
+(.venv) C:\apps\hunterMakesPy>py assimilate/chopShop.py
+Traceback (most recent call last):
+  File "C:\apps\hunterMakesPy\assimilate\chopShop.py", line 2, in <module>
+    from assimilate import (
+        allTransformeePackages, cythonDirectives, getOtherName, pathRoot_tools_stubs, regexChangeImports, settingsFor, settingsWrite_astModule,
+        subModules, transformALLdot_pyHere)
+ModuleNotFoundError: No module named 'assimilate'
+
+(.venv) C:\apps\hunterMakesPy>py
+Python 3.14.3 (tags/v3.14.3:323c59a, Feb  3 2026, 16:04:56) [MSC v.1944 64 bit (AMD64)] on win32
+Type "help", "copyright", "credits" or "license" for more information.
+Ctrl click to launch VS Code Native REPL
+>>> from assimilate.chopShop import transformPackages, copy_tools_stubs
+>>> transformPackages()
+>>> copy_tools_stubs()
+>>>
+"""

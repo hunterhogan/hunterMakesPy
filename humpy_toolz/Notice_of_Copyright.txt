@@ -1,5 +1,5 @@
-Some of the work in this directory and its subdirectories may be protected by 
-the following copyright.
+Some of the original or derivative works in this directory and its
+subdirectories may be protected by the following copyright.
 ___
 
 Copyright (c) 2013 Matthew Rocklin
