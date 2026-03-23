@@ -1,3 +1,5 @@
+from collections.abc import Callable
+from types import ModuleType
 from humpy_toolz._signatures import builtins
 from humpy_toolz.functoolz import (
 	curry, has_keywords, has_varargs, is_arity, is_partial_args, is_valid_args, num_required_args)
@@ -10,18 +12,18 @@ import itertools
 import operator
 import sys
 
-def make_func(param_string, raise_if_called=True):
+def make_func(param_string: str, raise_if_called: bool = True):
     if not param_string.startswith('('):
         param_string = '(%s)' % param_string
     if raise_if_called:
         body = 'raise ValueError("function should not be called")'
     else:
         body = 'return True'
-    d = {}
+    d: dict[str, object] = {}
     exec(f'def func{param_string}:\n    {body}', globals(), d)
     return d['func']
 
-def test_make_func():
+def test_make_func() -> None:
     f = make_func('')
     assert raises(ValueError, lambda: f())
     assert raises(TypeError, lambda: f(1))
@@ -41,7 +43,7 @@ def test_make_func():
     assert f(x=1, y=2)
     assert raises(TypeError, lambda: f(1, 2, 3))
 
-def test_is_valid(check_valid=is_valid_args, incomplete=False):
+def test_is_valid(check_valid=is_valid_args, incomplete: bool = False) -> None:
     orig_check_valid = check_valid
     check_valid = lambda func, *args, **kwargs: orig_check_valid(func, args, kwargs)
     f = make_func('')
@@ -98,7 +100,7 @@ def test_is_valid(check_valid=is_valid_args, incomplete=False):
     assert check_valid(f, 1, 2, b=3) is False
     assert check_valid(1) is False
 
-def test_is_valid_py3(check_valid=is_valid_args, incomplete=False):
+def test_is_valid_py3(check_valid=is_valid_args, incomplete: bool = False) -> None:
     orig_check_valid = check_valid
     check_valid = lambda func, *args, **kwargs: orig_check_valid(func, args, kwargs)
     f = make_func('x, *, y=1')
@@ -165,20 +167,20 @@ def test_is_valid_py3(check_valid=is_valid_args, incomplete=False):
 
     class RaisesValueError:
 
-        def __call__(self):
+        def __call__(self) -> None:
             pass
 
         @property
-        def __signature__(self):
+        def __signature__(self) -> object:
             raise ValueError('Testing Python 3.4')
     f = RaisesValueError()
     assert check_valid(f) is None
 
-def test_is_partial():
+def test_is_partial() -> None:
     test_is_valid(check_valid=is_partial_args, incomplete=True)
     test_is_valid_py3(check_valid=is_partial_args, incomplete=True)
 
-def test_is_valid_curry():
+def test_is_valid_curry() -> None:
 
     def check_curry(func, args, kwargs, incomplete=True):
         try:
@@ -200,9 +202,9 @@ def test_is_valid_curry():
     test_is_valid(check_valid=check_valid, incomplete=False)
     test_is_valid_py3(check_valid=check_valid, incomplete=False)
 
-def test_func_keyword():
+def test_func_keyword() -> None:
 
-    def f(func=None):
+    def f(func: object = None) -> None:
         pass
     assert is_valid_args(f, (), {})
     assert is_valid_args(f, (None,), {})
@@ -213,7 +215,7 @@ def test_func_keyword():
     assert is_partial_args(f, (), {'func': None})
     assert is_partial_args(f, (None,), {'func': None}) is False
 
-def test_has_unknown_args():
+def test_has_unknown_args() -> None:
     assert has_varargs(1) is False
     assert has_varargs(map)
     assert has_varargs(make_func('')) is False
@@ -229,16 +231,16 @@ def test_has_unknown_args():
 
     class RaisesValueError:
 
-        def __call__(self):
+        def __call__(self) -> None:
             pass
 
         @property
-        def __signature__(self):
+        def __signature__(self) -> object:
             raise ValueError('Testing Python 3.4')
     f = RaisesValueError()
     assert has_varargs(f) is None
 
-def test_num_required_args():
+def test_num_required_args() -> None:
     assert num_required_args(lambda: None) == 0
     assert num_required_args(lambda x: None) == 1
     assert num_required_args(lambda x, *args: None) == 1
@@ -247,7 +249,7 @@ def test_num_required_args():
     assert num_required_args(map) == 2
     assert num_required_args(dict) is None
 
-def test_has_keywords():
+def test_has_keywords() -> None:
     assert has_keywords(lambda: None) is False
     assert has_keywords(lambda x: None) is False
     assert has_keywords(lambda x=1: None)
@@ -258,14 +260,14 @@ def test_has_keywords():
     assert has_keywords(map) == (sys.version_info[1] >= 14)
     assert has_keywords(bytearray) is None
 
-def test_has_varargs():
+def test_has_varargs() -> None:
     assert has_varargs(lambda: None) is False
     assert has_varargs(lambda *args: None)
     assert has_varargs(lambda **kwargs: None) is False
     assert has_varargs(map)
     assert has_varargs(max) is None
 
-def test_is_arity():
+def test_is_arity() -> None:
     assert is_arity(0, lambda: None)
     assert is_arity(1, lambda: None) is False
     assert is_arity(1, lambda x: None)
@@ -276,7 +278,7 @@ def test_is_arity():
     assert is_arity(2, map) is False
     assert is_arity(2, range) is None
 
-def test_introspect_curry_valid_py3(check_valid=is_valid_args, incomplete=False):
+def test_introspect_curry_valid_py3(check_valid=is_valid_args, incomplete: bool = False) -> None:
     orig_check_valid = check_valid
     check_valid = lambda _func, *args, **kwargs: orig_check_valid(_func, args, kwargs)
     f = humpy_toolz.curry(make_func('x, y, z=0'))
@@ -312,10 +314,10 @@ def test_introspect_curry_valid_py3(check_valid=is_valid_args, incomplete=False)
     assert check_valid(f(x=1), 1) is False
     assert check_valid(f(x=1), y=2)
 
-def test_introspect_curry_partial_py3():
+def test_introspect_curry_partial_py3() -> None:
     test_introspect_curry_valid_py3(check_valid=is_partial_args, incomplete=True)
 
-def test_introspect_curry_py3():
+def test_introspect_curry_py3() -> None:
     f = humpy_toolz.curry(make_func(''))
     assert num_required_args(f) == 0
     assert is_arity(0, f)
@@ -340,11 +342,11 @@ def test_introspect_curry_py3():
     assert has_varargs(f)
     assert has_keywords(f)
 
-def test_introspect_builtin_modules():
-    mods = [builtins, functools, itertools, operator, humpy_toolz, humpy_toolz.functoolz, humpy_toolz.itertoolz, humpy_toolz.dicttoolz, humpy_toolz.recipes]
-    denylist = set()
+def test_introspect_builtin_modules() -> None:
+    mods: list[ModuleType] = [builtins, functools, itertools, operator, humpy_toolz, humpy_toolz.functoolz, humpy_toolz.itertoolz, humpy_toolz.dicttoolz, humpy_toolz.recipes]
+    denylist: set[object] = set()
 
-    def add_denylist(mod, attr):
+    def add_denylist(mod: ModuleType, attr: str) -> None:
         if hasattr(mod, attr):
             denylist.add(getattr(mod, attr))
     add_denylist(builtins, 'basestring')
@@ -352,7 +354,7 @@ def test_introspect_builtin_modules():
     add_denylist(builtins, '__metaclass__')
     add_denylist(builtins, 'sequenceiterator')
 
-    def is_missing(modname, name, func):
+    def is_missing(modname: str, name: str, func: object) -> bool:
         if name.startswith('_') and (not name.startswith('__')):
             return False
         if name.startswith('__pyx_unpickle_') or name.endswith('_cython__'):
@@ -375,18 +377,18 @@ def test_introspect_builtin_modules():
                     missing[modname] = []
                 missing[modname].append(name)
     if missing:
-        messages = []
+        messages: list[str] = []
         for modname, names in sorted(missing.items()):
             msg = '{}:\n    {}'.format(modname, '\n    '.join(sorted(names)))
             messages.append(msg)
         message = 'Missing introspection for the following callables:\n\n'
         raise AssertionError(message + '\n\n'.join(messages))
 
-def test_inspect_signature_property():
+def test_inspect_signature_property() -> None:
 
     class AddX:
 
-        def __init__(self, func):
+        def __init__(self, func: Callable[..., int]) -> None:
             self.func = func
 
         def __call__(self, addx, *args, **kwargs):
@@ -408,20 +410,20 @@ def test_inspect_signature_property():
     assert num_required_args(AddX) == 1
     del _sigs.signatures[AddX]
 
-def test_inspect_wrapped_property():
+def test_inspect_wrapped_property() -> None:
 
     class Wrapped:
 
-        def __init__(self, func):
+        def __init__(self, func: Callable[..., object]) -> None:
             self.func = func
 
-        def __call__(self, *args, **kwargs):
+        def __call__(self, *args: object, **kwargs: object) -> object:
             return self.func(*args, **kwargs)
 
         @property
-        def __wrapped__(self):
+        def __wrapped__(self) -> Callable[..., object]:
             return self.func
-    func = lambda x: x
+    func: Callable[[int], int] = lambda x: x
     wrapped = Wrapped(func)
     assert inspect.signature(func) == inspect.signature(wrapped)
     inspectbroken = True

@@ -1,7 +1,7 @@
 import doctest
 import humpy_toolz
 
-def test_doctests():
+def test_doctests() -> None:
     humpy_toolz.__test__ = {}
     for name, func in vars(humpy_toolz).items():
         if isinstance(func, humpy_toolz.curry):

@@ -2,7 +2,7 @@ from humpy_toolz._signatures import _is_partial_args, _is_valid_args, builtins
 import functools
 import humpy_toolz._signatures as _sigs
 
-def test_is_valid(check_valid=_is_valid_args, incomplete=False):
+def test_is_valid(check_valid=_is_valid_args, incomplete: bool = False) -> None:
     orig_check_valid = check_valid
     check_valid = lambda func, *args, **kwargs: orig_check_valid(func, args, kwargs)
     assert check_valid(lambda x: None) is None
@@ -63,10 +63,10 @@ def test_is_valid(check_valid=_is_valid_args, incomplete=False):
     assert orig_check_valid(f, (1,), {'func': 1})
     assert orig_check_valid(f, (1, 2), {})
 
-def test_is_partial():
+def test_is_partial() -> None:
     test_is_valid(check_valid=_is_partial_args, incomplete=True)
 
-def test_for_coverage():
+def test_for_coverage() -> None:
     assert _sigs._is_arity(1, 1) is None
     assert _sigs._is_arity(1, all)
     assert _sigs._has_varargs(None) is None

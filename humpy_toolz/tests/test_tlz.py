@@ -1,6 +1,7 @@
+from types import ModuleType
 import humpy_toolz
 
-def test_tlz():
+def test_tlz() -> None:
     import humpy_tlz
     humpy_tlz.curry
     humpy_tlz.functoolz.curry
@@ -14,7 +15,7 @@ def test_tlz():
     assert humpy_tlz.curried.operator.__package__ in (None, 'humpy_tlz.curried')
     assert humpy_tlz.curried.operator.__name__ == 'humpy_tlz.curried.operator'
     assert humpy_tlz.functoolz.__name__ == 'humpy_tlz.functoolz'
-    m1 = humpy_tlz.functoolz
+    m1: ModuleType = humpy_tlz.functoolz
     import humpy_tlz.functoolz as m2
     assert m1 is m2
     import humpy_tlz.sandbox

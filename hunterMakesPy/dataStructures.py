@@ -30,8 +30,8 @@ References
 """
 from charset_normalizer import CharsetMatch
 from collections.abc import Mapping
-from humpy_cytoolz.functoolz import identity
-from humpy_cytoolz.recipes import partitionby
+from humpy_tlz.functoolz import identity
+from humpy_tlz.recipes import partitionby
 from hunterMakesPy import Ordinals
 from numpy import integer
 from numpy.typing import NDArray

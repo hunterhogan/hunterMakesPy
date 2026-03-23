@@ -3,60 +3,61 @@ from humpy_toolz.functoolz import (
 	apply, complement, compose, compose_left, curry, do, excepts, flip, juxt, memoize, pipe, thread_first, thread_last)
 from humpy_toolz.utils import raises
 from operator import add, itemgetter, mul
+from typing import NoReturn
 import humpy_toolz
 import inspect
 
-def iseven(x):
+def iseven(x: int) -> bool:
     return x % 2 == 0
 
-def isodd(x):
+def isodd(x: int) -> bool:
     return x % 2 == 1
 
-def inc(x):
+def inc(x: int) -> int:
     return x + 1
 
-def double(x):
+def double(x: int) -> int:
     return 2 * x
 
 class AlwaysEquals:
     """useful to test correct __eq__ implementation of other objects"""
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         return True
 
-    def __ne__(self, other):
+    def __ne__(self, other: object) -> bool:
         return False
 
 class NeverEquals:
     """useful to test correct __eq__ implementation of other objects"""
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         return False
 
-    def __ne__(self, other):
+    def __ne__(self, other: object) -> bool:
         return True
 
-def test_apply():
+def test_apply() -> None:
     assert apply(double, 5) == 10
     assert tuple(map(apply, [double, inc, double], [10, 500, 8000])) == (20, 501, 16000)
     assert raises(TypeError, apply)
 
-def test_thread_first():
+def test_thread_first() -> None:
     assert thread_first(2) == 2
     assert thread_first(2, inc) == 3
     assert thread_first(2, inc, inc) == 4
     assert thread_first(2, double, inc) == 5
     assert thread_first(2, (add, 5), double) == 14
 
-def test_thread_last():
+def test_thread_last() -> None:
     assert list(thread_last([1, 2, 3], (map, inc), (filter, iseven))) == [2, 4]
     assert list(thread_last([1, 2, 3], (map, inc), (filter, isodd))) == [3]
     assert thread_last(2, (add, 5), double) == 14
 
-def test_memoize():
-    fn_calls = [0]
+def test_memoize() -> None:
+    fn_calls: list[int] = [0]
 
-    def f(x, y):
+    def f(x: int, y: int) -> int:
         """ A docstring """
         fn_calls[0] += 1
         return x + y
@@ -66,10 +67,10 @@ def test_memoize():
     assert mf.__doc__ == f.__doc__
     assert raises(TypeError, lambda: mf(1, {}))
 
-def test_memoize_kwargs():
-    fn_calls = [0]
+def test_memoize_kwargs() -> None:
+    fn_calls: list[int] = [0]
 
-    def f(x, y=0):
+    def f(x: int, y: int = 0) -> int:
         return x + y
     mf = memoize(f)
     assert mf(1) == f(1)
@@ -77,26 +78,26 @@ def test_memoize_kwargs():
     assert mf(1, y=2) == f(1, y=2)
     assert mf(1, y=3) == f(1, y=3)
 
-def test_memoize_curried():
+def test_memoize_curried() -> None:
 
     @curry
-    def f(x, y=0):
+    def f(x: int, y: int = 0) -> int:
         return x + y
     f2 = f(y=1)
     fm2 = memoize(f2)
     assert fm2(3) == f2(3)
     assert fm2(3) == f2(3)
 
-def test_memoize_partial():
+def test_memoize_partial() -> None:
 
-    def f(x, y=0):
+    def f(x: int, y: int = 0) -> int:
         return x + y
     f2 = partial(f, y=1)
     fm2 = memoize(f2)
     assert fm2(3) == f2(3)
     assert fm2(3) == f2(3)
 
-def test_memoize_key_signature():
+def test_memoize_key_signature() -> None:
     mf = memoize(lambda x: False, cache={1: True})
     assert mf(1) is True
     assert mf(2) is False
@@ -124,32 +125,32 @@ def test_memoize_key_signature():
     assert mf(x=1) == 1
     assert mf(1) == 2
 
-def test_memoize_curry_cache():
+def test_memoize_curry_cache() -> None:
 
     @memoize(cache={1: True})
-    def f(x):
+    def f(x: int) -> bool:
         return False
     assert f(1) is True
     assert f(2) is False
 
-def test_memoize_key():
+def test_memoize_key() -> None:
 
     @memoize(key=lambda args, kwargs: args[0])
-    def f(x, y, *args, **kwargs):
+    def f(x: int, y: int, *args: int, **kwargs: int) -> int:
         return x + y
     assert f(1, 2) == 3
     assert f(1, 3) == 3
 
-def test_memoize_wrapped():
+def test_memoize_wrapped() -> None:
 
-    def foo():
+    def foo() -> None:
         """
         Docstring
         """
     memoized_foo = memoize(foo)
     assert memoized_foo.__wrapped__ is foo
 
-def test_curry_simple():
+def test_curry_simple() -> None:
     cmul = curry(mul)
     double = cmul(2)
     assert callable(double)
@@ -160,9 +161,9 @@ def test_curry_simple():
     assert raises(TypeError, lambda: curry())
     assert raises(TypeError, lambda: curry({1: 2}))
 
-def test_curry_kwargs():
+def test_curry_kwargs() -> None:
 
-    def f(a, b, c=10):
+    def f(a: int, b: int, c: int = 10) -> int:
         return (a + b) * c
     f = curry(f)
     assert f(1, 2, 3) == 9
@@ -171,7 +172,7 @@ def test_curry_kwargs():
     assert f(1, c=3)(2) == 9
     assert f(c=3)(1, 2) == 9
 
-    def g(a=1, b=10, c=0):
+    def g(a: int = 1, b: int = 10, c: int = 0) -> int:
         return a + b + c
     cg = curry(g, b=2)
     assert cg() == 3
@@ -181,27 +182,27 @@ def test_curry_kwargs():
     assert cg(0) == 2
     assert raises(TypeError, lambda: cg(1, 2))
 
-    def h(x, func=int):
+    def h(x: float, func: type[int] | type[str] = int) -> int | str:
         return func(x)
     assert curry(h)(0.0) == 0
     assert curry(h)(func=str)(0.0) == '0.0'
     assert curry(h, func=str)(0.0) == '0.0'
 
-def test_curry_passes_errors():
+def test_curry_passes_errors() -> None:
 
     @curry
-    def f(a, b):
+    def f(a: int | str, b: int) -> int:
         if not isinstance(a, int):
-            raise TypeError()
+            raise TypeError
         return a + b
     assert f(1, 2) == 3
     assert raises(TypeError, lambda: f('1', 2))
     assert raises(TypeError, lambda: f('1')(2))
     assert raises(TypeError, lambda: f(1, 2, 3))
 
-def test_curry_docstring():
+def test_curry_docstring() -> None:
 
-    def f(x, y):
+    def f(x: int, y: int) -> int:
         """ A docstring """
         return x
     g = curry(f)
@@ -209,9 +210,9 @@ def test_curry_docstring():
     assert str(g) == str(f)
     assert f(1, 2) == g(1, 2)
 
-def test_curry_is_like_partial():
+def test_curry_is_like_partial() -> None:
 
-    def foo(a, b, c=1):
+    def foo(a: int, b: int, c: int = 1) -> int:
         return a + b + c
     p, c = (partial(foo, 1, c=2), curry(foo)(1, c=2))
     assert p.keywords == c.keywords
@@ -227,9 +228,9 @@ def test_curry_is_like_partial():
     assert p.args == c.args
     assert p(1, 2) == c(1, 2)
 
-def test_curry_is_idempotent():
+def test_curry_is_idempotent() -> None:
 
-    def foo(a, b, c=1):
+    def foo(a: int, b: int, c: int = 1) -> int:
         return a + b + c
     f = curry(foo, 1, c=2)
     g = curry(f)
@@ -241,9 +242,9 @@ def test_curry_is_idempotent():
     assert f.args == g.args
     assert f.keywords == g.keywords
 
-def test_curry_attributes_readonly():
+def test_curry_attributes_readonly() -> None:
 
-    def foo(a, b, c=1):
+    def foo(a: int, b: int, c: int = 1) -> int:
         return a + b + c
     f = curry(foo, 1, c=2)
     assert raises(AttributeError, lambda: setattr(f, 'args', (2,)))
@@ -253,9 +254,9 @@ def test_curry_attributes_readonly():
     assert raises(AttributeError, lambda: delattr(f, 'keywords'))
     assert raises(AttributeError, lambda: delattr(f, 'func'))
 
-def test_curry_attributes_writable():
+def test_curry_attributes_writable() -> None:
 
-    def foo(a, b, c=1):
+    def foo(a: int, b: int, c: int = 1) -> int:
         return a + b + c
     foo.__qualname__ = 'this.is.foo'
     f = curry(foo, 1, c=2)
@@ -271,13 +272,13 @@ def test_curry_attributes_writable():
     if hasattr(f, 'func_name'):
         assert f.__name__ == f.func_name
 
-def test_curry_module():
+def test_curry_module() -> None:
     from humpy_toolz.curried.exceptions import merge
     assert merge.__module__ == 'humpy_toolz.curried.exceptions'
 
-def test_curry_comparable():
+def test_curry_comparable() -> None:
 
-    def foo(a, b, c=1):
+    def foo(a: int, b: int, c: int = 1) -> int:
         return a + b + c
     f1 = curry(foo, 1, c=2)
     f2 = curry(foo, 1, c=2)
@@ -293,7 +294,7 @@ def test_curry_comparable():
     assert h1 == h2
     assert h1 == h3
 
-    def bar(a, b, c=1):
+    def bar(a: int, b: int, c: int = 1) -> int:
         return a + b + c
     b1 = curry(bar, 1, c=2)
     assert b1 != f1
@@ -303,33 +304,33 @@ def test_curry_comparable():
     unhash2 = curry(foo, c=[])
     assert raises(TypeError, lambda: hash(unhash2))
 
-def test_curry_doesnot_transmogrify():
+def test_curry_doesnot_transmogrify() -> None:
 
-    def f(x, y=0):
+    def f(x: int, y: int = 0) -> int:
         return x + y
     cf = curry(f)
     assert cf(y=1)(y=2)(y=3)(1) == f(1, 3)
 
-def test_curry_on_classmethods():
+def test_curry_on_classmethods() -> None:
 
     class A:
         BASE = 10
 
-        def __init__(self, base):
+        def __init__(self, base: int) -> None:
             self.BASE = base
 
         @curry
-        def addmethod(self, x, y):
+        def addmethod(self, x: int, y: int) -> int:
             return self.BASE + x + y
 
         @classmethod
         @curry
-        def addclass(cls, x, y):
+        def addclass(cls, x: int, y: int) -> int:
             return cls.BASE + x + y
 
         @staticmethod
         @curry
-        def addstatic(x, y):
+        def addstatic(x: int, y: int) -> int:
             return x + y
     a = A(100)
     assert a.addmethod(3, 4) == 107
@@ -347,30 +348,30 @@ def test_curry_on_classmethods():
     assert isinstance(a.addmethod, curry)
     assert isinstance(A.addmethod, curry)
 
-def test_memoize_on_classmethods():
+def test_memoize_on_classmethods() -> None:
 
     class A:
         BASE = 10
         HASH = 10
 
-        def __init__(self, base):
+        def __init__(self, base: int) -> None:
             self.BASE = base
 
         @memoize
-        def addmethod(self, x, y):
+        def addmethod(self, x: int, y: int) -> int:
             return self.BASE + x + y
 
         @classmethod
         @memoize
-        def addclass(cls, x, y):
+        def addclass(cls, x: int, y: int) -> int:
             return cls.BASE + x + y
 
         @staticmethod
         @memoize
-        def addstatic(x, y):
+        def addstatic(x: int, y: int) -> int:
             return x + y
 
-        def __hash__(self):
+        def __hash__(self) -> int:
             return self.HASH
     a = A(100)
     assert a.addmethod(3, 4) == 107
@@ -388,19 +389,19 @@ def test_memoize_on_classmethods():
     assert a.addstatic(3, 4) == 7
     assert A.addstatic(3, 4) == 7
 
-def test_curry_call():
+def test_curry_call() -> None:
 
     @curry
-    def add(x, y):
+    def add(x: int, y: int) -> int:
         return x + y
     assert raises(TypeError, lambda: add.call(1))
     assert add(1)(2) == add.call(1, 2)
     assert add(1)(2) == add(1).call(2)
 
-def test_curry_bind():
+def test_curry_bind() -> None:
 
     @curry
-    def add(x=1, y=2):
+    def add(x: int = 1, y: int = 2) -> int:
         return x + y
     assert add() == add(1, 2)
     assert add.bind(10)(20) == add(10, 20)
@@ -408,13 +409,13 @@ def test_curry_bind():
     assert add.bind(x=10)(y=20) == add(10, 20)
     assert add.bind(x=10).bind(y=20)() == add(10, 20)
 
-def test_curry_unknown_args():
+def test_curry_unknown_args() -> None:
 
-    def add3(x, y, z):
+    def add3(x: int, y: int, z: int) -> int:
         return x + y + z
 
     @curry
-    def f(*args):
+    def f(*args: int) -> int:
         return add3(*args)
     assert f()(1)(2)(3) == 6
     assert f(1)(2)(3) == 6
@@ -422,10 +423,10 @@ def test_curry_unknown_args():
     assert f(1, 2, 3) == 6
     assert f(1, 2)(3, 4) == f(1, 2, 3, 4)
 
-def test_curry_bad_types():
+def test_curry_bad_types() -> None:
     assert raises(TypeError, lambda: curry(1))
 
-def test_curry_subclassable():
+def test_curry_subclassable() -> None:
 
     class mycurry(curry):
         pass
@@ -442,20 +443,20 @@ def generate_compose_test_cases():
     Generate test cases for parametrized tests of the compose function.
     """
 
-    def add_then_multiply(a, b, c=10):
+    def add_then_multiply(a: int, b: int, c: int = 10) -> int:
         return (a + b) * c
     return (((), (0,), {}, 0), ((inc,), (0,), {}, 1), ((double, inc), (0,), {}, 2), ((str, iseven, inc, double), (3,), {}, 'False'), ((str, add), (1, 2), {}, '3'), ((str, inc, add_then_multiply), (1, 2), {'c': 3}, '10'))
 
-def test_compose():
+def test_compose() -> None:
     for compose_args, args, kw, expected in generate_compose_test_cases():
         assert compose(*compose_args)(*args, **kw) == expected
 
-def test_compose_metadata():
+def test_compose_metadata() -> None:
 
-    def f(a):
+    def f(a: object) -> object:
         return a
 
-    def g(a):
+    def g(a: object) -> object:
         return a
     composed = compose(f, g)
     assert composed.__name__ == 'f_of_g'
@@ -481,7 +482,7 @@ def test_compose_metadata():
 
     class MyClass:
 
-        def __int__(self):
+        def __int__(self) -> int:
             return 8
         my_method = bindable
         my_static_method = staticmethod(bindable)
@@ -496,10 +497,10 @@ def test_compose_metadata():
     if hasattr(humpy_toolz, 'sandbox'):
         assert compose(f, h).__class__.__wrapped__ is None
 
-    def myfunc(a, b, c, *d, **e):
+    def myfunc(a: int, b: str, c: float, *d: int, **e: bool) -> int:
         return 4
 
-    def otherfunc(f):
+    def otherfunc(f: int) -> str:
         return f'result: {f}'
     myfunc.__annotations__ = {'a': int, 'b': str, 'c': float, 'd': int, 'e': bool, 'return': int}
     otherfunc.__annotations__ = {'f': int, 'return': str}
@@ -517,20 +518,20 @@ def generate_compose_left_test_cases():
     Generate test cases for parametrized tests of the compose function.
 
     These are based on, and equivalent to, those produced by
-    enerate_compose_test_cases().
+    generate_compose_test_cases().
     """
     return tuple(((tuple(reversed(compose_args)), args, kwargs, expected) for compose_args, args, kwargs, expected in generate_compose_test_cases()))
 
-def test_compose_left():
+def test_compose_left() -> None:
     for compose_left_args, args, kw, expected in generate_compose_left_test_cases():
         assert compose_left(*compose_left_args)(*args, **kw) == expected
 
-def test_pipe():
+def test_pipe() -> None:
     assert pipe(1, inc) == 2
     assert pipe(1, inc, inc) == 3
     assert pipe(1, double, inc, iseven) is False
 
-def test_complement():
+def test_complement() -> None:
     assert complement(lambda: False)()
     assert not complement(lambda: True)()
     assert complement(iseven)(1)
@@ -548,31 +549,31 @@ def test_complement():
     assert not complement(lambda: 1)()
     assert not complement(lambda: [1])()
 
-def test_do():
+def test_do() -> None:
     inc = lambda x: x + 1
     assert do(inc, 1) == 1
-    log = []
+    log: list[int] = []
     assert do(log.append, 1) == 1
     assert log == [1]
 
-def test_juxt_generator_input():
-    data = list(range(10))
+def test_juxt_generator_input() -> None:
+    data: list[int] = list(range(10))
     juxtfunc = juxt((itemgetter(2 * i) for i in range(5)))
     assert juxtfunc(data) == (0, 2, 4, 6, 8)
     assert juxtfunc(data) == (0, 2, 4, 6, 8)
 
-def test_flip():
+def test_flip() -> None:
 
-    def f(a, b):
+    def f(a: str, b: str) -> tuple[str, str]:
         return (a, b)
     assert flip(f, 'a', 'b') == ('b', 'a')
 
-def test_excepts():
+def test_excepts() -> None:
     assert excepts.__name__ == 'excepts'
-    testlines = '\n'.join((line.strip() for line in excepts.__doc__.splitlines()))
+    testlines: str = '\n'.join((line.strip() for line in excepts.__doc__.splitlines()))
     assert 'A wrapper around a function to catch exceptions and\ndispatch to a handler.\n' in testlines
 
-    def idx(a):
+    def idx(a: int) -> int:
         """idx docstring
         """
         return [1, 2].index(a)
@@ -591,7 +592,7 @@ def test_excepts():
     assert 'ValueError' in excepting.__doc__
     assert 'handler docstring' in excepting.__doc__
 
-    def getzero(a):
+    def getzero(a: list[int] | dict[int, int]) -> int:
         """getzero docstring
         """
         return a[0]
@@ -605,7 +606,7 @@ def test_excepts():
     assert 'return_none' in excepting.__doc__
     assert 'Returns None' in excepting.__doc__
 
-    def raise_(a):
+    def raise_(a) -> NoReturn:
         """A function that raises an instance of the exception type given.
         """
         raise a()

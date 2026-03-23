@@ -5,33 +5,33 @@ from operator import add
 import humpy_toolz
 import humpy_toolz.curried
 
-def test_take():
+def test_take() -> None:
     assert list(take(2)([1, 2, 3])) == [1, 2]
 
-def test_first():
+def test_first() -> None:
     assert first is humpy_toolz.itertoolz.first
 
-def test_merge():
+def test_merge() -> None:
     assert merge(factory=lambda: defaultdict(int))({1: 1}) == {1: 1}
     assert merge({1: 1}) == {1: 1}
     assert merge({1: 1}, factory=lambda: defaultdict(int)) == {1: 1}
 
-def test_merge_with():
+def test_merge_with() -> None:
     assert merge_with(sum)({1: 1}, {1: 2}) == {1: 3}
 
-def test_merge_with_list():
+def test_merge_with_list() -> None:
     assert merge_with(sum, [{'a': 1}, {'a': 2}]) == {'a': 3}
 
-def test_sorted():
+def test_sorted() -> None:
     assert sorted(key=second)([(1, 2), (2, 1)]) == [(2, 1), (1, 2)]
 
-def test_reduce():
+def test_reduce() -> None:
     assert reduce(add)((1, 2, 3)) == 6
 
-def test_module_name():
+def test_module_name() -> None:
     assert humpy_toolz.curried.__name__ == 'humpy_toolz.curried'
 
-def should_curry(func):
+def should_curry(func: object) -> bool:
     if not callable(func) or isinstance(func, humpy_toolz.curry):
         return False
     nargs = humpy_toolz.functoolz.num_required_args(func)
@@ -39,7 +39,7 @@ def should_curry(func):
         return True
     return nargs == 1 and humpy_toolz.functoolz.has_keywords(func)
 
-def test_curried_operator():
+def test_curried_operator() -> None:
     import operator
     for k, v in vars(cop).items():
         if not callable(v):
@@ -54,11 +54,11 @@ def test_curried_operator():
                     pass
                 else:
                     continue
-                raise AssertionError('toolz.curried.operator.%s is not curried!' % k)
+                raise AssertionError('humpy_toolz.curried.operator.%s is not curried!' % k)
         assert should_curry(getattr(operator, k)) == isinstance(v, humpy_toolz.curry), k
     assert len(set(vars(cop)) & {'add', 'sub', 'mul'}) == 3
 
-def test_curried_namespace():
+def test_curried_namespace() -> None:
     exceptions = import_module('humpy_toolz.curried.exceptions')
     namespace = {}
 
