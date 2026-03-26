@@ -175,17 +175,45 @@ def merge_with(func, *dicts, **kwargs):
 	return c_merge_with(func, dicts, factory)
 
 cpdef object valmap(object func, object d, object factory=dict):
-	"""
-	Apply function to values of dictionary
+	"""valmap(func: collections.abc.Callable[[V], W], d: collections.abc.Mapping[K, V], factory: collections.abc.Callable[[], collections.abc.MutableMapping[K, W]] = dict) -> collections.abc.MutableMapping[K, W]
+
+	Apply `func` to all values of `d` and return a new `Mapping` with the transformed values.
+
+	(AI generated docstring)
+
+	You can use `valmap` to transform all values in `d` without changing `d`. `valmap` applies
+	`func` to each value yielded by `d.values()` and builds a new `MutableMapping`[1] created
+	by `factory`, preserving each original key associated with its transformed value.
+
+	Parameters
+	----------
+	func : Callable[[V], W]
+		`Callable` applied to each value of `d`. Each value of `d` is passed to `func`
+		individually, and `func` returns the corresponding transformed value.
+	d : Mapping[K, V]
+		Source `Mapping`[1]. `valmap` reads all values from `d` and does not change `d`.
+	factory : Callable[[], MutableMapping[K, W]] = dict
+		`Callable` that creates the `MutableMapping`[1] to `return`.
+
+	Returns
+	-------
+	mappingTransformed : MutableMapping[K, W]
+		New `MutableMapping` created by `factory` in which each key from `d` is associated
+		with the result of applying `func` to the corresponding value of `d`.
+
+	See Also
+	--------
+	keymap : Apply a `Callable` to all keys of a `Mapping` and return a new `Mapping`.
+	itemmap : Apply a `Callable` to all items of a `Mapping` and return a new `Mapping`.
 
 	>>> bills = {"Alice": [20, 15, 30], "Bob": [10, 35]}
 	>>> valmap(sum, bills)  # doctest: +SKIP
 	{'Alice': 65, 'Bob': 45}
 
-	See Also
-	--------
-		keymap
-		itemmap
+	References
+	----------
+	[1] Python `collections.abc` module
+		https://docs.python.org/3/library/collections.abc.html
 	"""
 	cdef:
 		object rv
@@ -204,17 +232,45 @@ cpdef object valmap(object func, object d, object factory=dict):
 	return rv
 
 cpdef object keymap(object func, object d, object factory=dict):
-	"""
-	Apply function to keys of dictionary
+	"""keymap(func: collections.abc.Callable[[K], L], d: collections.abc.Mapping[K, V], factory: collections.abc.Callable[[], collections.abc.MutableMapping[L, V]] = dict) -> collections.abc.MutableMapping[L, V]
+
+	Apply `func` to all keys of `d` and return a new `Mapping` with the transformed keys.
+
+	(AI generated docstring)
+
+	You can use `keymap` to transform all keys in `d` without changing `d`. `keymap` applies
+	`func` to each key yielded by `d.keys()` and builds a new `MutableMapping`[1] created by
+	`factory`, associating each transformed key with the corresponding original value of `d`.
+
+	Parameters
+	----------
+	func : Callable[[K], L]
+		`Callable` applied to each key of `d`. Each key of `d` is passed to `func`
+		individually, and `func` returns the corresponding transformed key.
+	d : Mapping[K, V]
+		Source `Mapping`[1]. `keymap` reads all keys from `d` and does not change `d`.
+	factory : Callable[[], MutableMapping[L, V]] = dict
+		`Callable` that creates the `MutableMapping`[1] to `return`.
+
+	Returns
+	-------
+	mappingTransformed : MutableMapping[L, V]
+		New `MutableMapping` created by `factory` in which each key from `d` is replaced by
+		the result of applying `func` to that key, associated with the original value of `d`.
+
+	See Also
+	--------
+	valmap : Apply a `Callable` to all values of a `Mapping` and return a new `Mapping`.
+	itemmap : Apply a `Callable` to all items of a `Mapping` and return a new `Mapping`.
 
 	>>> bills = {"Alice": [20, 15, 30], "Bob": [10, 35]}
 	>>> keymap(str.lower, bills)  # doctest: +SKIP
 	{'alice': [20, 15, 30], 'bob': [10, 35]}
 
-	See Also
-	--------
-		valmap
-		itemmap
+	References
+	----------
+	[1] Python `collections.abc` module
+		https://docs.python.org/3/library/collections.abc.html
 	"""
 	cdef:
 		object rv
@@ -233,17 +289,47 @@ cpdef object keymap(object func, object d, object factory=dict):
 	return rv
 
 cpdef object itemmap(object func, object d, object factory=dict):
-	"""
-	Apply function to items of dictionary
+	"""itemmap(func: collections.abc.Callable[[tuple[K, V]], tuple[L, W]], d: collections.abc.Mapping[K, V], factory: collections.abc.Callable[[], collections.abc.MutableMapping[L, W]] = dict) -> collections.abc.MutableMapping[L, W]
+
+	Apply `func` to all items of `d` and return a new `Mapping` with the transformed items.
+
+	(AI generated docstring)
+
+	You can use `itemmap` to transform all keys and values in `d` simultaneously without
+	changing `d`. `itemmap` applies `func` to each item yielded by `d.items()`. Each item
+	is passed to `func` as a `tuple[K, V]`, and `func` must return a `tuple[L, W]`. `itemmap`
+	inserts each returned `tuple` as a new key-value pair in a `MutableMapping`[1] created
+	by `factory`.
+
+	Parameters
+	----------
+	func : Callable[[tuple[K, V]], tuple[L, W]]
+		`Callable` applied to each item of `d`. Each item of `d` is passed to `func` as a
+		`tuple[K, V]`, and `func` must return a `tuple[L, W]` containing the new key and value.
+	d : Mapping[K, V]
+		Source `Mapping`[1]. `itemmap` reads all items from `d` and does not change `d`.
+	factory : Callable[[], MutableMapping[L, W]] = dict
+		`Callable` that creates the `MutableMapping`[1] to `return`.
+
+	Returns
+	-------
+	mappingTransformed : MutableMapping[L, W]
+		New `MutableMapping` created by `factory` populated with each `tuple[L, W]` returned
+		by `func`.
+
+	See Also
+	--------
+	keymap : Apply a `Callable` to all keys of a `Mapping` and return a new `Mapping`.
+	valmap : Apply a `Callable` to all values of a `Mapping` and return a new `Mapping`.
 
 	>>> accountids = {"Alice": 10, "Bob": 20}
 	>>> itemmap(reversed, accountids)  # doctest: +SKIP
 	{10: "Alice", 20: "Bob"}
 
-	See Also
-	--------
-		keymap
-		valmap
+	References
+	----------
+	[1] Python `collections.abc` module
+		https://docs.python.org/3/library/collections.abc.html
 	"""
 	cdef:
 		object rv, k, v
@@ -263,19 +349,48 @@ cpdef object itemmap(object func, object d, object factory=dict):
 	return rv
 
 cpdef object valfilter(object predicate, object d, object factory=dict):
-	"""
-	Filter items in dictionary by value
+	"""valfilter(predicate: collections.abc.Callable[[V], bool], d: collections.abc.Mapping[K, V], factory: collections.abc.Callable[[], collections.abc.MutableMapping[K, V]] = dict) -> collections.abc.MutableMapping[K, V]
+
+	Retain only items from `d` whose values satisfy `predicate` and return a new `Mapping`.
+
+	(AI generated docstring)
+
+	You can use `valfilter` to select items from `d` (***d***ictionary) by their values. `valfilter`
+	calls `predicate` with each value yielded by `d.values()`. `valfilter` inserts each item whose
+	value causes `predicate` to return `True` into a new `MutableMapping`[1] created by `factory`.
+	`valfilter` does not change `d`.
+
+	Parameters
+	----------
+	predicate : Callable[[V], bool]
+		`Callable` applied to each value of `d`. `valfilter` keeps each item for which `predicate`
+		returns `True`.
+	d : Mapping[K, V]
+		Source `Mapping`[1]. `valfilter` reads all items from `d` and does not change `d`.
+	factory : Callable[[], MutableMapping[K, V]] = dict
+		`Callable` that creates the `MutableMapping`[1] to `return`.
+
+	Returns
+	-------
+	mappingFiltered : MutableMapping[K, V]
+		New `MutableMapping` created by `factory` containing only items from `d` whose values
+		cause `predicate` to return `True`.
+
+	See Also
+	--------
+	keyfilter : Retain only items from `d` whose keys satisfy `predicate` and return a new `Mapping`.
+	itemfilter : Retain only items from `d` whose key-value pairs satisfy `predicate` and return a new `Mapping`.
+	valmap : Apply a `Callable` to all values of a `Mapping` and return a new `Mapping`.
 
 	>>> iseven = lambda x: x % 2 == 0
 	>>> d = {1: 2, 2: 3, 3: 4, 4: 5}
 	>>> valfilter(iseven, d)
 	{1: 2, 3: 4}
 
-	See Also
-	--------
-		keyfilter
-		itemfilter
-		valmap
+	References
+	----------
+	[1] Python `collections.abc` module
+		https://docs.python.org/3/library/collections.abc.html
 	"""
 	cdef:
 		object rv
@@ -295,19 +410,48 @@ cpdef object valfilter(object predicate, object d, object factory=dict):
 	return rv
 
 cpdef object keyfilter(object predicate, object d, object factory=dict):
-	"""
-	Filter items in dictionary by key
+	"""keyfilter(predicate: collections.abc.Callable[[K], bool], d: collections.abc.Mapping[K, V], factory: collections.abc.Callable[[], collections.abc.MutableMapping[K, V]] = dict) -> collections.abc.MutableMapping[K, V]
+
+	Retain only items from `d` whose keys satisfy `predicate` and return a new `Mapping`.
+
+	(AI generated docstring)
+
+	You can use `keyfilter` to select items from `d` (***d***ictionary) by their keys. `keyfilter`
+	calls `predicate` with each key yielded by `d.keys()`. `keyfilter` inserts each item whose
+	key causes `predicate` to return `True` into a new `MutableMapping`[1] created by `factory`.
+	`keyfilter` does not change `d`.
+
+	Parameters
+	----------
+	predicate : Callable[[K], bool]
+		`Callable` applied to each key of `d`. `keyfilter` keeps each item for which `predicate`
+		returns `True`.
+	d : Mapping[K, V]
+		Source `Mapping`[1]. `keyfilter` reads all items from `d` and does not change `d`.
+	factory : Callable[[], MutableMapping[K, V]] = dict
+		`Callable` that creates the `MutableMapping`[1] to `return`.
+
+	Returns
+	-------
+	mappingFiltered : MutableMapping[K, V]
+		New `MutableMapping` created by `factory` containing only items from `d` whose keys
+		cause `predicate` to return `True`.
+
+	See Also
+	--------
+	valfilter : Retain only items from `d` whose values satisfy `predicate` and return a new `Mapping`.
+	itemfilter : Retain only items from `d` whose key-value pairs satisfy `predicate` and return a new `Mapping`.
+	keymap : Apply a `Callable` to all keys of a `Mapping` and return a new `Mapping`.
 
 	>>> iseven = lambda x: x % 2 == 0
 	>>> d = {1: 2, 2: 3, 3: 4, 4: 5}
 	>>> keyfilter(iseven, d)
 	{2: 3, 4: 5}
 
-	See Also
-	--------
-		valfilter
-		itemfilter
-		keymap
+	References
+	----------
+	[1] Python `collections.abc` module
+		https://docs.python.org/3/library/collections.abc.html
 	"""
 	cdef:
 		object rv
@@ -327,8 +471,39 @@ cpdef object keyfilter(object predicate, object d, object factory=dict):
 	return rv
 
 cpdef object itemfilter(object predicate, object d, object factory=dict):
-	"""
-	Filter items in dictionary by item
+	"""itemfilter(predicate: collections.abc.Callable[[tuple[K, V]], bool], d: collections.abc.Mapping[K, V], factory: collections.abc.Callable[[], collections.abc.MutableMapping[K, V]] = dict) -> collections.abc.MutableMapping[K, V]
+
+	Retain only items from `d` whose key-value pairs satisfy `predicate` and return a new `Mapping`.
+
+	(AI generated docstring)
+
+	You can use `itemfilter` to select items from `d` (***d***ictionary) by both key and value
+	simultaneously. `itemfilter` calls `predicate` with each item yielded by `d.items()`. Each
+	item is passed to `predicate` as a `tuple[K, V]`. `itemfilter` inserts each item for which
+	`predicate` returns `True` into a new `MutableMapping`[1] created by `factory`. `itemfilter`
+	does not change `d`.
+
+	Parameters
+	----------
+	predicate : Callable[[tuple[K, V]], bool]
+		`Callable` applied to each item of `d`. Each item is passed to `predicate` as a
+		`tuple[K, V]`, and `predicate` must return `True` for the item to be retained.
+	d : Mapping[K, V]
+		Source `Mapping`[1]. `itemfilter` reads all items from `d` and does not change `d`.
+	factory : Callable[[], MutableMapping[K, V]] = dict
+		`Callable` that creates the `MutableMapping`[1] to `return`.
+
+	Returns
+	-------
+	mappingFiltered : MutableMapping[K, V]
+		New `MutableMapping` created by `factory` containing only items from `d` for which
+		`predicate` returns `True`.
+
+	See Also
+	--------
+	keyfilter : Retain only items from `d` whose keys satisfy `predicate` and return a new `Mapping`.
+	valfilter : Retain only items from `d` whose values satisfy `predicate` and return a new `Mapping`.
+	itemmap : Apply a `Callable` to all items of a `Mapping` and return a new `Mapping`.
 
 	>>> def isvalid(item):
 	...     k, v = item
@@ -338,11 +513,10 @@ cpdef object itemfilter(object predicate, object d, object factory=dict):
 	>>> itemfilter(isvalid, d)
 	{2: 3}
 
-	See Also
-	--------
-		keyfilter
-		valfilter
-		itemmap
+	References
+	----------
+	[1] Python `collections.abc` module
+		https://docs.python.org/3/library/collections.abc.html
 	"""
 	cdef:
 		object rv, k, v
@@ -468,18 +642,57 @@ cdef object c_dissoc(object d, object keys, object factory=dict):
 	return rv
 
 def dissoc(d, *keys, **kwargs):
-	"""
-	Return a new dict with the given key(s) removed.
+	"""dissoc(d: collections.abc.Mapping[K, V], *keys: K, factory: collections.abc.Callable[[], collections.abc.MutableMapping[K, V]] = dict) -> collections.abc.MutableMapping[K, V]
 
-	New dict has d[key] deleted for each supplied key.
-	Does not modify the initial dictionary.
+	Create a new `MutableMapping`[1] from `d` with the specified `keys` removed.
 
+	(AI generated docstring)
+
+	You can use `dissoc` (***dissoc***iate) to copy `d` (***d***ictionary) to a new `MutableMapping`
+	created by `factory`, then remove each key in `keys` from the result. `dissoc` does not change
+	`d`. Keys in `keys` that are absent from `d` are silently ignored.
+
+	Parameters
+	----------
+	d : Mapping[K, V]
+		Source `Mapping`.
+	*keys : K
+		Keys to remove from `d` in the returned `MutableMapping`.
+	factory : Callable[[], MutableMapping[K, V]] = dict
+		`Callable` that creates the `MutableMapping`[1] to `return`.
+
+	Returns
+	-------
+	mappingReduced : MutableMapping[K, V]
+		New `MutableMapping` containing all items from `d` except those whose keys are in `keys`.
+
+	Algorithm Details
+	-----------------
+	`dissoc` selects between two strategies based on the ratio of removed keys to total keys.
+
+	When fewer than 60% of keys are removed, `dissoc` copies all items from `d` and then
+	deletes the specified keys one by one.
+
+	When 60% or more of keys are removed, `dissoc` computes the set of remaining keys and
+	copies only those items to the result, avoiding unnecessary copy-and-delete operations.
+
+	See Also
+	--------
+	assoc : Create a new `MutableMapping` from `d` with one key associated to a value.
+
+	Examples
+	--------
 	>>> dissoc({'x': 1, 'y': 2}, 'y')
 	{'x': 1}
 	>>> dissoc({'x': 1, 'y': 2}, 'y', 'x')
 	{}
 	>>> dissoc({'x': 1}, 'y') # Ignores missing keys
 	{'x': 1}
+
+	References
+	----------
+	[1] Python `collections.abc` module
+		https://docs.python.org/3/library/collections.abc.html
 	"""
 	return c_dissoc(d, keys, get_factory('dissoc', kwargs))
 
