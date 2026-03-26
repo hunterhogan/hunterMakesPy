@@ -95,25 +95,56 @@ cdef object c_merge(object dicts, object factory=dict):
 			rv.update(d)
 	return rv
 
-def merge(*dicts, **kwargs):
-	"""
-	Merge a collection of dictionaries
+def merge(*dicts, factory=dict):
+	"""\
+merge(*dicts: collections.abc.Mapping[K, V], factory: collections.abc.Callable[[], collections.abc.MutableMapping[K, V]] = dict) -> collections.abc.MutableMapping[K, V]
 
-	>>> merge({1: 'one'}, {2: 'two'})
-	{1: 'one', 2: 'two'}
+Merge a collection of dictionaries and return a new `Mapping`.
 
-	Later dictionaries have precedence
+(AI generated docstring)
 
-	>>> merge({1: 2, 3: 4}, {3: 3, 4: 4})
-	{1: 2, 3: 3, 4: 4}
+You can use `merge` to combine two or more `Mapping`[1] objects into a single new `Mapping`.
+`merge` calls `factory` to create the result, then updates it in order with each `Mapping` in
+`dicts`. When the same key appears in more than one element, the value from the later element
+takes precedence. You can also pass a single `Iterable[Mapping[K, V]]` as the sole positional
+argument instead of multiple `Mapping` arguments.
 
-	See Also
-	--------
-		merge_with
+Parameters
+----------
+*dicts : Mapping[K, V]
+	`Mapping` objects to merge. Alternatively, pass a single `Iterable[Mapping[K, V]]` as the
+	sole positional argument.
+factory : Callable[[], MutableMapping[K, V]] = dict
+	`Callable` that creates the `MutableMapping`[1] to `return`.
+
+Returns
+-------
+mappingMerged : MutableMapping[K, V]
+	New `MutableMapping` created by `factory` containing all key-value pairs from `dicts`. For
+	duplicate keys, the value from the last `Mapping` in `dicts` that contains the key takes
+	precedence.
+
+See Also
+--------
+merge_with : Merge dictionaries and apply a `Callable` to combined values.
+
+Examples
+--------
+>>> merge({1: 'one'}, {2: 'two'})
+{1: 'one', 2: 'two'}
+
+Later dictionaries have precedence
+
+>>> merge({1: 2, 3: 4}, {3: 3, 4: 4})
+{1: 2, 3: 3, 4: 4}
+
+References
+----------
+[1] Python `collections.abc` module
+	https://docs.python.org/3/library/collections.abc.html
 	"""
 	if len(dicts) == 1 and not isinstance(dicts[0], Mapping):
 		dicts = dicts[0]
-	factory = get_factory('merge', kwargs)
 	return c_merge(dicts, factory)
 
 cdef object c_merge_with(object func, object dicts, object factory=dict):
@@ -151,27 +182,58 @@ cdef object c_merge_with(object func, object dicts, object factory=dict):
 		PyObject_SetItem(rv, <object>pkey, func(<object>pval))
 	return rv
 
-def merge_with(func, *dicts, **kwargs):
+def merge_with(func, *dicts, factory=dict):
+	"""\
+merge_with(func: collections.abc.Callable[[list[V]], V], *dicts: collections.abc.Mapping[K, V], factory: collections.abc.Callable[[], collections.abc.MutableMapping[K, V]] = dict) -> collections.abc.MutableMapping[K, V]
+
+Merge dictionaries and apply a `Callable` to combined values.
+
+(AI generated docstring)
+
+You can use `merge_with` to combine two or more `Mapping`[1] objects and resolve key conflicts
+by applying `func` to a `list` of all values associated with each key. For each key that
+appears in one or more elements of `dicts`, `merge_with` collects all associated values into a
+`list` in the order they appear across `dicts`, then calls `func` with that `list` to produce
+the value in the result. You can also pass a single `Iterable[Mapping[K, V]]` as the sole
+positional argument after `func`.
+
+Parameters
+----------
+func : Callable[[list[V]], V]
+	`Callable` applied to the `list` of values associated with each key across all `Mapping`
+	objects in `dicts`. `func` receives a non-empty `list` and must return the merged value for
+	that key.
+*dicts : Mapping[K, V]
+	`Mapping` objects to merge. Alternatively, pass a single `Iterable[Mapping[K, V]]` as the
+	sole positional argument after `func`.
+factory : Callable[[], MutableMapping[K, V]] = dict
+	`Callable` that creates the `MutableMapping`[1] to `return`.
+
+Returns
+-------
+mappingMerged : MutableMapping[K, V]
+	New `MutableMapping` created by `factory` where each key maps to the result of calling
+	`func` with all values associated with that key across `dicts`.
+
+See Also
+--------
+merge : Merge a collection of `Mapping` objects into a new `Mapping`.
+
+Examples
+--------
+>>> merge_with(sum, {1: 1, 2: 2}, {1: 10, 2: 20})
+{1: 11, 2: 22}
+
+>>> merge_with(first, {1: 1, 2: 2}, {2: 20, 3: 30})  # doctest: +SKIP
+{1: 1, 2: 2, 3: 30}
+
+References
+----------
+[1] Python `collections.abc` module
+	https://docs.python.org/3/library/collections.abc.html
 	"""
-	Merge dictionaries and apply function to combined values
-
-	A key may occur in more than one dict, and all values mapped from the key
-	will be passed to the function as a list, such as func([val1, val2, ...]).
-
-	>>> merge_with(sum, {1: 1, 2: 2}, {1: 10, 2: 20})
-	{1: 11, 2: 22}
-
-	>>> merge_with(first, {1: 1, 2: 2}, {2: 20, 3: 30})  # doctest: +SKIP
-	{1: 1, 2: 2, 3: 30}
-
-	See Also
-	--------
-		merge
-	"""
-
 	if len(dicts) == 1 and not isinstance(dicts[0], Mapping):
 		dicts = dicts[0]
-	factory = get_factory('merge_with', kwargs)
 	return c_merge_with(func, dicts, factory)
 
 cpdef object valmap(object func, object d, object factory=dict):
@@ -585,17 +647,52 @@ cpdef object assoc(object d, object key, object value, object factory=dict):
 	return rv
 
 cpdef object assoc_in(object d, object keys, object value, object factory=dict):
-	"""
-	Return a new dict with new, potentially nested, key value pair
+	"""assoc_in(d: collections.abc.Mapping[K, V], keys: collections.abc.Iterable[K], value: V, factory: collections.abc.Callable[[], collections.abc.MutableMapping[K, V]] = dict) -> collections.abc.MutableMapping[K, V]
 
-	>>> purchase = {'name': 'Alice',
-	...             'order': {'items': ['Apple', 'Orange'],
-	...                       'costs': [0.50, 1.25]},
-	...             'credit card': '5555-1234-1234-1234'}
-	>>> assoc_in(purchase, ['order', 'costs'], [0.25, 1.00]) # doctest: +SKIP
-	{'credit card': '5555-1234-1234-1234',
-	 'name': 'Alice',
-	 'order': {'costs': [0.25, 1.00], 'items': ['Apple', 'Orange']}}
+	Create a new `MutableMapping` from `d` with `value` at the path specified by `keys`.
+
+	(AI generated docstring)
+
+	You can use `assoc_in` to produce a copy of `d` with `value` placed at the nested
+	location given by `keys`. `assoc_in` creates intermediate `MutableMapping` instances
+	as needed when a key in `keys` is absent from `d`. `assoc_in` does not mutate `d` or
+	any nested `Mapping` within `d`.
+
+	Parameters
+	----------
+	d : Mapping[K, V]
+		Source `Mapping`.
+	keys : Iterable[K]
+		Non-empty sequence of keys specifying the nested path to the target location in `d`.
+	value : V
+		The value to place at the location specified by `keys`.
+	factory : Callable[[], MutableMapping[K, V]] = dict
+		`Callable` that creates each new `MutableMapping`[1] in the result.
+
+	Returns
+	-------
+	mappingUpdated : MutableMapping[K, V]
+		New `MutableMapping` based on `d` with `value` at the path specified by `keys`.
+
+	See Also
+	--------
+	update_in : Apply a `Callable` to a value at a nested path in a `Mapping`.
+	get_in : Retrieve a value at a nested path in a `Mapping`.
+	assoc : Create a new `Mapping` from `d` with one key associated to a value.
+
+	Examples
+	--------
+	>>> assoc_in({'a': 1}, ['a'], 2)
+	{'a': 2}
+	>>> assoc_in({'a': {'b': 1}}, ['a', 'b'], 2)
+	{'a': {'b': 2}}
+	>>> assoc_in({}, ['a', 'b'], 1)
+	{'a': {'b': 1}}
+
+	References
+	----------
+	[1] Python `collections.abc` module
+		https://docs.python.org/3/library/collections.abc.html
 	"""
 	cdef object prevkey, key
 	cdef object rv, inner, dtemp
@@ -697,39 +794,61 @@ def dissoc(d, *keys, **kwargs):
 	return c_dissoc(d, keys, get_factory('dissoc', kwargs))
 
 cpdef object update_in(object d, object keys, object func, object default=None, object factory=dict):
-	"""
-	Update value in a (potentially) nested dictionary
+	"""update_in(d: collections.abc.Mapping[K, V], keys: collections.abc.Iterable[K], func: collections.abc.Callable[[V | D | None], V], default: D | None = None, factory: collections.abc.Callable[[], collections.abc.MutableMapping[K, V]] = dict) -> collections.abc.MutableMapping[K, V]
 
-	inputs:
-	d - dictionary on which to operate
-	keys - list or tuple giving the location of the value to be changed in d
-	func - function to operate on that value
+	Apply a `Callable` to a value at a nested path in a `Mapping`.
 
-	If keys == [k0,..,kX] and d[k0]..[kX] == v, update_in returns a copy of the
-	original dictionary with v replaced by func(v), but does not mutate the
-	original dictionary.
+	(AI generated docstring)
 
-	If k0 is not a key in d, update_in creates nested dictionaries to the depth
-	specified by the keys, with the innermost value set to func(default).
+	You can use `update_in` to produce a copy of `d` with the value at the nested path
+	specified by `keys` replaced by the result of calling `func` on the current value.
+	`update_in` creates intermediate `MutableMapping` instances as needed when a key in
+	`keys` is absent from `d`. If the innermost key is absent, `func` receives `default`
+	instead of an existing value. `update_in` does not mutate `d` or any nested `Mapping`
+	within `d`.
 
+	Parameters
+	----------
+	d : Mapping[K, V]
+		Source `Mapping`.
+	keys : Iterable[K]
+		Non-empty sequence of keys specifying the nested path to the value to update in `d`.
+	func : Callable[[V | D | None], V]
+		`Callable` applied to the current value at the path in `keys`. If the innermost
+		key is absent from `d`, `func` receives `default`.
+	default : D | None = None
+		Value passed to `func` when the innermost key is absent from `d`.
+	factory : Callable[[], MutableMapping[K, V]] = dict
+		`Callable` that creates each new `MutableMapping`[1] in the result.
+
+	Returns
+	-------
+	mappingUpdated : MutableMapping[K, V]
+		New `MutableMapping` based on `d` with the value at the path specified by `keys`
+		replaced by the result of `func`.
+
+	See Also
+	--------
+	assoc_in : Create a new `Mapping` from `d` with a value at a nested path.
+	get_in : Retrieve a value at a nested path in a `Mapping`.
+	assoc : Create a new `Mapping` from `d` with one key associated to a value.
+
+	Examples
+	--------
 	>>> inc = lambda x: x + 1
 	>>> update_in({'a': 0}, ['a'], inc)
 	{'a': 1}
 
-	>>> transaction = {'name': 'Alice',
-	...                'purchase': {'items': ['Apple', 'Orange'],
-	...                             'costs': [0.50, 1.25]},
-	...                'credit card': '5555-1234-1234-1234'}
-	>>> update_in(transaction, ['purchase', 'costs'], sum) # doctest: +SKIP
-	{'credit card': '5555-1234-1234-1234',
-	 'name': 'Alice',
-	 'purchase': {'costs': 1.75, 'items': ['Apple', 'Orange']}}
+	>>> update_in({}, ['z'], inc, 0)
+	{'z': 1}
 
-	>>> # updating a value when k0 is not in d
 	>>> update_in({}, [1, 2, 3], str, default="bar")
 	{1: {2: {3: 'bar'}}}
-	>>> update_in({1: 'foo'}, [2, 3, 4], inc, 0)
-	{1: 'foo', 2: {3: {4: 1}}}
+
+	References
+	----------
+	[1] Python `collections.abc` module
+		https://docs.python.org/3/library/collections.abc.html
 	"""
 	cdef object prevkey, key
 	cdef object rv, inner, dtemp
@@ -766,15 +885,53 @@ cpdef object update_in(object d, object keys, object func, object default=None, 
 cdef tuple _get_in_exceptions = (KeyError, IndexError, TypeError)
 
 cpdef object get_in(object keys, object coll, object default=None, object no_default=False):
-	"""
-	Returns coll[i0][i1]...[iX] where [i0, i1, ..., iX]==keys.
+	"""get_in(keys: collections.abc.Iterable[K], coll: collections.abc.Mapping[K, V], default: D | None = None, *, no_default: bool = False) -> V | D | None
 
-	If coll[i0][i1]...[iX] cannot be found, returns ``default``, unless
-	``no_default`` is specified, then it raises KeyError or IndexError.
+	Retrieve a value from a potentially nested collection using a sequence of keys.
 
-	``get_in`` is a generalization of ``operator.getitem`` for nested data
-	structures such as dictionaries and lists.
+	(AI generated docstring)
 
+	You can use `get_in` to navigate into nested data structures by following a sequence
+	of keys. If the path does not exist, `get_in` returns `default`. If `no_default` is
+	True, `get_in` re-raises the original exception instead of returning `default`.
+
+	`get_in` is a generalization of `operator.getitem` for nested data structures
+	such as dictionaries and lists.
+
+	Parameters
+	----------
+	keys : Iterable[K]
+		Sequence of keys that describes the path to traverse in `coll`.
+	coll : Mapping[K, V]
+		Collection to traverse. Can be any collection supporting `operator.getitem`,
+		including nested dicts and lists.
+	default : D | None = None
+		Value to return when the path in `keys` does not exist in `coll`.
+	no_default : bool = False
+		When True, re-raise the original `KeyError`, `IndexError`, or `TypeError`
+		instead of returning `default`.
+
+	Returns
+	-------
+	value : V | D | None
+		The value at the nested path, or `default` if the path does not exist.
+
+	Raises
+	------
+	KeyError
+		When `no_default` is True and a key is missing from a mapping.
+	IndexError
+		When `no_default` is True and an index is out of range.
+	TypeError
+		When `no_default` is True and a key type is incompatible with the collection.
+
+	See Also
+	--------
+	itertoolz.get : Retrieve a value or values from a collection.
+	operator.getitem : Return the value at a given key in a collection.
+
+	Examples
+	--------
 	>>> transaction = {'name': 'Alice',
 	...                'purchase': {'items': ['Apple', 'Orange'],
 	...                             'costs': [0.50, 1.25]},
@@ -792,11 +949,6 @@ cpdef object get_in(object keys, object coll, object default=None, object no_def
 	Traceback (most recent call last):
 		...
 	KeyError: 'y'
-
-	See Also
-	--------
-		itertoolz.get
-		operator.getitem
 	"""
 	cdef object item
 	try:

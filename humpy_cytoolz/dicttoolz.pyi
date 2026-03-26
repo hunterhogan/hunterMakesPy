@@ -102,19 +102,21 @@ def dissoc[K, V](
 
 @overload
 def get_in[K, V](
-	keys: Iterable[K] | K,
-	coll: Iterable[V] | Mapping[K, V],
+	keys: Iterable[K],
+	coll: Mapping[K, V],
+	default: None = None,
+	no_default: bool = False,
 ) -> V | None: ...
 @overload
 def get_in[K, V, D](
-	keys: Iterable[K] | K,
-	coll: Iterable[V] | Mapping[K, V],
+	keys: Iterable[K],
+	coll: Mapping[K, V],
 	default: D,
-	no_default: bool = ...,
+	no_default: bool = False,
 ) -> V | D: ...
 def get_in[K, V, D](
-	keys: Iterable[K] | K,
-	coll: Iterable[V] | Mapping[K, V],
+	keys: Iterable[K],
+	coll: Mapping[K, V],
 	default: D | None = None,
 	no_default: bool = False,
 ) -> V | D | None:
@@ -314,35 +316,42 @@ def merge_with[K, V](
 	...
 
 @overload
-def update_in[K, V, D](
+def update_in[K, V](
 	d: Mapping[K, V],
-	keys: Iterable[K] | K,
-	func: Callable[..., V],
-	default: D | None = None,
-) -> dict[K, V | D]: ...
+	keys: Iterable[K],
+	func: Callable[[V | None], V],
+	default: None = None,
+) -> dict[K, V]: ...
 @overload
 def update_in[K, V, D](
 	d: Mapping[K, V],
-	keys: Iterable[K] | K,
-	func: Callable[..., V],
-	default: D | None,
-	factory: Callable[[], MutableMapping[K, V | D]],
-) -> MutableMapping[K, V | D]: ...
+	keys: Iterable[K],
+	func: Callable[[V | D], V],
+	default: D,
+) -> dict[K, V]: ...
+@overload
+def update_in[K, V](
+	d: Mapping[K, V],
+	keys: Iterable[K],
+	func: Callable[[V | None], V],
+	default: None,
+	factory: Callable[[], MutableMapping[K, V]],
+) -> MutableMapping[K, V]: ...
 @overload
 def update_in[K, V, D](
 	d: Mapping[K, V],
-	keys: Iterable[K] | K,
-	func: Callable[..., V],
-	default: D | None = None,
-	factory: Callable[[], MutableMapping[K, V | D]] = dict,
-) -> MutableMapping[K, V | D]: ...
+	keys: Iterable[K],
+	func: Callable[[V | D], V],
+	default: D,
+	factory: Callable[[], MutableMapping[K, V]],
+) -> MutableMapping[K, V]: ...
 def update_in[K, V, D](
 	d: Mapping[K, V],
-	keys: Iterable[K] | K,
-	func: Callable[..., V],
+	keys: Iterable[K],
+	func: Callable[[V | D | None], V],
 	default: D | None = None,
-	factory: Callable[[], MutableMapping[K, V | D]] = dict,
-) -> MutableMapping[K, V | D]:
+	factory: Callable[[], MutableMapping[K, V]] = dict,
+) -> MutableMapping[K, V]:
 	...
 
 @overload
