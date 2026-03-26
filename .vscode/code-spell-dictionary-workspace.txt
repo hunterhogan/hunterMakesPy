@@ -50,6 +50,7 @@ newparam
 newqualname
 oldd
 otherfunc
+popleft
 Rocklin
 rsample
 sequenceiterator

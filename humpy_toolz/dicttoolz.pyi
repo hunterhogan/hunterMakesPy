@@ -1,5 +1,5 @@
 from collections.abc import Callable, Iterable, Mapping, MutableMapping
-from typing import Any, overload, TypeGuard
+from typing import overload, TypeGuard
 from typing_extensions import TypeIs
 
 __all__ = (
@@ -24,6 +24,14 @@ def assoc[K, V](d: Mapping[K, V], key: K, value: V) -> dict[K, V]: ...
 def assoc[K, V](d: Mapping[K, V], key: K, value: V, factory: Callable[[], MutableMapping[K, V]]) -> MutableMapping[K, V]: ...
 
 @overload
+def merge[K, V](dicts: Iterable[Mapping[K, V]]) -> dict[K, V]: ...
+@overload
+def merge[K, V](
+	dicts: Iterable[Mapping[K, V]],
+	*,
+	factory: Callable[[], MutableMapping[K, V]],
+) -> MutableMapping[K, V]: ...
+@overload
 def merge[K, V](*dicts: Mapping[K, V]) -> dict[K, V]: ...
 @overload
 def merge[K, V](
@@ -31,11 +39,23 @@ def merge[K, V](
 	factory: Callable[[], MutableMapping[K, V]],
 ) -> MutableMapping[K, V]: ...
 def merge[K, V](
-	*dicts: Mapping[K, V],
+	*dicts: Mapping[K, V] | Iterable[Mapping[K, V]],
 	factory: Callable[[], MutableMapping[K, V]] = dict,
 ) -> MutableMapping[K, V]:
 	...
 
+@overload
+def merge_with[K, V](
+	func: Callable[[list[V]], V],
+	dicts: Iterable[Mapping[K, V]],
+) -> dict[K, V]: ...
+@overload
+def merge_with[K, V](
+	func: Callable[[list[V]], V],
+	dicts: Iterable[Mapping[K, V]],
+	*,
+	factory: Callable[[], MutableMapping[K, V]],
+) -> MutableMapping[K, V]: ...
 @overload
 def merge_with[K, V](
 	func: Callable[[list[V]], V],
@@ -49,7 +69,7 @@ def merge_with[K, V](
 ) -> MutableMapping[K, V]: ...
 def merge_with[K, V](
 	func: Callable[[list[V]], V],
-	*dicts: Mapping[K, V],
+	*dicts: Mapping[K, V] | Iterable[Mapping[K, V]],
 	factory: Callable[[], MutableMapping[K, V]] = dict,
 ) -> MutableMapping[K, V]:
 	...
@@ -278,8 +298,8 @@ def assoc_in[K1, K2, V1, V2](
 	keys: tuple[K1, K2],
 	value: V2,
 	*,
-	factory: Callable[[], MutableMapping[K1, Any]],
-) -> MutableMapping[K1, Any]: ...
+	factory: Callable[[], MutableMapping[K1, dict[K2, V2] | V1 | V2]],
+) -> MutableMapping[K1, dict[K2, V2] | V1 | V2]: ...
 
 # Overloads for nested dictionaries with tuple keys (3-level nesting)
 @overload
@@ -298,27 +318,27 @@ def assoc_in[K1, K2, K3, V1, V2, V3](
 	keys: tuple[K1, K2, K3],
 	value: V3,
 	*,
-	factory: Callable[[], MutableMapping[K1, Any]],
-) -> MutableMapping[K1, Any]: ...
+	factory: Callable[[], MutableMapping[K1, dict[K2, dict[K3, V3] | V2 | V3] | V1 | V3]],
+) -> MutableMapping[K1, dict[K2, dict[K3, V3] | V2 | V3] | V1 | V3]: ...
 
 # General overloads for backwards compatibility
 @overload
 def assoc_in[K, V](
 	d: Mapping[K, V],
-	keys: Iterable[K] | K,
+	keys: Iterable[K],
 	value: V,
 ) -> dict[K, V]: ...
 @overload
 def assoc_in[K, V](
 	d: Mapping[K, V],
-	keys: Iterable[K] | K,
+	keys: Iterable[K],
 	value: V,
 	*,
 	factory: Callable[[], MutableMapping[K, V]],
 ) -> MutableMapping[K, V]: ...
 def assoc_in[K, V](
 	d: Mapping[K, V],
-	keys: Iterable[K] | K,
+	keys: Iterable[K],
 	value: V,
 	*,
 	factory: Callable[[], MutableMapping[K, V]] = dict,
@@ -328,60 +348,60 @@ def assoc_in[K, V](
 @overload
 def update_in[K, V](
 	d: Mapping[K, V],
-	keys: Iterable[K] | K,
-	func: Callable[..., V],
-	default: Any | None = None,
+	keys: Iterable[K],
+	func: Callable[[V | None], V],
+	default: None = None,
+) -> dict[K, V]: ...
+@overload
+def update_in[K, V, D](
+	d: Mapping[K, V],
+	keys: Iterable[K],
+	func: Callable[[V | D], V],
+	default: D,
 ) -> dict[K, V]: ...
 @overload
 def update_in[K, V](
 	d: Mapping[K, V],
-	keys: Iterable[K] | K,
-	func: Callable[..., V],
-	default: Any | None,
+	keys: Iterable[K],
+	func: Callable[[V | None], V],
+	default: None,
 	factory: Callable[[], MutableMapping[K, V]],
 ) -> MutableMapping[K, V]: ...
 @overload
-def update_in[K, V](
+def update_in[K, V, D](
 	d: Mapping[K, V],
-	keys: Iterable[K] | K,
-	func: Callable[..., V],
-	default: Any | None = None,
-	factory: Callable[[], MutableMapping[K, V]] = dict,
+	keys: Iterable[K],
+	func: Callable[[V | D], V],
+	default: D,
+	factory: Callable[[], MutableMapping[K, V]],
 ) -> MutableMapping[K, V]: ...
-def update_in[K, V](
+def update_in[K, V, D](
 	d: Mapping[K, V],
-	keys: Iterable[K] | K,
-	func: Callable[..., V],
-	default: Any | None = None,
+	keys: Iterable[K],
+	func: Callable[[V | D | None], V],
+	default: D | None = None,
 	factory: Callable[[], MutableMapping[K, V]] = dict,
 ) -> MutableMapping[K, V]:
 	...
 
 @overload
-def get_in[K, V, D](
-	keys: Iterable[K] | K,
-	coll: Iterable[V] | Mapping[K, V],
-	default: V,
-	no_default: bool = ...,
-) -> V: ...
-@overload
-def get_in[K, V, D](
-	keys: Iterable[K] | K,
-	coll: Iterable[V] | Mapping[K, V],
-	default: D = ...,
-	no_default: bool = ...,
-) -> V | D: ...
-@overload
 def get_in[K, V](
-	keys: Iterable[K] | K,
-	coll: Iterable[V] | Mapping[K, V],
-	default: Any = ...,
-	no_default: bool = ...,
-) -> Any: ...
-def get_in[K, V](
-	keys: Iterable[K] | K,
-	coll: Iterable[V] | Mapping[K, V],
-	default: Any = None,
+	keys: Iterable[K],
+	coll: Mapping[K, V],
+	default: None = None,
 	no_default: bool = False,
-) -> Any:
+) -> V | None: ...
+@overload
+def get_in[K, V, D](
+	keys: Iterable[K],
+	coll: Mapping[K, V],
+	default: D,
+	no_default: bool = False,
+) -> V | D: ...
+def get_in[K, V, D](
+	keys: Iterable[K],
+	coll: Mapping[K, V],
+	default: D | None = None,
+	no_default: bool = False,
+) -> V | D | None:
 	...
