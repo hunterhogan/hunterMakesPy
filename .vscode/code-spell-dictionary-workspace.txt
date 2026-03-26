@@ -26,11 +26,14 @@ cythonize
 Dact
 doctests
 doesnot
+dtemp
 eehhhh
 embedsignature
 freethreading
 frozensets
 getzero
+iate
+ictionary
 indollars
 inspectbroken
 iseven

@@ -99,9 +99,6 @@ testpaths = [
   "hunterMakesPy/tests",
 ]
 
-[tool.cibuildwheel]
-skip = ["*-win32"]
-
 [tool.setuptools]
 ext-modules = [
   { name = "humpy_cytoolz.dicttoolz", sources = ["humpy_cytoolz/dicttoolz.pyx"] },
