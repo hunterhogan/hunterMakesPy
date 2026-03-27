@@ -1,7 +1,9 @@
-from collections import defaultdict  # noqa: D100
+# ruff: noqa: D100
+from collections import defaultdict, deque
 from collections.abc import Callable, Iterable, Mapping, MutableMapping
 from functools import reduce
-from typing import overload
+from typing import Any, overload
+import copy
 import operator
 
 __all__ = ('assoc', 'assoc_in', 'dissoc', 'get_in', 'itemfilter', 'itemmap', 'keyfilter', 'keymap', 'merge', 'merge_with', 'update_in', 'valfilter', 'valmap')
@@ -605,15 +607,16 @@ def assoc_in[K, V](d: Mapping[K, V], keys: Iterable[K], value: V, factory: Calla
 	"""
 	return update_in(d, keys, lambda _x: value, value, factory)
 
+# TODO Given `d: dict[str, int | str]`. It does not follow that `func: Callable[[int | str], int | str]`
 @overload
-def update_in[K, V](d: Mapping[K, V], keys: Iterable[K], func: Callable[[V | None], V], default: None = None) -> dict[K, V]: ...
+def update_in[K, V](d: Mapping[K, V], keys: Iterable[K], func: Callable[[V], V], default: None = None, *, factory: Callable[[], MutableMapping[K, V]] = dict) -> dict[K, V]: ...
 @overload
-def update_in[K, V, D](d: Mapping[K, V], keys: Iterable[K], func: Callable[[V | D], V], default: D) -> dict[K, V]: ...
+def update_in[K, V](d: Mapping[K, V], keys: Iterable[K], func: Callable[[V], V], default: V, factory: Callable[[], MutableMapping[K, V]] = dict) -> dict[K, V]: ...
 @overload
-def update_in[K, V](d: Mapping[K, V], keys: Iterable[K], func: Callable[[V | None], V], default: None, factory: Callable[[], MutableMapping[K, V]]) -> MutableMapping[K, V]: ...
+def update_in[K, V](d: Mapping[K, V], keys: Iterable[K], func: Callable[[V], V], default: None = None, *, factory: Callable[[], MutableMapping[K, V]]) -> MutableMapping[K, V]: ...
 @overload
-def update_in[K, V, D](d: Mapping[K, V], keys: Iterable[K], func: Callable[[V | D], V], default: D, factory: Callable[[], MutableMapping[K, V]]) -> MutableMapping[K, V]: ...
-def update_in[K, V, D](d: Mapping[K, V], keys: Iterable[K], func: Callable[[V | D | None], V], default: D | None = None, factory: Callable[[], MutableMapping[K, V]] = dict) -> MutableMapping[K, V]:
+def update_in[K, V](d: Mapping[K, V], keys: Iterable[K], func: Callable[[V], V], default: V, factory: Callable[[], MutableMapping[K, V]]) -> MutableMapping[K, V]: ...
+def update_in[K, V](d: Mapping[K, V], keys: Iterable[K], func: Callable[[V], V], default: V | None = None, factory: Callable[[], MutableMapping[K, V]] = dict) -> MutableMapping[K, V]:
 	"""Apply a `Callable` to a value at a nested path in a `Mapping`.
 
 	(AI generated docstring)
@@ -668,24 +671,105 @@ def update_in[K, V, D](d: Mapping[K, V], keys: Iterable[K], func: Callable[[V | 
 	[1] Python `collections.abc` module
 		https://docs.python.org/3/library/collections.abc.html
 	"""
-	ks = iter(keys)
-	k = next(ks)
-	rv = inner = factory()
+# DEVELOPMENT IDK if this is faster or slower. It might be easier to type.
+
+	rv = dATk = factory()
 	rv.update(d)
-	for key in ks:
-		if k in d:
-			d = d[k]
-			dtemp = factory()
-			dtemp.update(d)
-		else:
-			d = dtemp = factory()
-		inner[k] = inner = dtemp
-		k = key
-	if k in d:
-		inner[k] = func(d[k])
-	else:
-		inner[k] = func(default)
+
+	dequeKeys: deque[K] = deque(keys)
+	keyFinal: K = dequeKeys.pop()
+
+	sherpa: MutableMapping[K, Any] = dict(d)
+
+	while dequeKeys:
+		k: K = dequeKeys.popleft()
+		sherpa = dict(sherpa).get(k, factory())
+		dATk[k] = dATk = copy.deepcopy(sherpa) 			# pyright: ignore[reportArgumentType]
+
+	dATk[keyFinal] = func(dict(sherpa).get(keyFinal, default))
+
 	return rv
+
+def Z0Z_update_in[K, V](d: Mapping[K, V], keys: Iterable[K], func: Callable[[V], V], default: V | None = None, factory: Callable[..., MutableMapping[K, V]] = dict) -> MutableMapping[K, V]:
+	"""Does not pass the custom mappings tests."""
+	mapping = youAreHere = factory(d) # pyright: ignore[reportUnknownVariableType]
+
+	dequeKeys: deque[K] = deque(keys)
+	keyFinal = dequeKeys.pop()
+
+	while dequeKeys:
+		aKey = dequeKeys.popleft()
+		if aKey in youAreHere: # pyright: ignore[reportOperatorIssue]
+			youAreHere = youAreHere[aKey] # pyright: ignore[reportIndexIssue]
+		else:
+			youAreHere[aKey] = factory() # pyright: ignore[reportIndexIssue, reportArgumentType]
+			youAreHere = youAreHere[aKey] # pyright: ignore[reportIndexIssue]
+			while dequeKeys:
+				aKey = dequeKeys.popleft()
+				youAreHere[aKey] = factory() # pyright: ignore[reportIndexIssue]
+				youAreHere = youAreHere[aKey] # pyright: ignore[reportIndexIssue]
+	else:
+		youAreHere[keyFinal] = func(youAreHere.get(keyFinal, default)) # pyright: ignore[reportArgumentType, reportUnknownMemberType, reportAttributeAccessIssue, reportIndexIssue]
+
+	return mapping
+
+def Z0Z_update_inDeconstructed[K, V](d: Mapping[K, V], keys: Iterable[K], func: Callable[[V], V], default: V | None = None, factory: Callable[..., MutableMapping[K, V]] = dict) -> MutableMapping[K, V]:
+	"""Function passes all tests."""
+# DEVELOPMENT Is deepcopy slow?
+# Is there a fundamental reason they chose factory() then update? YES.
+# 	`d` must be at least a Mapping.
+# 	But their flow depends on `update()`, which is a method of `MutableMapping` and not `Mapping`.
+# 	So, `d` has a broad type, and `factory` requires `MutableMapping`.
+
+	updateInMeWith_funcOfValueOr_funcOf_default = pointerTo_item_in_updateInMe = factory()
+	updateInMeWith_funcOfValueOr_funcOf_default.update(d)
+
+	dequeKeys: deque[K] = deque(keys)
+	del keys
+
+	keyDelDia: K = dequeKeys.popleft()
+
+# DEVELOPMENT I added a new identifier `mappingDelDia` because I don't like what used to be `d = d[k]` and `d = factory()` in the original code.
+# Perhaps I lack the knowledge to understand that it is safe. But, I feel it is dangerous to play with the object that you told the user would not change.
+	mappingDelDia = factory()
+	mappingDelDia.update(d)
+
+	while dequeKeys:
+		keyInTheWings: K = dequeKeys.popleft()					# NOTE potentially duplicate code
+		if keyDelDia in mappingDelDia: # pyright: ignore[reportOperatorIssue]
+			mappingDelDia = mappingDelDia[keyDelDia] # pyright: ignore[reportIndexIssue, reportUnknownVariableType]
+			mappingDelDiaCOPY = factory()
+			mappingDelDiaCOPY.update(mappingDelDia) # pyright: ignore[reportArgumentType, reportCallIssue]
+		else:
+			# reinitialize mappingDelDia and mappingDelDiaCOPY to empty Mapping
+			mappingDelDia = mappingDelDiaCOPY = factory()
+
+		pointerTo_item_in_updateInMe[keyDelDia] = pointerTo_item_in_updateInMe = mappingDelDiaCOPY # pyright: ignore[reportArgumentType]
+		keyDelDia = keyInTheWings
+
+	if keyDelDia in mappingDelDia:								# pyright: ignore[reportOperatorIssue] # NOTE duplicate code
+		# This branch is only possible if `keyDelDia in mappingDelDia` has always been `True`
+		pointerTo_item_in_updateInMe[keyDelDia] = func(mappingDelDia[keyDelDia]) # pyright: ignore[reportUnknownArgumentType, reportIndexIssue]
+	else:
+		pointerTo_item_in_updateInMe[keyDelDia] = func(default) # pyright: ignore[reportArgumentType] # TODO `raiseIfNone` might be causing pytest to hang in humpy_toolz\sandbox\tests\test_parallel.py
+		"""# DEVELOPMENT list of Mappings
+		d											no change
+		updateInMeWith_funcOfValueOr_funcOf_default	d
+		mappingDelDia								d[0][1]
+			else									empty
+		mappingDelDiaCOPY							d[0][1]
+			else									empty
+		pointerTo_item_in_updateInMe				pointerTo_item_in_updateInMe[1] = d[0][1]	pointing at EXISTING item updateInMeWith_funcOfValueOr_funcOf_default[0][1]
+			else									pointerTo_item_in_updateInMe[1] = empty		pointing at NEW 	 item updateInMeWith_funcOfValueOr_funcOf_default[0][1]
+		"""
+		"""# DEVELOPMENT list of keys
+		dequeKeys									popped 3
+		keyDelDia									[2]
+		keyInTheWings								[2]
+		"""
+
+	return updateInMeWith_funcOfValueOr_funcOf_default
+
 
 @overload
 def get_in[K, V](keys: Iterable[K], coll: Mapping[K, V], default: None = None, *, no_default: bool = False) -> V | None: ...
@@ -756,7 +840,7 @@ def get_in[K, V, D](keys: Iterable[K], coll: Mapping[K, V], default: D | None = 
 	KeyError: 'y'
 	"""
 	try:
-		return reduce(operator.getitem, keys, coll)
+		return reduce(operator.getitem, keys, coll) # pyright: ignore[reportReturnType, reportArgumentType]
 	except (KeyError, IndexError, TypeError):
 		if no_default:
 			raise

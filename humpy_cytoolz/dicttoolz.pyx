@@ -794,7 +794,7 @@ def dissoc(d, *keys, **kwargs):
 	return c_dissoc(d, keys, get_factory('dissoc', kwargs))
 
 cpdef object update_in(object d, object keys, object func, object default=None, object factory=dict):
-	"""update_in(d: collections.abc.Mapping[K, V], keys: collections.abc.Iterable[K], func: collections.abc.Callable[[V | D | None], V], default: D | None = None, factory: collections.abc.Callable[[], collections.abc.MutableMapping[K, V]] = dict) -> collections.abc.MutableMapping[K, V]
+	"""update_in(d: collections.abc.Mapping[K, V], keys: collections.abc.Iterable[K], func: collections.abc.Callable[[V], V], default: V | None = None, factory: collections.abc.Callable[[], collections.abc.MutableMapping[K, V]] = dict) -> collections.abc.MutableMapping[K, V]
 
 	Apply a `Callable` to a value at a nested path in a `Mapping`.
 

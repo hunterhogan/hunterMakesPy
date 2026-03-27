@@ -1,12 +1,13 @@
 # ruff: noqa D100, D103
 from assimilate import settingsFor, settingsWrite_astModule
-from astToolkit import Be, Grab, NodeChanger, parsePathFilename2astModule
+from astToolkit import Be, Grab, IfThis, NodeChanger, parsePathFilename2astModule, Then
 from astToolkit.transformationTools import write_astModule
+from collections.abc import Iterable
 from hunterMakesPy import PackageSettings
 from pathlib import Path
+import ast
 
-listFilenames = frozenset(('test_dicttoolz.py',))
-
+listFilenames: Iterable[str] = frozenset(('test_dicttoolz.py',))
 
 def isImportedModuleWithinPackage(identifierImportedModule: str | None, identifierPackage: str) -> bool:
 	isWithinPackage: bool = bool(identifierImportedModule) and (
@@ -14,7 +15,6 @@ def isImportedModuleWithinPackage(identifierImportedModule: str | None, identifi
 		or identifierImportedModule.startswith(f'{identifierPackage}.')
 	)
 	return isWithinPackage
-
 
 def replaceImportedPackagePrefix(identifierImportedModule: str, identifierPackageSource: str, identifierPackageDuplicate: str) -> str:
 	identifierPackageSourceWithSeparator: str = f'{identifierPackageSource}.'
@@ -27,8 +27,7 @@ def replaceImportedPackagePrefix(identifierImportedModule: str, identifierPackag
 		)
 	return identifierImportedModuleRewritten
 
-
-def changeImportedPackageIdentifier(astModule, settingsPackageSource: PackageSettings, settingsPackageDuplicate: PackageSettings) -> None:
+def changeImportedPackageIdentifier(astModule: ast.Module, settingsPackageSource: PackageSettings, settingsPackageDuplicate: PackageSettings) -> None:
 	identifierPackageSource: str = settingsPackageSource.identifierPackage
 	identifierPackageDuplicate: str = settingsPackageDuplicate.identifierPackage
 
@@ -56,11 +55,9 @@ def changeImportedPackageIdentifier(astModule, settingsPackageSource: PackageSet
 	)
 	changeImport.visit(astModule)
 
-
 def getPathFilenameInRelativeDirectory(settingsPackage: PackageSettings, pathRelativeDirectory: Path, filename: str) -> Path:
 	pathFilename: Path = settingsPackage.pathPackage / pathRelativeDirectory / filename
 	return pathFilename
-
 
 def synchronizeFiles(
 	settingsPackageSource: PackageSettings,
@@ -72,10 +69,9 @@ def synchronizeFiles(
 		pathFilenameSource: Path = getPathFilenameInRelativeDirectory(settingsPackageSource, pathRelativeDirectory, filename)
 		pathFilenameDuplicate: Path = getPathFilenameInRelativeDirectory(settingsPackageDuplicate, pathRelativeDirectory, filename)
 		pathFilenameDuplicate.parent.mkdir(parents=True, exist_ok=True)
-		astModule = parsePathFilename2astModule(pathFilenameSource)
+		astModule: ast.Module = parsePathFilename2astModule(pathFilenameSource)
 		changeImportedPackageIdentifier(astModule, settingsPackageSource, settingsPackageDuplicate)
 		write_astModule(astModule, pathFilenameDuplicate, settingsWrite_astModule)
-
 
 if __name__ == '__main__':
 	synchronizeFiles(settingsFor['humpy_toolz'], settingsFor['humpy_cytoolz'])
