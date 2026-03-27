@@ -268,7 +268,9 @@ cpdef object valmap(object func, object d, object factory=dict):
 	keymap : Apply a `Callable` to all keys of a `Mapping` and return a new `Mapping`.
 	itemmap : Apply a `Callable` to all items of a `Mapping` and return a new `Mapping`.
 
-	>>> bills = {"Alice": [20, 15, 30], "Bob": [10, 35]}
+	Examples
+	--------
+	>>> bills = {'Alice': [20, 15, 30], 'Bob': [10, 35]}
 	>>> valmap(sum, bills)  # doctest: +SKIP
 	{'Alice': 65, 'Bob': 45}
 
@@ -325,7 +327,9 @@ cpdef object keymap(object func, object d, object factory=dict):
 	valmap : Apply a `Callable` to all values of a `Mapping` and return a new `Mapping`.
 	itemmap : Apply a `Callable` to all items of a `Mapping` and return a new `Mapping`.
 
-	>>> bills = {"Alice": [20, 15, 30], "Bob": [10, 35]}
+	Examples
+	--------
+	>>> bills = {'Alice': [20, 15, 30], 'Bob': [10, 35]}
 	>>> keymap(str.lower, bills)  # doctest: +SKIP
 	{'alice': [20, 15, 30], 'bob': [10, 35]}
 
@@ -384,9 +388,11 @@ cpdef object itemmap(object func, object d, object factory=dict):
 	keymap : Apply a `Callable` to all keys of a `Mapping` and return a new `Mapping`.
 	valmap : Apply a `Callable` to all values of a `Mapping` and return a new `Mapping`.
 
-	>>> accountids = {"Alice": 10, "Bob": 20}
+	Examples
+	--------
+	>>> accountids = {'Alice': 10, 'Bob': 20}
 	>>> itemmap(reversed, accountids)  # doctest: +SKIP
-	{10: "Alice", 20: "Bob"}
+	{10: 'Alice', 20: 'Bob'}
 
 	References
 	----------
