@@ -9,8 +9,8 @@ authors:
   family-names: Hogan
   email: HunterHogan@pm.me
 cff-version: 1.2.0
-commit: 5a14790b919b78c70fee012d1a6b54f4b4f74c7a
-date-released: '2026-03-26'
+commit: 05998b7aa865c7e79c59545cd3d1a48922db833a
+date-released: '2026-03-27'
 identifiers:
 - type: url
   value: https://github.com/hunterhogan/hunterMakesPy/releases/tag/0.4.8
