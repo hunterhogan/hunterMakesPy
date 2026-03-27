@@ -1,12 +1,16 @@
 # ruff: noqa: D100
 from collections import defaultdict, deque
-from collections.abc import Callable, Iterable, Mapping, MutableMapping
+from collections.abc import Callable, Mapping, MutableMapping, Sequence
 from functools import reduce
-from typing import Any, overload
+from typing import Any, Literal, overload, Protocol
 import copy
 import operator
 
 __all__ = ('assoc', 'assoc_in', 'dissoc', 'get_in', 'itemfilter', 'itemmap', 'keyfilter', 'keymap', 'merge', 'merge_with', 'update_in', 'valfilter', 'valmap')
+
+
+class SupportsGetItem[K, V](Protocol):
+	def __getitem__(self, key: K, /) -> V: ...
 
 @overload
 def merge[K, V](*dicts: Mapping[K, V]) -> dict[K, V]: ...
@@ -556,10 +560,10 @@ def dissoc[K, V](d: Mapping[K, V], *keys: K, factory: Callable[[], MutableMappin
 	return d2
 
 @overload
-def assoc_in[K, V](d: Mapping[K, V], keys: Iterable[K], value: V) -> dict[K, V]: ...
+def assoc_in[K, V](d: Mapping[K, V], keys: Sequence[K], value: V) -> dict[K, V]: ...
 @overload
-def assoc_in[K, V](d: Mapping[K, V], keys: Iterable[K], value: V, factory: Callable[[], MutableMapping[K, V]]) -> MutableMapping[K, V]: ...
-def assoc_in[K, V](d: Mapping[K, V], keys: Iterable[K], value: V, factory: Callable[[], MutableMapping[K, V]] = dict) -> MutableMapping[K, V]:
+def assoc_in[K, V](d: Mapping[K, V], keys: Sequence[K], value: V, factory: Callable[[], MutableMapping[K, V]]) -> MutableMapping[K, V]: ...
+def assoc_in[K, V](d: Mapping[K, V], keys: Sequence[K], value: V, factory: Callable[[], MutableMapping[K, V]] = dict) -> MutableMapping[K, V]:
 	"""Create a new `MutableMapping` from `d` with `value` at the path specified by `keys`.
 
 	(AI generated docstring)
@@ -609,14 +613,14 @@ def assoc_in[K, V](d: Mapping[K, V], keys: Iterable[K], value: V, factory: Calla
 
 # TODO Given `d: dict[str, int | str]`. It does not follow that `func: Callable[[int | str], int | str]`
 @overload
-def update_in[K, V](d: Mapping[K, V], keys: Iterable[K], func: Callable[[V], V], default: None = None, *, factory: Callable[[], MutableMapping[K, V]] = dict) -> dict[K, V]: ...
+def update_in[K, V](d: Mapping[K, V], keys: Sequence[K], func: Callable[[V | None], V], default: None = None, *, factory: Callable[[], MutableMapping[K, V]] = dict) -> dict[K, V]: ...
 @overload
-def update_in[K, V](d: Mapping[K, V], keys: Iterable[K], func: Callable[[V], V], default: V, factory: Callable[[], MutableMapping[K, V]] = dict) -> dict[K, V]: ...
+def update_in[K, V](d: Mapping[K, V], keys: Sequence[K], func: Callable[[V], V], default: V, factory: Callable[[], MutableMapping[K, V]] = dict) -> dict[K, V]: ...
 @overload
-def update_in[K, V](d: Mapping[K, V], keys: Iterable[K], func: Callable[[V], V], default: None = None, *, factory: Callable[[], MutableMapping[K, V]]) -> MutableMapping[K, V]: ...
+def update_in[K, V](d: Mapping[K, V], keys: Sequence[K], func: Callable[[V | None], V], default: None = None, *, factory: Callable[[], MutableMapping[K, V]]) -> MutableMapping[K, V]: ...
 @overload
-def update_in[K, V](d: Mapping[K, V], keys: Iterable[K], func: Callable[[V], V], default: V, factory: Callable[[], MutableMapping[K, V]]) -> MutableMapping[K, V]: ...
-def update_in[K, V](d: Mapping[K, V], keys: Iterable[K], func: Callable[[V], V], default: V | None = None, factory: Callable[[], MutableMapping[K, V]] = dict) -> MutableMapping[K, V]:
+def update_in[K, V](d: Mapping[K, V], keys: Sequence[K], func: Callable[[V], V], default: V, factory: Callable[[], MutableMapping[K, V]]) -> MutableMapping[K, V]: ...
+def update_in[K, V](d: Mapping[K, V], keys: Sequence[K], func: Callable[[V], V], default: V | None = None, factory: Callable[[], MutableMapping[K, V]] = dict) -> MutableMapping[K, V]:
 	"""Apply a `Callable` to a value at a nested path in a `Mapping`.
 
 	(AI generated docstring)
@@ -632,12 +636,12 @@ def update_in[K, V](d: Mapping[K, V], keys: Iterable[K], func: Callable[[V], V],
 	----------
 	d : Mapping[K, V]
 		Source `Mapping`.
-	keys : Iterable[K]
+	keys : Sequence[K]
 		Non-empty sequence of keys specifying the nested path to the value to update in `d`.
-	func : Callable[[V | D | None], V]
+	func : Callable[[V], V]
 		`Callable` applied to the current value at the path in `keys`. If the innermost
 		key is absent from `d`, `func` receives `default`.
-	default : D | None = None
+	default : V | None = None
 		Value passed to `func` when the innermost key is absent from `d`.
 	factory : Callable[[], MutableMapping[K, V]] = dict
 		`Callable` that creates each new `MutableMapping`[1] in the result.
@@ -690,7 +694,7 @@ def update_in[K, V](d: Mapping[K, V], keys: Iterable[K], func: Callable[[V], V],
 
 	return rv
 
-def Z0Z_update_in[K, V](d: Mapping[K, V], keys: Iterable[K], func: Callable[[V], V], default: V | None = None, factory: Callable[..., MutableMapping[K, V]] = dict) -> MutableMapping[K, V]:
+def Z0Z_update_in[K, V](d: Mapping[K, V], keys: Sequence[K], func: Callable[[V], V], default: V | None = None, factory: Callable[..., MutableMapping[K, V]] = dict) -> MutableMapping[K, V]:
 	"""Does not pass the custom mappings tests."""
 	mapping = youAreHere = factory(d) # pyright: ignore[reportUnknownVariableType]
 
@@ -713,7 +717,7 @@ def Z0Z_update_in[K, V](d: Mapping[K, V], keys: Iterable[K], func: Callable[[V],
 
 	return mapping
 
-def Z0Z_update_inDeconstructed[K, V](d: Mapping[K, V], keys: Iterable[K], func: Callable[[V], V], default: V | None = None, factory: Callable[..., MutableMapping[K, V]] = dict) -> MutableMapping[K, V]:
+def Z0Z_update_inDeconstructed[K, V](d: Mapping[K, V], keys: Sequence[K], func: Callable[[V], V], default: V | None = None, factory: Callable[..., MutableMapping[K, V]] = dict) -> MutableMapping[K, V]:
 	"""Function passes all tests."""
 # DEVELOPMENT Is deepcopy slow?
 # Is there a fundamental reason they chose factory() then update? YES.
@@ -771,52 +775,56 @@ def Z0Z_update_inDeconstructed[K, V](d: Mapping[K, V], keys: Iterable[K], func: 
 	return updateInMeWith_funcOfValueOr_funcOf_default
 
 @overload
-def get_in[K, V](keys: Iterable[K], coll: Mapping[K, V], default: None = None, *, no_default: bool = False) -> V | None: ...
+def get_in[K, V](keys: Sequence[K], coll: SupportsGetItem[K, V], default: None = None, *, no_default: Literal[True]) -> V: ...
 @overload
-def get_in[K, V, D](keys: Iterable[K], coll: Mapping[K, V], default: D, *, no_default: bool = False) -> V | D: ...
-def get_in[K, V, D](keys: Iterable[K], coll: Mapping[K, V], default: D | None = None, no_default: bool = False) -> V | D | None:
-	"""Retrieve a value from a potentially nested collection using a sequence of keys.
+def get_in[K, V](keys: Sequence[K], coll: SupportsGetItem[K, V], default: None = None, no_default: bool = False) -> V | None: ...  # noqa: FBT001, FBT002
+@overload
+def get_in[K, V](keys: Sequence[K], coll: SupportsGetItem[K, V], default: V, no_default: bool = False) -> V: ...  # noqa: FBT001, FBT002
+def get_in[K, V](keys: Sequence[K], coll: SupportsGetItem[K, V], default: V | None = None, no_default: bool = False) -> V | None:  # noqa: FBT001, FBT002
+	"""Retrieve a value from a potentially nested `coll` (***coll***ection) using a `Sequence` of `keys`.
 
 	(AI generated docstring)
 
-	You can use `get_in` to navigate into nested data structures by following a sequence
-	of keys. If the path does not exist, `get_in` returns `default`. If `no_default` is
-	True, `get_in` re-raises the original exception instead of returning `default`.
-
-	`get_in` is a generalization of `operator.getitem` for nested data structures
-	such as dictionaries and lists.
+	You can use `get_in` to navigate into a nested `coll` (***coll***ection) by following a
+	sequence of `keys`. `get_in` applies each key in `keys` sequentially using
+	`operator.getitem`[1]. If the path does not exist, `get_in` returns `default`. If
+	`no_default` is `True`, `get_in` re-raises the original exception instead of returning
+	`default`.
 
 	Parameters
 	----------
-	keys : Iterable[K]
+	keys : Sequence[K]
 		Sequence of keys that describes the path to traverse in `coll`.
-	coll : Mapping[K, V]
-		Collection to traverse. Can be any collection supporting `operator.getitem`,
-		including nested dicts and lists.
-	default : D | None = None
+	coll : SupportsGetItem[K, V]
+		Collection to traverse. `get_in` applies each key in `keys` to the current `coll`
+		using `operator.getitem`[1], so `coll` can be any nested structure such as a `dict`
+		or `list`.
+	default : V | None = None
 		Value to return when the path in `keys` does not exist in `coll`.
 	no_default : bool = False
-		When True, re-raise the original `KeyError`, `IndexError`, or `TypeError`
+		When `True`, re-raise the original `KeyError`, `IndexError`, or `TypeError`
 		instead of returning `default`.
 
 	Returns
 	-------
-	value : V | D | None
-		The value at the nested path, or `default` if the path does not exist.
+	value : V | None
+		The value at the nested path in `coll`, or `default` if the path does not exist.
 
 	Raises
 	------
 	KeyError
-		When `no_default` is True and a key is missing from a mapping.
+		When `no_default` is `True` and a key is missing from a mapping.
 	IndexError
-		When `no_default` is True and an index is out of range.
+		When `no_default` is `True` and an index is out of range.
 	TypeError
-		When `no_default` is True and a key type is incompatible with the collection.
+		When `no_default` is `True` and a key type is incompatible with `coll`.
 
 	See Also
 	--------
 	itertoolz.get : Retrieve a value or values from a collection.
 	operator.getitem : Return the value at a given key in a collection.
+	assoc_in : Create a new `Mapping` from `d` with a value at a nested path.
+	update_in : Apply a `Callable` to a value at a nested path in a `Mapping`.
 
 	Examples
 	--------
@@ -837,6 +845,11 @@ def get_in[K, V, D](keys: Iterable[K], coll: Mapping[K, V], default: D | None = 
 	Traceback (most recent call last):
 		...
 	KeyError: 'y'
+
+	References
+	----------
+	[1] Python `operator` module
+		https://docs.python.org/3/library/operator.html#operator.getitem
 	"""
 	try:
 		return reduce(operator.getitem, keys, coll) # pyright: ignore[reportReturnType, reportArgumentType]

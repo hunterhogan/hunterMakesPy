@@ -647,7 +647,7 @@ cpdef object assoc(object d, object key, object value, object factory=dict):
 	return rv
 
 cpdef object assoc_in(object d, object keys, object value, object factory=dict):
-	"""assoc_in(d: collections.abc.Mapping[K, V], keys: collections.abc.Iterable[K], value: V, factory: collections.abc.Callable[[], collections.abc.MutableMapping[K, V]] = dict) -> collections.abc.MutableMapping[K, V]
+	"""assoc_in(d: collections.abc.Mapping[K, V], keys: collections.abc.Sequence[K], value: V, factory: collections.abc.Callable[[], collections.abc.MutableMapping[K, V]] = dict) -> collections.abc.MutableMapping[K, V]
 
 	Create a new `MutableMapping` from `d` with `value` at the path specified by `keys`.
 
@@ -794,7 +794,7 @@ def dissoc(d, *keys, **kwargs):
 	return c_dissoc(d, keys, get_factory('dissoc', kwargs))
 
 cpdef object update_in(object d, object keys, object func, object default=None, object factory=dict):
-	"""update_in(d: collections.abc.Mapping[K, V], keys: collections.abc.Iterable[K], func: collections.abc.Callable[[V], V], default: V | None = None, factory: collections.abc.Callable[[], collections.abc.MutableMapping[K, V]] = dict) -> collections.abc.MutableMapping[K, V]
+	"""update_in(d: collections.abc.Mapping[K, V], keys: collections.abc.Sequence[K], func: collections.abc.Callable[[V], V], default: V | None = None, factory: collections.abc.Callable[[], collections.abc.MutableMapping[K, V]] = dict) -> collections.abc.MutableMapping[K, V]
 
 	Apply a `Callable` to a value at a nested path in a `Mapping`.
 
@@ -811,12 +811,12 @@ cpdef object update_in(object d, object keys, object func, object default=None, 
 	----------
 	d : Mapping[K, V]
 		Source `Mapping`.
-	keys : Iterable[K]
+	keys : Sequence[K]
 		Non-empty sequence of keys specifying the nested path to the value to update in `d`.
-	func : Callable[[V | D | None], V]
+	func : Callable[[V], V]
 		`Callable` applied to the current value at the path in `keys`. If the innermost
 		key is absent from `d`, `func` receives `default`.
-	default : D | None = None
+	default : V | None = None
 		Value passed to `func` when the innermost key is absent from `d`.
 	factory : Callable[[], MutableMapping[K, V]] = dict
 		`Callable` that creates each new `MutableMapping`[1] in the result.
@@ -885,50 +885,52 @@ cpdef object update_in(object d, object keys, object func, object default=None, 
 cdef tuple _get_in_exceptions = (KeyError, IndexError, TypeError)
 
 cpdef object get_in(object keys, object coll, object default=None, object no_default=False):
-	"""get_in(keys: collections.abc.Iterable[K], coll: collections.abc.Mapping[K, V], default: D | None = None, no_default: bool = False) -> V | D | None
+	"""get_in(keys: collections.abc.Sequence[K], coll: humpy_toolz.dicttoolz.SupportsGetItem[K, V], default: V | None = None, no_default: bool = False) -> V | None
 
-	Retrieve a value from a potentially nested collection using a sequence of keys.
+	Retrieve a value from a potentially nested `coll` (***coll***ection) using a `Sequence` of `keys`.
 
 	(AI generated docstring)
 
-	You can use `get_in` to navigate into nested data structures by following a sequence
-	of keys. If the path does not exist, `get_in` returns `default`. If `no_default` is
-	True, `get_in` re-raises the original exception instead of returning `default`.
-
-	`get_in` is a generalization of `operator.getitem` for nested data structures
-	such as dictionaries and lists.
+	You can use `get_in` to navigate into a nested `coll` (***coll***ection) by following a
+	sequence of `keys`. `get_in` applies each key in `keys` sequentially using
+	`operator.getitem`[1]. If the path does not exist, `get_in` returns `default`. If
+	`no_default` is `True`, `get_in` re-raises the original exception instead of returning
+	`default`.
 
 	Parameters
 	----------
-	keys : Iterable[K]
+	keys : Sequence[K]
 		Sequence of keys that describes the path to traverse in `coll`.
-	coll : Mapping[K, V]
-		Collection to traverse. Can be any collection supporting `operator.getitem`,
-		including nested dicts and lists.
-	default : D | None = None
+	coll : SupportsGetItem[K, V]
+		Collection to traverse. `get_in` applies each key in `keys` to the current `coll`
+		using `operator.getitem`[1], so `coll` can be any nested structure such as a `dict`
+		or `list`.
+	default : V | None = None
 		Value to return when the path in `keys` does not exist in `coll`.
 	no_default : bool = False
-		When True, re-raise the original `KeyError`, `IndexError`, or `TypeError`
+		When `True`, re-raise the original `KeyError`, `IndexError`, or `TypeError`
 		instead of returning `default`.
 
 	Returns
 	-------
-	value : V | D | None
-		The value at the nested path, or `default` if the path does not exist.
+	value : V | None
+		The value at the nested path in `coll`, or `default` if the path does not exist.
 
 	Raises
 	------
 	KeyError
-		When `no_default` is True and a key is missing from a mapping.
+		When `no_default` is `True` and a key is missing from a mapping.
 	IndexError
-		When `no_default` is True and an index is out of range.
+		When `no_default` is `True` and an index is out of range.
 	TypeError
-		When `no_default` is True and a key type is incompatible with the collection.
+		When `no_default` is `True` and a key type is incompatible with `coll`.
 
 	See Also
 	--------
 	itertoolz.get : Retrieve a value or values from a collection.
 	operator.getitem : Return the value at a given key in a collection.
+	assoc_in : Create a new `Mapping` from `d` with a value at a nested path.
+	update_in : Apply a `Callable` to a value at a nested path in a `Mapping`.
 
 	Examples
 	--------
@@ -949,6 +951,11 @@ cpdef object get_in(object keys, object coll, object default=None, object no_def
 	Traceback (most recent call last):
 		...
 	KeyError: 'y'
+
+	References
+	----------
+	[1] Python `operator` module
+		https://docs.python.org/3/library/operator.html#operator.getitem
 	"""
 	cdef object item
 	try:

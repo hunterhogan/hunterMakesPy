@@ -4,7 +4,7 @@ from humpy_toolz.dicttoolz import (
 	assoc, assoc_in, dissoc, get_in, itemfilter, itemmap, keyfilter, keymap, merge, merge_with, update_in, valfilter, valmap)
 from humpy_toolz.functoolz import identity
 from humpy_toolz.utils import raises
-from typing import Any, ClassVar, TypedDict
+from typing import Any, ClassVar
 import os
 import pytest
 
@@ -35,59 +35,8 @@ def itemHasEvenKeyAndOddValue(item: tuple[int, int]) -> bool:
 def itemHasLargeKeyAndLargeValue(item: tuple[int, int]) -> bool:
     return item[0] > 300 and item[1] > 300
 
-class DissocScenario(TypedDict):
-    description: str
-    sourceMapping: dict[str, int]
-    keysToRemove: tuple[str, ...]
-    expectedMapping: dict[str, int]
-
-class PurchaseRecord(TypedDict):
-    items: list[str]
-    costs: list[float]
-
-type TransactionValue = str | PurchaseRecord | list[str] | list[float]
-
 def makeDefaultDictFactory() -> 'defaultdict[Any, Any]':
     return defaultdict(int)
-
-dissocScenarios: tuple[DissocScenario, ...] = (
-    {
-        'description': 'removes single key',
-        'sourceMapping': {'north': 13, 'south': 21, 'east': 34},
-        'keysToRemove': ('south',),
-        'expectedMapping': {'north': 13, 'east': 34},
-    },
-    {
-        'description': 'removes multiple keys',
-        'sourceMapping': {'north': 13, 'south': 21, 'east': 34, 'west': 55},
-        'keysToRemove': ('north', 'west'),
-        'expectedMapping': {'south': 21, 'east': 34},
-    },
-    {
-        'description': 'ignores missing keys',
-        'sourceMapping': {'alpha': 13, 'beta': 21, 'gamma': 34},
-        'keysToRemove': ('beta', 'omega'),
-        'expectedMapping': {'alpha': 13, 'gamma': 34},
-    },
-    {
-        'description': 'removes sixty percent boundary',
-        'sourceMapping': {'alpha': 13, 'beta': 21, 'gamma': 34, 'delta': 55, 'epsilon': 89},
-        'keysToRemove': ('alpha', 'beta', 'gamma'),
-        'expectedMapping': {'delta': 55, 'epsilon': 89},
-    },
-    {
-        'description': 'keeps mapping when no keys provided',
-        'sourceMapping': {'alpha': 13, 'beta': 21, 'gamma': 34},
-        'keysToRemove': (),
-        'expectedMapping': {'alpha': 13, 'beta': 21, 'gamma': 34},
-    },
-    {
-        'description': 'removes all keys even with duplicates',
-        'sourceMapping': {'north': 13, 'south': 21, 'east': 34},
-        'keysToRemove': ('south', 'north', 'south', 'east'),
-        'expectedMapping': {},
-    },
-)
 
 class TestDict:
     """Test typical usage: dict inputs, no factory keyword.
@@ -467,13 +416,55 @@ class TestDict:
             f'{type(expectedMapping).__name__} for source {sourceMappingDefinition}.'
         )
 
-    @pytest.mark.parametrize('dissocScenario', dissocScenarios, ids=lambda scenario: scenario['description'])
-    def test_dissocRemovesKeys(self, dissocScenario: DissocScenario) -> None:
+    @pytest.mark.parametrize(
+        ('sourceMappingDefinition', 'keysToRemove', 'expectedMappingDefinition'),
+        (
+            pytest.param(
+                {'north': 13, 'south': 21, 'east': 34},
+                ('south',),
+                {'north': 13, 'east': 34},
+                id='removes single key',
+            ),
+            pytest.param(
+                {'north': 13, 'south': 21, 'east': 34, 'west': 55},
+                ('north', 'west'),
+                {'south': 21, 'east': 34},
+                id='removes multiple keys',
+            ),
+            pytest.param(
+                {'alpha': 13, 'beta': 21, 'gamma': 34},
+                ('beta', 'omega'),
+                {'alpha': 13, 'gamma': 34},
+                id='ignores missing keys',
+            ),
+            pytest.param(
+                {'alpha': 13, 'beta': 21, 'gamma': 34, 'delta': 55, 'epsilon': 89},
+                ('alpha', 'beta', 'gamma'),
+                {'delta': 55, 'epsilon': 89},
+                id='removes sixty percent boundary',
+            ),
+            pytest.param(
+                {'alpha': 13, 'beta': 21, 'gamma': 34},
+                (),
+                {'alpha': 13, 'beta': 21, 'gamma': 34},
+                id='keeps mapping when no keys provided',
+            ),
+            pytest.param(
+                {'north': 13, 'south': 21, 'east': 34},
+                ('south', 'north', 'south', 'east'),
+                {},
+                id='removes all keys even with duplicates',
+            ),
+        ),
+    )
+    def test_dissocRemovesKeys(
+        self,
+        sourceMappingDefinition: dict[str, int],
+        keysToRemove: tuple[str, ...],
+        expectedMappingDefinition: dict[str, int],
+    ) -> None:
         mappingFactory = self.D
         factoryKeywordArguments: dict[str, Callable[[], MutableMapping[str, int]]] = self.kw
-        sourceMappingDefinition: dict[str, int] = dissocScenario['sourceMapping']
-        keysToRemove: tuple[str, ...] = dissocScenario['keysToRemove']
-        expectedMappingDefinition: dict[str, int] = dissocScenario['expectedMapping']
         sourceMapping = mappingFactory(sourceMappingDefinition)
         expectedMapping = mappingFactory(expectedMappingDefinition)
 
@@ -535,7 +526,7 @@ class TestDict:
         assert assoc_in(D({'a': 1, 'b': 2}), ['a'], 99, **kw) == D({'a': 99, 'b': 2})
 
     def test_get_in(self) -> None:
-        transaction: Mapping[str | int, TransactionValue] = {
+        transaction: Any = {
             'name': 'Alice',
             'purchase': {'items': ['Apple', 'Orange'], 'costs': [0.50, 1.25]},
             'credit card': '5555-1234-1234-1234',
