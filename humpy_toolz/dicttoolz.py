@@ -704,7 +704,7 @@ def Z0Z_update_in[K, V](d: Mapping[K, V], keys: Sequence[K], func: Callable[[V],
 	while dequeKeys:
 		aKey = dequeKeys.popleft()
 		if aKey in youAreHere: # pyright: ignore[reportOperatorIssue]
-			youAreHere = youAreHere[aKey] # pyright: ignore[reportIndexIssue]
+			youAreHere = youAreHere[aKey] # pyright: ignore[reportUnknownVariableType, reportIndexIssue]
 		else:
 			youAreHere[aKey] = factory() # pyright: ignore[reportIndexIssue, reportArgumentType]
 			youAreHere = youAreHere[aKey] # pyright: ignore[reportIndexIssue]

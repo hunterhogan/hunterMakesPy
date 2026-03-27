@@ -885,7 +885,7 @@ cpdef object update_in(object d, object keys, object func, object default=None, 
 cdef tuple _get_in_exceptions = (KeyError, IndexError, TypeError)
 
 cpdef object get_in(object keys, object coll, object default=None, object no_default=False):
-	"""get_in(keys: collections.abc.Sequence[K], coll: humpy_toolz.dicttoolz.SupportsGetItem[K, V], default: V | None = None, no_default: bool = False) -> V | None
+	"""get_in(keys: collections.abc.Sequence[K], coll: humpy_toolz.dicttoolz.SupportsGetItem[K, V], default: Optional[V] = None, no_default: bool = False) -> Optional[V]
 
 	Retrieve a value from a potentially nested `coll` (***coll***ection) using a `Sequence` of `keys`.
 
