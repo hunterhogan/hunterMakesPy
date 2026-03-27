@@ -885,7 +885,7 @@ cpdef object update_in(object d, object keys, object func, object default=None, 
 cdef tuple _get_in_exceptions = (KeyError, IndexError, TypeError)
 
 cpdef object get_in(object keys, object coll, object default=None, object no_default=False):
-	"""get_in(keys: collections.abc.Iterable[K], coll: collections.abc.Mapping[K, V], default: D | None = None, *, no_default: bool = False) -> V | D | None
+	"""get_in(keys: collections.abc.Iterable[K], coll: collections.abc.Mapping[K, V], default: D | None = None, no_default: bool = False) -> V | D | None
 
 	Retrieve a value from a potentially nested collection using a sequence of keys.
 

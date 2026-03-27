@@ -770,12 +770,11 @@ def Z0Z_update_inDeconstructed[K, V](d: Mapping[K, V], keys: Iterable[K], func: 
 
 	return updateInMeWith_funcOfValueOr_funcOf_default
 
-
 @overload
 def get_in[K, V](keys: Iterable[K], coll: Mapping[K, V], default: None = None, *, no_default: bool = False) -> V | None: ...
 @overload
 def get_in[K, V, D](keys: Iterable[K], coll: Mapping[K, V], default: D, *, no_default: bool = False) -> V | D: ...
-def get_in[K, V, D](keys: Iterable[K], coll: Mapping[K, V], default: D | None = None, *, no_default: bool = False) -> V | D | None:
+def get_in[K, V, D](keys: Iterable[K], coll: Mapping[K, V], default: D | None = None, no_default: bool = False) -> V | D | None:
 	"""Retrieve a value from a potentially nested collection using a sequence of keys.
 
 	(AI generated docstring)
