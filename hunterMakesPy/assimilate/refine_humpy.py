@@ -1,8 +1,8 @@
 """#======== Post-transformation: act on the new packages. ========"""
-from assimilate import regexChangeImports, settingsFor, settingsWrite_astModule
 from astToolkit import Grab, IfThis, NodeChanger, NodeTourist, parsePathFilename2astModule, Then
 from astToolkit.transformationTools import write_astModule
 from hunterMakesPy import raiseIfNone
+from hunterMakesPy.assimilate import regexChangeImports, settingsFor, settingsWrite_astModule
 from hunterMakesPy.filesystemToolkit import writeStringToHere
 from typing import TYPE_CHECKING
 

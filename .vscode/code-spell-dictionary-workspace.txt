@@ -7,6 +7,8 @@ addx
 aeiou
 alist
 arctan
+argnames
+argvalues
 backgroundm
 badsubmodulename
 basestring
@@ -37,11 +39,14 @@ dtemp
 ection
 eehhhh
 embedsignature
+filterwarnings
+fixturename
 freethreading
 frozensets
 getzero
 iate
 ictionary
+importorskip
 INCREF
 indollars
 inspectbroken
@@ -55,6 +60,7 @@ keymap
 Khhhaaaaannnnn
 kwdefaults
 leetspeak
+modifyitems
 modname
 mycurry
 myfunc
@@ -74,7 +80,11 @@ prevkey
 pval
 Rocklin
 rsample
+runtest
 sequenceiterator
+sessionfinish
+sessionstart
+skipif
 ssize
 subclassable
 testlines
@@ -84,4 +94,7 @@ Transformee
 transformees
 Truncator
 unhash
+usefixtures
 XDECREF
+xfail
+yourname

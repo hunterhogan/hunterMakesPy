@@ -1,67 +1,136 @@
 # hunterMakesPy
 
-Utilities for converting mixed input to integers, calculating CPU limits, handling None values, importing code dynamically, and manipulating nested data.
+Utilities for converting mixed input to integers, calculating CPU limits, handling None values, importing code dynamically, and manipulating nested data. Also includes `humpy_toolz`, `humpy_cytoolz`, and `humpy_tlz`: typed forks of `toolz` and `cytoolz` with curried namespaces and a sandbox.
 
 [![pip install hunterMakesPy](https://img.shields.io/badge/pip%20install-hunterMakesPy-gray.svg?colorB=3b434b)](https://pypi.org/project/hunterMakesPy/)
 
-## What This Package Does
+## Validate, Convert, and Parse Inputs
 
-1. **Convert strings, floats, binary data to validated integers** — Accepts messy input like `["1", 2.0, b"3"]` and returns `[1, 2, 3]` or fails with descriptive errors.
+### Convert Mixed Input to Validated Integers
 
-2. **Calculate CPU/concurrency limits from flexible specifications** — Pass `0.75` for 75% of CPUs, `True` for 1 CPU, `4` for exactly 4 CPUs, or `-2` to reserve 2 CPUs.
-
-3. **Eliminate type checker warnings about None** — Convert `Type | None` returns to `Type` by validating at runtime that values are not None.
-
-4. **Import Python code from dot-notation paths or file paths** — Load functions or classes from `"scipy.signal.windows"` or `"path/to/file.py"` without manual module loading.
-
-5. **Create nested directories without error handling** — Write to `"deep/nested/path/file.txt"` and parent directories are created automatically, existing directories are silently skipped.
-
-6. **Format and write Python source code automatically** — Removes unused imports, sorts import statements, applies consistent formatting before writing files.
-
-7. **Extract all strings from arbitrarily nested data** — Recursively traverse dictionaries, lists, tuples, sets and collect every string value into a flat list.
-
-8. **Merge multiple dictionaries with list values** — Combine `{"a": [1, 2]}` and `{"a": [3], "b": [4]}` into `{"a": [1, 2, 3], "b": [4]}` with optional deduplication and sorting.
-
-9. **Compress NumPy arrays to compact string representations** — Encode repetitive patterns and sequences using run-length encoding and Python range syntax that evaluates back to the original data.
-
-10. **Replace ambiguous numeric literals with semantic names** — Use `decreasing` instead of `-1`, `inclusive` for boundary adjustments, `zeroIndexed` for index conversions, making intent explicit.
-
-## Examples
+Accepts strings, floats, complex numbers, and binary data and returns a list of validated integers. Ambiguous or incompatible values produce descriptive errors.
 
 ```python
-import hunterMakesPy as humpy
+from hunterMakesPy.parseParameters import intInnit
 
-# Integer validation from mixed sources
-ports = humpy.intInnit(["8080", 443, "22"], "server_ports")
+ports = intInnit(["8080", 443, "22"], "server_ports")
+# Returns: [8080, 443, 22]
+```
 
-# Flexible CPU limit calculation
-workers = humpy.defineConcurrencyLimit(limit=0.75)  # 6 CPUs on 8-core machine
+### Calculate Concurrency Limits from Flexible Specifications
 
-# None-checking without type errors
-config = humpy.raiseIfNone(getConfig(), "Missing configuration")
+Pass `0.75` for 75% of CPUs, `True` for 1 CPU, `4` for exactly 4 CPUs, or `-2` to reserve 2 CPUs.
 
-# Dynamic imports
-windowFunc = humpy.importLogicalPath2Identifier("scipy.signal.windows", "hann")
+```python
+from hunterMakesPy.parseParameters import defineConcurrencyLimit
 
-# Safe file writing
-humpy.writeStringToHere("content", "nested/dirs/file.txt")  # Creates dirs
+workers = defineConcurrencyLimit(limit=0.75)  # 6 on an 8-core machine
+```
 
-# String extraction from nested data
-strings = humpy.stringItUp({"users": ["alice"], "config": {"host": "localhost"}})
+### Interpret Strings as Boolean or None
+
+Parse string values such as `"true"`, `"false"`, or `"none"` into their Python equivalents without raising exceptions on mismatch.
+
+```python
+from hunterMakesPy.parseParameters import oopsieKwargsie
+
+oopsieKwargsie("True")   # Returns: True
+oopsieKwargsie("none")   # Returns: None
+oopsieKwargsie("hello")  # Returns: "hello"
+```
+
+## Eliminate None with Runtime Validation
+
+Convert `Type | None` return annotations to `Type` by raising at runtime if the value is `None`. Removes `None`-checking noise from downstream code and satisfies type checkers.
+
+```python
+from hunterMakesPy import raiseIfNone
+
+config = raiseIfNone(getConfig(), "Missing configuration")
+```
+
+## Replace Ambiguous Numeric Literals with Semantic Names
+
+Use `decreasing` instead of `-1`, `inclusive` for boundary adjustments, and `zeroIndexed` for index conversions. Intent becomes explicit and the code reads as prose.
+
+```python
+from hunterMakesPy import decreasing, inclusive, zeroIndexed
+
+rangeEnd = lengthSequence + inclusive
+indexLast = lengthSequence - zeroIndexed
+step = decreasing
+```
+
+## Import Modules by Dot-Notation Path or File Path
+
+Load functions or classes from `"scipy.signal.windows"` or `"path/to/file.py"` without manual module-loading boilerplate.
+
+```python
+from hunterMakesPy.filesystemToolkit import importLogicalPath2Identifier
+
+windowFunction = importLogicalPath2Identifier("scipy.signal.windows", "hann")
+```
+
+## Create Directories Safely and Write Files with Formatting
+
+Write to `"deep/nested/path/file.txt"` and parent directories are created automatically. `writePython` removes unused imports and sorts import statements before writing.
+
+```python
+from hunterMakesPy.filesystemToolkit import writeStringToHere, writePython
+
+writeStringToHere("content", "nested/dirs/file.txt")  # Creates dirs
+writePython(sourceCode, "output/module.py")            # Formats, then writes
+```
+
+## Extract Strings from Arbitrarily Nested Data
+
+Recursively traverse dictionaries, lists, tuples, and sets and collect every string value into a flat list.
+
+```python
+from hunterMakesPy.dataStructures import stringItUp
+
+strings = stringItUp({"users": ["alice"], "config": {"host": "localhost"}})
 # Returns: ["users", "alice", "config", "host", "localhost"]
+```
 
-# Dictionary merging
-merged = humpy.updateExtendPolishDictionaryLists(
+## Merge Dictionaries with List Values
+
+Combine `{"a": [1, 2]}` and `{"a": [3], "b": [4]}` into `{"a": [1, 2, 3], "b": [4]}` with optional deduplication and sorting.
+
+```python
+from hunterMakesPy.dataStructures import updateExtendPolishDictionaryLists
+
+merged = updateExtendPolishDictionaryLists(
     {"servers": ["chicago"]},
     {"servers": ["tokyo", "chicago"]},
-    destroyDuplicates=True
+    destroyDuplicates=True,
 )
 # Returns: {"servers": ["chicago", "tokyo"]}
 ```
 
-## Testing Your Own Code
+## Compress NumPy Arrays to Self-Decoding Strings
 
-Import test suites to validate custom functions that match the expected signatures:
+Encode repetitive patterns and consecutive sequences using run-length encoding and Python `range` syntax. The resulting string evaluates back to the original data.
+
+```python
+from hunterMakesPy.dataStructures import autoDecodingRLE
+
+encoded = autoDecodingRLE(arrayTarget)
+```
+
+## Configure Package Metadata at Runtime
+
+`PackageSettings` reads `pyproject.toml` automatically to resolve the package name and installation path.
+
+```python
+from hunterMakesPy import PackageSettings
+
+settings = PackageSettings(identifierPackageFALLBACK="myPackage")
+```
+
+## Reuse Test Suites for Custom Implementations
+
+Import parameterized test generators to validate custom functions that match the expected signatures.
 
 ```python
 from hunterMakesPy.tests.test_parseParameters import PytestFor_intInnit
@@ -70,6 +139,100 @@ from hunterMakesPy.tests.test_parseParameters import PytestFor_intInnit
 def test_my_integer_validator(test_name, test_func):
     test_func()
 ```
+
+---
+
+## `humpy_toolz`: Typed Pure-Python Functional Utilities
+
+`humpy_toolz` is a typed fork of [`toolz`](https://github.com/pytoolz/toolz). It provides composable functions for iterators, dictionaries, and function composition with full type stubs and docstrings.
+
+### Dictionary Transformations without Mutation
+
+Create new mappings by associating, dissociating, filtering, and mapping over keys or values. Nested access is supported through key-path sequences.
+
+```python
+from humpy_toolz import merge, valmap, keyfilter, assoc
+
+merged = merge({"a": 1}, {"b": 2})             # {"a": 1, "b": 2}
+doubled = valmap(lambda x: x * 2, {"a": 1})    # {"a": 2}
+evens = keyfilter(lambda k: k > 1, {1: "a", 2: "b"})  # {2: "b"}
+updated = assoc({"x": 10}, "y", 20)            # {"x": 10, "y": 20}
+```
+
+### Compose, Curry, and Thread Functions
+
+Build transformation sequences from left or right, partially apply arguments with `curry`, and thread a value through a series of functions.
+
+```python
+from humpy_toolz import compose_left, curry, pipe
+
+increment = lambda x: x + 1
+double = lambda x: x * 2
+transform = compose_left(increment, double)
+transform(3)  # 8
+
+pipe(3, increment, double)  # 8
+```
+
+### Slice, Group, and Deduplicate Iterators
+
+Lazy operations over iterables: `take`, `drop`, `partition`, `sliding_window`, `unique`, `interleave`, `groupby`, `frequencies`, and more.
+
+```python
+from humpy_toolz import take, frequencies, groupby, unique
+
+list(take(3, range(100)))              # [0, 1, 2]
+frequencies(["a", "b", "a", "c"])      # {"a": 2, "b": 1, "c": 1}
+groupby(len, ["cat", "mouse", "dog"])  # {3: ["cat", "dog"], 5: ["mouse"]}
+list(unique([1, 2, 1, 3]))            # [1, 2, 3]
+```
+
+### Curried Namespace for Partial Application
+
+Every function in `humpy_toolz.curried` accepts partial arguments and returns a new callable waiting for the rest.
+
+```python
+from humpy_toolz.curried import map, filter, get
+
+list(map(str.upper, ["hello", "world"]))  # ["HELLO", "WORLD"]
+list(filter(lambda x: x > 2, [1, 2, 3, 4]))  # [3, 4]
+list(map(get(0), [(1, 2), (3, 4)]))       # [1, 3]
+```
+
+### Sandbox: Parallel Fold and Equality-Based Hashing
+
+`humpy_toolz.sandbox` provides `fold` for unordered parallel reductions and `EqualityHashKey` for hashing otherwise-unhashable types.
+
+```python
+from humpy_toolz.sandbox import fold, EqualityHashKey
+from operator import add
+
+fold(add, range(100), default=0)  # 4950
+```
+
+---
+
+## `humpy_cytoolz`: Cython-Accelerated Functional Utilities
+
+`humpy_cytoolz` is a typed fork of [`cytoolz`](https://github.com/pytoolz/cytoolz). It exposes the same API as `humpy_toolz` but the core modules (`dicttoolz`, `functoolz`, `itertoolz`, `recipes`, `utils`) are compiled as Cython extension modules for lower overhead on hot paths.
+
+```python
+from humpy_cytoolz import groupby, curry, merge
+```
+
+Install with the `cython` build dependency to compile the extensions. If compilation is unavailable, use `humpy_toolz` directly.
+
+---
+
+## `humpy_tlz`: Automatic Cython-or-Pure Dispatch
+
+`humpy_tlz` mirrors the `humpy_toolz` API and imports from `humpy_cytoolz` when available, falling back to `humpy_toolz` otherwise. Use `humpy_tlz` in library code so callers benefit from Cython acceleration without requiring it.
+
+```python
+from humpy_tlz import pipe, curry, groupby
+```
+
+---
 
 ## My recovery
 

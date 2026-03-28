@@ -1,10 +1,10 @@
 """Ingest external packages and files."""
-from assimilate import (
-	allTransformeePackages, cythonDirectives, getOtherName, pathRoot_tools_stubs, regexChangeImports, settingsFor, settingsWrite_astModule,
-	subModules, transformALLdot_pyHere)
 from astToolkit import Be, Grab, IfThis, Make, NodeChanger, parsePathFilename2astModule, Then
 from astToolkit.transformationTools import write_astModule
 from functools import partial
+from hunterMakesPy.assimilate import (
+	allTransformeePackages, cythonDirectives, getOtherName, pathRoot_tools_stubs, regexChangeImports, settingsFor, settingsWrite_astModule,
+	subModules, transformALLdot_pyHere)
 from hunterMakesPy.filesystemToolkit import writeStringToHere
 from itertools import product as CartesianProduct
 from operator import contains, eq as equalTo

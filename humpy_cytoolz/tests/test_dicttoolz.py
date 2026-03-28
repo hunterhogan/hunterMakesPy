@@ -4,7 +4,7 @@ from humpy_cytoolz.dicttoolz import (
 	assoc, assoc_in, dissoc, get_in, itemfilter, itemmap, keyfilter, keymap, merge, merge_with, update_in, valfilter, valmap)
 from humpy_cytoolz.functoolz import identity
 from humpy_cytoolz.utils import raises
-from typing import Any, ClassVar, TypedDict
+from typing import Any, ClassVar
 import os
 import pytest
 
@@ -35,28 +35,23 @@ def itemHasEvenKeyAndOddValue(item: tuple[int, int]) -> bool:
 def itemHasLargeKeyAndLargeValue(item: tuple[int, int]) -> bool:
     return item[0] > 300 and item[1] > 300
 
-class DissocScenario(TypedDict):
-    description: str
-    sourceMapping: dict[str, int]
-    keysToRemove: tuple[str, ...]
-    expectedMapping: dict[str, int]
+def makeDefaultDictFactory(itemIterable: ItemsView[Any, Any] | Iterator[tuple[Any, Any]] | None=None) -> 'defaultdict[Any, Any]':
+    if itemIterable is None:
+        return defaultdict(int)
+    return defaultdict(int, itemIterable)
 
-class PurchaseRecord(TypedDict):
-    items: list[str]
-    costs: list[float]
-type TransactionValue = str | PurchaseRecord | list[str] | list[float]
-
-def makeDefaultDictFactory() -> 'defaultdict[Any, Any]':
-    return defaultdict(int)
-dissocScenarios: tuple[DissocScenario, ...] = ({'description': 'removes single key', 'sourceMapping': {'north': 13, 'south': 21, 'east': 34}, 'keysToRemove': ('south',), 'expectedMapping': {'north': 13, 'east': 34}}, {'description': 'removes multiple keys', 'sourceMapping': {'north': 13, 'south': 21, 'east': 34, 'west': 55}, 'keysToRemove': ('north', 'west'), 'expectedMapping': {'south': 21, 'east': 34}}, {'description': 'ignores missing keys', 'sourceMapping': {'alpha': 13, 'beta': 21, 'gamma': 34}, 'keysToRemove': ('beta', 'omega'), 'expectedMapping': {'alpha': 13, 'gamma': 34}}, {'description': 'removes sixty percent boundary', 'sourceMapping': {'alpha': 13, 'beta': 21, 'gamma': 34, 'delta': 55, 'epsilon': 89}, 'keysToRemove': ('alpha', 'beta', 'gamma'), 'expectedMapping': {'delta': 55, 'epsilon': 89}}, {'description': 'keeps mapping when no keys provided', 'sourceMapping': {'alpha': 13, 'beta': 21, 'gamma': 34}, 'keysToRemove': (), 'expectedMapping': {'alpha': 13, 'beta': 21, 'gamma': 34}}, {'description': 'removes all keys even with duplicates', 'sourceMapping': {'north': 13, 'south': 21, 'east': 34}, 'keysToRemove': ('south', 'north', 'south', 'east'), 'expectedMapping': {}})
+def makeCustomMappingFactory(itemIterable: ItemsView[Any, Any] | Iterator[tuple[Any, Any]] | None=None) -> 'CustomMapping':
+    if itemIterable is None:
+        return CustomMapping()
+    return CustomMapping(itemIterable)
 
 class TestDict:
     """Test typical usage: dict inputs, no factory keyword.
 
-    Class attributes:
-        D: callable that inputs a dict and creates or returns a MutableMapping
-        kw: kwargs dict to specify "factory" keyword (if applicable)
-    """
+	Class attributes:
+		D: callable that inputs a dict and creates or returns a MutableMapping
+		kw: kwargs dict to specify "factory" keyword (if applicable)
+	"""
     D: ClassVar[Callable[..., Any]] = dict
     kw: ClassVar[dict[str, Any]] = {}
 
@@ -180,13 +175,10 @@ class TestDict:
         assert resultMapping is not sourceMapping, f'assoc returned source mapping {sourceMapping} instead of a new mapping for {sourceMappingDefinition}.'
         assert isinstance(resultMapping, type(expectedMapping)), f'assoc returned {type(resultMapping).__name__}, expected {type(expectedMapping).__name__} for source {sourceMappingDefinition}.'
 
-    @pytest.mark.parametrize('dissocScenario', dissocScenarios, ids=lambda scenario: scenario['description'])
-    def test_dissocRemovesKeys(self, dissocScenario: DissocScenario) -> None:
+    @pytest.mark.parametrize(('sourceMappingDefinition', 'keysToRemove', 'expectedMappingDefinition'), (pytest.param({'north': 13, 'south': 21, 'east': 34}, ('south',), {'north': 13, 'east': 34}, id='removes single key'), pytest.param({'north': 13, 'south': 21, 'east': 34, 'west': 55}, ('north', 'west'), {'south': 21, 'east': 34}, id='removes multiple keys'), pytest.param({'alpha': 13, 'beta': 21, 'gamma': 34}, ('beta', 'omega'), {'alpha': 13, 'gamma': 34}, id='ignores missing keys'), pytest.param({'alpha': 13, 'beta': 21, 'gamma': 34, 'delta': 55, 'epsilon': 89}, ('alpha', 'beta', 'gamma'), {'delta': 55, 'epsilon': 89}, id='removes sixty percent boundary'), pytest.param({'alpha': 13, 'beta': 21, 'gamma': 34}, (), {'alpha': 13, 'beta': 21, 'gamma': 34}, id='keeps mapping when no keys provided'), pytest.param({'north': 13, 'south': 21, 'east': 34}, ('south', 'north', 'south', 'east'), {}, id='removes all keys even with duplicates')))
+    def test_dissocRemovesKeys(self, sourceMappingDefinition: dict[str, int], keysToRemove: tuple[str, ...], expectedMappingDefinition: dict[str, int]) -> None:
         mappingFactory = self.D
         factoryKeywordArguments: dict[str, Callable[[], MutableMapping[str, int]]] = self.kw
-        sourceMappingDefinition: dict[str, int] = dissocScenario['sourceMapping']
-        keysToRemove: tuple[str, ...] = dissocScenario['keysToRemove']
-        expectedMappingDefinition: dict[str, int] = dissocScenario['expectedMapping']
         sourceMapping = mappingFactory(sourceMappingDefinition)
         expectedMapping = mappingFactory(expectedMappingDefinition)
         resultMapping = dissoc(sourceMapping, *keysToRemove, **factoryKeywordArguments)
@@ -225,7 +217,7 @@ class TestDict:
         assert assoc_in(D({'a': 1, 'b': 2}), ['a'], 99, **kw) == D({'a': 99, 'b': 2})
 
     def test_get_in(self) -> None:
-        transaction: Mapping[str | int, TransactionValue] = {'name': 'Alice', 'purchase': {'items': ['Apple', 'Orange'], 'costs': [0.5, 1.25]}, 'credit card': '5555-1234-1234-1234'}
+        transaction: Any = {'name': 'Alice', 'purchase': {'items': ['Apple', 'Orange'], 'costs': [0.5, 1.25]}, 'credit card': '5555-1234-1234-1234'}
         assert get_in(['name'], transaction) == 'Alice'
         assert get_in(['purchase', 'items', 0], transaction) == 'Apple'
         assert get_in(['purchase', 'total'], transaction) is None
@@ -258,8 +250,53 @@ class TestDict:
         assert inner['b'] == 1
         assert d4['a']['b'] == 2
 
+    @pytest.mark.parametrize(('dictsDefinition', 'expectedMappingDefinition'), (pytest.param([{2: 'north', 5: 'south'}, {3: 'east', 7: 'west'}], {2: 'north', 3: 'east', 5: 'south', 7: 'west'}, id='non-overlapping keys from both dicts are preserved'), pytest.param([{2: 'north', 5: 'south'}, {5: 'southeast'}], {2: 'north', 5: 'southeast'}, id='last dict value takes precedence for repeated key'), pytest.param([{}, {3: 'east'}], {3: 'east'}, id='leading empty dict does not alter result'), pytest.param([{2: 'north'}, {}], {2: 'north'}, id='trailing empty dict does not alter result')))
+    def test_mergeProducesExpectedResult(self, dictsDefinition: list[dict[Any, Any]], expectedMappingDefinition: dict[Any, Any]) -> None:
+        mappingFactory: Callable[[dict[Any, Any]], Any] = self.D
+        factoryKeywordArguments: dict[str, Any] = self.kw
+        sourceMappings: list[Any] = [mappingFactory(d) for d in dictsDefinition]
+        expectedMapping: Any = mappingFactory(expectedMappingDefinition)
+        resultMapping: Any = merge(*sourceMappings, **factoryKeywordArguments)
+        assert resultMapping == expectedMapping, f'merge returned {resultMapping}, expected {expectedMapping} for inputs {dictsDefinition}.'
+        assert resultMapping is not sourceMappings[0], f'merge returned the first source mapping instead of a new mapping for {dictsDefinition}.'
+        for sourceMapping, originalDefinition in zip(sourceMappings, dictsDefinition, strict=True):
+            assert sourceMapping == mappingFactory(originalDefinition), f'merge mutated source mapping {sourceMapping}, expected {originalDefinition}.'
+
+    @pytest.mark.parametrize(('aggregationFunc', 'dictsDefinition', 'expectedMappingDefinition'), (pytest.param(max, [{2: 3, 5: 7}, {2: 11, 5: 2}], {2: 11, 5: 7}, id='max selects largest value per key'), pytest.param(min, [{2: 3, 5: 7}, {2: 11, 5: 2}], {2: 3, 5: 2}, id='min selects smallest value per key'), pytest.param(sum, [{2: 3, 5: 7}, {2: 11}, {5: 13}], {2: 14, 5: 20}, id='sum adds values across three dicts including keys present in only a subset')))
+    def test_mergeWithAggregatesValues(self, aggregationFunc: Callable[[list[Any]], Any], dictsDefinition: list[dict[Any, Any]], expectedMappingDefinition: dict[Any, Any]) -> None:
+        mappingFactory: Callable[[dict[Any, Any]], Any] = self.D
+        factoryKeywordArguments: dict[str, Any] = self.kw
+        sourceMappings: list[Any] = [mappingFactory(d) for d in dictsDefinition]
+        expectedMapping: Any = mappingFactory(expectedMappingDefinition)
+        resultMapping: Any = merge_with(aggregationFunc, *sourceMappings, **factoryKeywordArguments)
+        assert resultMapping == expectedMapping, f'merge_with returned {resultMapping}, expected {expectedMapping} for inputs {dictsDefinition}.'
+        for sourceMapping, originalDefinition in zip(sourceMappings, dictsDefinition, strict=True):
+            assert sourceMapping == mappingFactory(originalDefinition), f'merge_with mutated source mapping {sourceMapping}, expected {originalDefinition}.'
+
+    @pytest.mark.parametrize(('sourceMappingDefinition', 'keysPath', 'valueToAssoc', 'expectedMappingDefinition'), (pytest.param({'alpha': 13, 'beta': 21}, ['alpha'], 34, {'alpha': 34, 'beta': 21}, id='replaces value at single-key path while preserving siblings'), pytest.param({'alpha': 21, 'gamma': 55}, ['beta'], 34, {'alpha': 21, 'beta': 34, 'gamma': 55}, id='inserts new key without altering existing keys'), pytest.param({}, ['alpha'], 144, {'alpha': 144}, id='creates key in empty mapping')))
+    def test_assocInUpdatesAtPath(self, sourceMappingDefinition: dict[str, Any], keysPath: list[str], valueToAssoc: Any, expectedMappingDefinition: dict[str, Any]) -> None:
+        mappingFactory: Callable[[dict[Any, Any]], Any] = self.D
+        factoryKeywordArguments: dict[str, Any] = self.kw
+        sourceMapping: Any = mappingFactory(sourceMappingDefinition)
+        expectedMapping: Any = mappingFactory(expectedMappingDefinition)
+        resultMapping: Any = assoc_in(sourceMapping, keysPath, valueToAssoc, **factoryKeywordArguments)
+        assert resultMapping == expectedMapping, f'assoc_in returned {resultMapping}, expected {expectedMapping} for keys={keysPath!r}, value={valueToAssoc!r}, source={sourceMappingDefinition}.'
+        assert sourceMapping == mappingFactory(sourceMappingDefinition), f'assoc_in mutated source mapping for keys={keysPath!r}, value={valueToAssoc!r}.'
+        assert resultMapping is not sourceMapping, f'assoc_in returned the source mapping instead of a new mapping for keys={keysPath!r}.'
+
+    @pytest.mark.parametrize(('sourceMappingDefinition', 'keysPath', 'funcToApply', 'defaultValue', 'expectedMappingDefinition'), (pytest.param({'alpha': 13, 'beta': 21}, ['alpha'], inc, None, {'alpha': 14, 'beta': 21}, id='applies func to existing value and preserves siblings'), pytest.param({}, ['alpha'], inc, 21, {'alpha': 22}, id='applies func to default when key is absent'), pytest.param({'alpha': 13, 'beta': 21}, ['beta'], str, None, {'alpha': 13, 'beta': '21'}, id='applies str to value at named key'), pytest.param({'alpha': 34}, ['gamma'], inc, 55, {'alpha': 34, 'gamma': 56}, id='applies func to default for absent key while preserving existing keys')))
+    def test_updateInAppliesFuncAtPath(self, sourceMappingDefinition: dict[str, Any], keysPath: list[str], funcToApply: Callable[[Any], Any], defaultValue: Any, expectedMappingDefinition: dict[str, Any]) -> None:
+        mappingFactory: Callable[[dict[Any, Any]], Any] = self.D
+        factoryKeywordArguments: dict[str, Any] = self.kw
+        sourceMapping: Any = mappingFactory(sourceMappingDefinition)
+        expectedMapping: Any = mappingFactory(expectedMappingDefinition)
+        resultMapping: Any = update_in(sourceMapping, keysPath, funcToApply, defaultValue, **factoryKeywordArguments)
+        assert resultMapping == expectedMapping, f'update_in returned {resultMapping}, expected {expectedMapping} for keys={keysPath!r}, func={funcToApply.__name__!r}, default={defaultValue!r}, source={sourceMappingDefinition}.'
+        assert sourceMapping == mappingFactory(sourceMappingDefinition), f'update_in mutated source mapping for keys={keysPath!r}, func={funcToApply.__name__!r}.'
+        assert resultMapping is not sourceMapping, f'update_in returned the source mapping instead of a new mapping for keys={keysPath!r}.'
+
     def test_factory(self) -> None:
-        D, kw = (self.D, self.kw)
+        D, _kw = (self.D, self.kw)
         assert merge(defaultdict(int, D({1: 2})), D({2: 3})) == {1: 2, 2: 3}
         assert merge(defaultdict(int, D({1: 2})), D({2: 3}), factory=lambda: defaultdict(int)) == defaultdict(int, D({1: 2, 2: 3}))
         assert not merge(defaultdict(int, D({1: 2})), D({2: 3}), factory=lambda: defaultdict(int)) == {1: 2, 2: 3}
@@ -274,10 +311,10 @@ class defaultdict[KeyType, ValueType](_defaultdict[KeyType, ValueType]):
 class TestDefaultDict(TestDict):
     """Test defaultdict as input and factory
 
-    Class attributes:
-        D: callable that inputs a dict and creates or returns a MutableMapping
-        kw: kwargs dict to specify "factory" keyword (if applicable)
-    """
+	Class attributes:
+		D: callable that inputs a dict and creates or returns a MutableMapping
+		kw: kwargs dict to specify "factory" keyword (if applicable)
+	"""
 
     @staticmethod
     def D(dict_: dict[Any, Any]) -> defaultdict[Any, Any]:
@@ -327,15 +364,40 @@ class CustomMapping:
     def update(self, *args: Any, **kwargs: Any) -> None:
         self._d.update(*args, **kwargs)
 
+    def get(self, key, *args):
+        return self._d.get(key, *args)
+
 class TestCustomMapping(TestDict):
     """Test CustomMapping as input and factory
 
-    Class attributes:
-        D: callable that inputs a dict and creates or returns a MutableMapping
-        kw: kwargs dict to specify "factory" keyword (if applicable)
-    """
+	Class attributes:
+		D: callable that inputs a dict and creates or returns a MutableMapping
+		kw: kwargs dict to specify "factory" keyword (if applicable)
+	"""
     D: ClassVar[Callable[..., Any]] = CustomMapping
-    kw: ClassVar[dict[str, Any]] = {'factory': lambda: CustomMapping()}
+    kw: ClassVar[dict[str, Any]] = {'factory': makeCustomMappingFactory}
+
+@pytest.mark.parametrize(('keys', 'coll', 'expectedValue'), (pytest.param(['alpha'], {'alpha': 13, 'beta': 21}, 13, id='retrieves value at single-key path'), pytest.param(['alpha', 'beta'], {'alpha': {'beta': 34}, 'gamma': 55}, 34, id='retrieves value at two-key nested path'), pytest.param(['alpha', 'beta', 'gamma'], {'alpha': {'beta': {'gamma': 89}, 'delta': 144}, 'epsilon': 233}, 89, id='retrieves value at three-key nested path'), pytest.param([2], [3, 5, 7, 11, 13], 7, id='retrieves value at integer index in list')))
+def test_get_in_retrieves_value_at_path(keys: list[Any], coll: Any, expectedValue: Any) -> None:
+    result: Any = get_in(keys, coll)
+    assert result == expectedValue, f'get_in returned {result!r}, expected {expectedValue!r} for keys={keys!r}.'
+
+@pytest.mark.parametrize(('keys', 'coll', 'defaultValue', 'expectedValue'), (pytest.param(['alpha'], {}, 13, 13, id='returns default for missing single key'), pytest.param(['alpha', 'beta'], {'alpha': {}}, 21, 21, id='returns default when intermediate mapping lacks final key'), pytest.param(['alpha', 'beta'], {}, 34, 34, id='returns default when first key absent in two-key path'), pytest.param(['alpha'], {'beta': 55}, None, None, id='returns None when key absent and no default provided')))
+def test_get_in_returns_default_for_missing_path(keys: list[Any], coll: dict[str, Any], defaultValue: Any, expectedValue: Any) -> None:
+    result: Any = get_in(keys, coll, defaultValue)
+    assert result == expectedValue, f'get_in returned {result!r}, expected {expectedValue!r} for keys={keys!r} with default={defaultValue!r}.'
+
+@pytest.mark.parametrize(('sourceMappingDefinition', 'keysPath', 'valueToAssoc', 'expectedMappingDefinition'), (pytest.param({}, ['alpha', 'beta'], 21, {'alpha': {'beta': 21}}, id='creates two-level nested path in empty mapping'), pytest.param({}, ['alpha', 'beta', 'gamma'], 34, {'alpha': {'beta': {'gamma': 34}}}, id='creates three-level nested path in empty mapping'), pytest.param({'alpha': {'beta': 55, 'gamma': 89}}, ['alpha', 'beta'], 144, {'alpha': {'beta': 144, 'gamma': 89}}, id='replaces value at two-key path while preserving nested siblings')))
+def test_assoc_in_nested_paths(sourceMappingDefinition: dict[str, Any], keysPath: list[str], valueToAssoc: Any, expectedMappingDefinition: dict[str, Any]) -> None:
+    result: Any = assoc_in(sourceMappingDefinition, keysPath, valueToAssoc)
+    assert result == expectedMappingDefinition, f'assoc_in returned {result}, expected {expectedMappingDefinition} for keys={keysPath!r}, value={valueToAssoc!r}, source={sourceMappingDefinition}.'
+    assert result is not sourceMappingDefinition, f'assoc_in returned the source mapping instead of a new mapping for keys={keysPath!r}.'
+
+@pytest.mark.parametrize(('sourceMappingDefinition', 'keysPath', 'funcToApply', 'defaultValue', 'expectedMappingDefinition'), (pytest.param({'alpha': {'beta': 34}}, ['alpha', 'beta'], inc, None, {'alpha': {'beta': 35}}, id='applies func at two-level nested path to existing value'), pytest.param({}, ['alpha', 'beta'], inc, 21, {'alpha': {'beta': 22}}, id='creates two-level nested path and applies func to default'), pytest.param({'alpha': {'beta': 55, 'gamma': 89}}, ['alpha', 'beta'], str, None, {'alpha': {'beta': '55', 'gamma': 89}}, id='applies func at two-level path while preserving nested siblings')))
+def test_update_in_nested_paths(sourceMappingDefinition: dict[str, Any], keysPath: list[str], funcToApply: Callable[[Any], Any], defaultValue: Any, expectedMappingDefinition: dict[str, Any]) -> None:
+    result: Any = update_in(sourceMappingDefinition, keysPath, funcToApply, defaultValue)
+    assert result == expectedMappingDefinition, f'update_in returned {result}, expected {expectedMappingDefinition} for keys={keysPath!r}, func={funcToApply.__name__!r}, default={defaultValue!r}, source={sourceMappingDefinition}.'
+    assert result is not sourceMappingDefinition, f'update_in returned the source dict instead of a new mapping for keys={keysPath!r}.'
 
 def test_get_in_no_default() -> None:
     with pytest.raises(KeyError):
