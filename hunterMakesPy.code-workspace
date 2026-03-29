@@ -3,5 +3,8 @@
 		{
 			"path": "."
 		}
-	]
+	],
+	"settings": {
+		"basedpyright.disableLanguageServices": true
+	}
 }

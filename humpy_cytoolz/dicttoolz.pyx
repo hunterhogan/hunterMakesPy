@@ -895,27 +895,27 @@ cpdef object get_in(object keys, object coll, object default=None, object no_def
 
 	Retrieve a value from a potentially nested `coll` (***coll***ection) using a `Sequence` of `keys`.
 
-	(AI generated docstring)
-
 	You can use `get_in` to navigate into a nested `coll` (***coll***ection) by following a
-	sequence of `keys`. `get_in` applies each key in `keys` sequentially using
-	`operator.getitem`[1]. If the path does not exist, `get_in` returns `default`. If
-	`no_default` is `True`, `get_in` re-raises the original exception instead of returning
-	`default`.
+	`Sequence` of `keys`. `get_in` applies each key in `keys` sequentially using
+	`operator.getitem`[1].
+
+	If the desired key does not exist, `get_in` will `raise` an `Exception` or `return` `default`
+	depending on the parameter `no_default`. If `no_default` is `False`, which is the default,
+	`get_in` will `return` `default`. If `no_default` is `True`, `get_in` will `raise` an
+	`Exception`.
 
 	Parameters
 	----------
 	keys : Sequence[K]
-		Sequence of keys that describes the path to traverse in `coll`.
+		`Sequence` of keys that describes the path to traverse in `coll`.
 	coll : SupportsGetItem[K, V]
-		Collection to traverse. `get_in` applies each key in `keys` to the current `coll`
-		using `operator.getitem`[1], so `coll` can be any nested structure such as a `dict`
-		or `list`.
+		Python `object` to traverse. `get_in` uses `operator.getitem`[1], so the nested objects in
+		`coll` can be nested o any type that works with `operator.getitem`, such as a `dict` or
+		`list`.
 	default : V | None = None
 		Value to return when the path in `keys` does not exist in `coll`.
 	no_default : bool = False
-		When `True`, re-raise the original `KeyError`, `IndexError`, or `TypeError`
-		instead of returning `default`.
+		When `True`, `raise` `KeyError`, `IndexError`, or `TypeError` instead of returning `default`.
 
 	Returns
 	-------

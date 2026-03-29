@@ -49,14 +49,12 @@ References
 from collections import defaultdict, deque
 from collections.abc import Callable, Hashable, Mapping, MutableMapping, Sequence
 from functools import reduce
-from typing import Any, Literal, overload, Protocol, TypeGuard
+from typing import Any, cast, Literal, overload, Protocol, TypeGuard, TypeVar
 from typing_extensions import TypeIs
+import contextlib
 import operator
 
 __all__ = ('assoc', 'assoc_in', 'dissoc', 'get_in', 'itemfilter', 'itemmap', 'keyfilter', 'keymap', 'merge', 'merge_with', 'update_in', 'valfilter', 'valmap')
-
-class SupportsGetItem[K: Hashable, V](Protocol):
-	def __getitem__(self, key: K, /) -> V: ...
 
 @overload
 def assoc[K: Hashable, V](d: Mapping[K, V], key: K, value: V, factory: Callable[[], dict[K, V]] = dict) -> dict[K, V]: ...
@@ -166,10 +164,10 @@ def assoc_in[K, V](d: Mapping[K, V], keys: Sequence[K], value: V, *, factory: Ca
 	[1] Python `collections.abc` module
 		https://docs.python.org/3/library/collections.abc.html
 	"""
-	return update_in(d, keys, lambda _x: value, value, factory)  # pyright: ignore[reportUnknownVariableType, reportCallIssue]
+	return update_in(d, keys, lambda _x: value, value, factory)
 
 @overload
-def dissoc[K: Hashable, V](d: Mapping[K, V], *keys: K, factory: Callable[[], dict[K, V]]) -> dict[K, V]: ...
+def dissoc[K: Hashable, V](d: Mapping[K, V], *keys: K, factory: Callable[[], dict[K, V]] = dict) -> dict[K, V]: ...
 @overload
 def dissoc[K: Hashable, V](d: Mapping[K, V], *keys: K, factory: Callable[[], MutableMapping[K, V]]) -> MutableMapping[K, V]: ...
 def dissoc[K: Hashable, V](d: Mapping[K, V], *keys: K, factory: Callable[[], MutableMapping[K, V]] = dict) -> MutableMapping[K, V]:
@@ -236,36 +234,44 @@ def dissoc[K: Hashable, V](d: Mapping[K, V], *keys: K, factory: Callable[[], Mut
 			d2[k] = d[k]
 	return d2
 
+_KT_contra = TypeVar("_KT_contra", contravariant=True)
+_VT_co = TypeVar("_VT_co", covariant=True)
+
+class Z0Z_SupportsGetItem(Protocol[_KT_contra, _VT_co]):
+    def __getitem__(self, key: _KT_contra, /) -> _VT_co: ...
+
 @overload
-def get_in[K: Hashable, V](keys: Sequence[K], coll: SupportsGetItem[K, V], default: None = None, no_default: Literal[True] = True) -> V: ...  # noqa: FBT002
+def get_in[K, V](keys: Sequence[K], coll: Z0Z_SupportsGetItem[K, V], default: None = None, *, no_default: Literal[True]) -> V: ...
 @overload
-def get_in[K: Hashable, V](keys: Sequence[K], coll: SupportsGetItem[K, V], default: None = None, no_default: bool = False) -> V | None: ...  # noqa: FBT001, FBT002
+def get_in[K, V](keys: Sequence[K], coll: Z0Z_SupportsGetItem[K, V], default: V, *, no_default: Literal[True]) -> V: ...
+
 @overload
-def get_in[K: Hashable, V](keys: Sequence[K], coll: SupportsGetItem[K, V], default: V, no_default: bool = False) -> V: ...  # noqa: FBT001, FBT002
-def get_in[K: Hashable, V](keys: Sequence[K], coll: SupportsGetItem[K, V], default: V | None = None, no_default: bool = False) -> V | None:  # noqa: FBT001, FBT002
+def get_in[K, V](keys: Sequence[K], coll: Z0Z_SupportsGetItem[K, V], default: V | None = None, *, no_default: Literal[False] = False) -> V | None: ...
+
+def get_in[K, V](keys: Sequence[K], coll: Z0Z_SupportsGetItem[K, V], default: V | None = None, *, no_default: bool = False) -> V | None:
 	"""Retrieve a value from a potentially nested `coll` (***coll***ection) using a `Sequence` of `keys`.
 
-	(AI generated docstring)
-
 	You can use `get_in` to navigate into a nested `coll` (***coll***ection) by following a
-	sequence of `keys`. `get_in` applies each key in `keys` sequentially using
-	`operator.getitem`[1]. If the path does not exist, `get_in` returns `default`. If
-	`no_default` is `True`, `get_in` re-raises the original exception instead of returning
-	`default`.
+	`Sequence` of `keys`. `get_in` applies each key in `keys` sequentially using
+	`operator.getitem`[1].
+
+	If the desired key does not exist, `get_in` will `raise` an `Exception` or `return` `default`
+	depending on the parameter `no_default`. If `no_default` is `False`, which is the default,
+	`get_in` will `return` `default`. If `no_default` is `True`, `get_in` will `raise` an
+	`Exception`.
 
 	Parameters
 	----------
 	keys : Sequence[K]
-		Sequence of keys that describes the path to traverse in `coll`.
+		`Sequence` of keys that describes the path to traverse in `coll`.
 	coll : SupportsGetItem[K, V]
-		Collection to traverse. `get_in` applies each key in `keys` to the current `coll`
-		using `operator.getitem`[1], so `coll` can be any nested structure such as a `dict`
-		or `list`.
+		Python `object` to traverse. `get_in` uses `operator.getitem`[1], so the nested objects in
+		`coll` can be nested o any type that works with `operator.getitem`, such as a `dict` or
+		`list`.
 	default : V | None = None
 		Value to return when the path in `keys` does not exist in `coll`.
 	no_default : bool = False
-		When `True`, re-raise the original `KeyError`, `IndexError`, or `TypeError`
-		instead of returning `default`.
+		When `True`, `raise` `KeyError`, `IndexError`, or `TypeError` instead of returning `default`.
 
 	Returns
 	-------
@@ -313,25 +319,26 @@ def get_in[K: Hashable, V](keys: Sequence[K], coll: SupportsGetItem[K, V], defau
 	[1] Python `operator` module
 		https://docs.python.org/3/library/operator.html#operator.getitem
 	"""
-	try:
-		return reduce(operator.getitem, keys, coll) # pyright: ignore[reportReturnType, reportArgumentType]  # ty:ignore[invalid-return-type]
-	except (KeyError, IndexError, TypeError):
-		if no_default:
-			raise
-		return default
+	if no_default:
+		return reduce(operator.getitem, keys, coll)  # pyright: ignore[reportArgumentType, reportReturnType] # ty:ignore[invalid-return-type]
+	else:
+		v: V | None = default
+		with contextlib.suppress(KeyError, IndexError, TypeError):
+			v = reduce(operator.getitem, keys, coll)  # pyright: ignore[reportAssignmentType, reportArgumentType] # ty:ignore[invalid-assignment]
+		return v
 
 @overload
-def itemfilter[K0: Hashable, V0, K1: Hashable, V1](predicate: Callable[[tuple[K0, V0]], bool], d: Mapping[K0, V0], factory: Callable[[], dict[K1, V1]]) -> dict[K1, V1]: ...
+def itemfilter[K0: Hashable, V0, K1: Hashable, V1](predicate: Callable[[tuple[K0, V0]], TypeIs[tuple[K1, V1]]], d: Mapping[K0, V0], factory: Callable[[], dict[K1, V1]] = dict) -> dict[K1, V1]: ...
 @overload
-def itemfilter[K0: Hashable, V0, K1: Hashable, V1](predicate: Callable[[tuple[K0, V0]], TypeGuard[tuple[K1, V1]]], d: Mapping[K0, V0], factory: Callable[[], dict[K1, V1]]) -> dict[K1, V1]: ...
+def itemfilter[K0: Hashable, V0, K1: Hashable, V1](predicate: Callable[[tuple[K0, V0]], TypeGuard[tuple[K1, V1]]], d: Mapping[K0, V0], factory: Callable[[], dict[K1, V1]] = dict) -> dict[K1, V1]: ...
 @overload
-def itemfilter[K0: Hashable, V0, K1: Hashable, V1](predicate: Callable[[tuple[K0, V0]], TypeIs[tuple[K1, V1]]], d: Mapping[K0, V0], factory: Callable[[], dict[K1, V1]]) -> dict[K1, V1]: ...
+def itemfilter[K: Hashable, V](predicate: Callable[[tuple[K, V]], bool], d: Mapping[K, V], factory: Callable[[], dict[K, V]] = dict) -> dict[K, V]: ...
 @overload
-def itemfilter[K0: Hashable, V0, K1: Hashable, V1](predicate: Callable[[tuple[K0, V0]], bool], d: Mapping[K0, V0], factory: Callable[[], MutableMapping[K1, V1]]) -> MutableMapping[K1, V1]: ...
+def itemfilter[K0: Hashable, V0, K1: Hashable, V1](predicate: Callable[[tuple[K0, V0]], TypeIs[tuple[K1, V1]]], d: Mapping[K0, V0], factory: Callable[[], MutableMapping[K1, V1]]) -> MutableMapping[K1, V1]: ...
 @overload
 def itemfilter[K0: Hashable, V0, K1: Hashable, V1](predicate: Callable[[tuple[K0, V0]], TypeGuard[tuple[K1, V1]]], d: Mapping[K0, V0], factory: Callable[[], MutableMapping[K1, V1]]) -> MutableMapping[K1, V1]: ...
 @overload
-def itemfilter[K0: Hashable, V0, K1: Hashable, V1](predicate: Callable[[tuple[K0, V0]], TypeIs[tuple[K1, V1]]], d: Mapping[K0, V0], factory: Callable[[], MutableMapping[K1, V1]]) -> MutableMapping[K1, V1]: ...
+def itemfilter[K0: Hashable, V0, K1: Hashable, V1](predicate: Callable[[tuple[K0, V0]], bool], d: Mapping[K0, V0], factory: Callable[[], MutableMapping[K1, V1]]) -> MutableMapping[K1, V1]: ...
 def itemfilter[K0: Hashable, V0, K1: Hashable, V1](predicate: Callable[[tuple[K0, V0]], bool] | Callable[[tuple[K0, V0]], TypeGuard[tuple[K1, V1]]] | Callable[[tuple[K0, V0]], TypeIs[tuple[K1, V1]]], d: Mapping[K0, V0], factory: Callable[[], MutableMapping[K1, V1]] = dict) -> MutableMapping[K1, V1]:
 	"""Retain only items from `d` whose key-value pairs satisfy `predicate` and return a new `Mapping`.
 
@@ -383,8 +390,8 @@ def itemfilter[K0: Hashable, V0, K1: Hashable, V1](predicate: Callable[[tuple[K0
 	rv: MutableMapping[K1, V1] = factory()
 	for item in d.items():
 		if predicate(item):
-			k, v = item
-			rv[k] = v  # pyright: ignore[reportArgumentType] # ty:ignore[invalid-assignment]
+			k, v = cast(tuple[K1, V1], item)
+			rv[k] = v
 	return rv
 
 @overload
@@ -437,17 +444,17 @@ def itemmap[K0: Hashable, K1: Hashable, V0, V1](func: Callable[[tuple[K0, V0]], 
 	return factory(map(func, d.items()))
 
 @overload
-def keyfilter[K0: Hashable, K1: Hashable, V](predicate: Callable[[K0], bool], d: Mapping[K0, V], factory: Callable[[], dict[K1, V]] = dict) -> dict[K1, V]: ...
+def keyfilter[K0: Hashable, K1: Hashable, V](predicate: Callable[[K0], TypeIs[K1]], d: Mapping[K0, V], factory: Callable[[], dict[K1, V]] = dict) -> dict[K1, V]: ...
 @overload
 def keyfilter[K0: Hashable, K1: Hashable, V](predicate: Callable[[K0], TypeGuard[K1]], d: Mapping[K0, V], factory: Callable[[], dict[K1, V]] = dict) -> dict[K1, V]: ...
 @overload
-def keyfilter[K0: Hashable, K1: Hashable, V](predicate: Callable[[K0], TypeIs[K1]], d: Mapping[K0, V], factory: Callable[[], dict[K1, V]] = dict) -> dict[K1, V]: ...
+def keyfilter[K: Hashable, V](predicate: Callable[[K], bool], d: Mapping[K, V], factory: Callable[[], dict[K, V]] = dict) -> dict[K, V]: ...
 @overload
-def keyfilter[K0: Hashable, K1: Hashable, V](predicate: Callable[[K0], bool], d: Mapping[K0, V], factory: Callable[[], MutableMapping[K1, V]]) -> MutableMapping[K1, V]: ...
+def keyfilter[K0: Hashable, K1: Hashable, V](predicate: Callable[[K0], TypeIs[K1]], d: Mapping[K0, V], factory: Callable[[], MutableMapping[K1, V]]) -> MutableMapping[K1, V]: ...
 @overload
 def keyfilter[K0: Hashable, K1: Hashable, V](predicate: Callable[[K0], TypeGuard[K1]], d: Mapping[K0, V], factory: Callable[[], MutableMapping[K1, V]]) -> MutableMapping[K1, V]: ...
 @overload
-def keyfilter[K0: Hashable, K1: Hashable, V](predicate: Callable[[K0], TypeIs[K1]], d: Mapping[K0, V], factory: Callable[[], MutableMapping[K1, V]]) -> MutableMapping[K1, V]: ...
+def keyfilter[K0: Hashable, K1: Hashable, V](predicate: Callable[[K0], bool], d: Mapping[K0, V], factory: Callable[[], MutableMapping[K1, V]]) -> MutableMapping[K1, V]: ...
 def keyfilter[K0: Hashable, K1: Hashable, V](predicate: Callable[[K0], bool] | Callable[[K0], TypeGuard[K1]] | Callable[[K0], TypeIs[K1]], d: Mapping[K0, V], factory: Callable[[], MutableMapping[K1, V]] = dict) -> MutableMapping[K1, V]:
 	"""Retain only items from `d` whose keys satisfy `predicate` and return a new `Mapping`.
 
@@ -495,7 +502,7 @@ def keyfilter[K0: Hashable, K1: Hashable, V](predicate: Callable[[K0], bool] | C
 	rv: MutableMapping[K1, V] = factory()
 	for k, v in d.items():
 		if predicate(k):
-			rv[k] = v  # pyright: ignore[reportArgumentType] # ty:ignore[invalid-assignment]
+			rv[cast(K1, k)] = v
 	return rv
 
 @overload
@@ -674,7 +681,7 @@ def update_in[K, V](d: Mapping[K, V], keys: Sequence[K], func: Callable[[V], V],
 def update_in[K, V](d: Mapping[K, V], keys: Sequence[K], func: Callable[[V | None], V], default: None = None, *, factory: Callable[..., MutableMapping[K, V]]) -> MutableMapping[K, V]: ...
 @overload
 def update_in[K, V](d: Mapping[K, V], keys: Sequence[K], func: Callable[[V], V], default: V, factory: Callable[..., MutableMapping[K, V]]) -> MutableMapping[K, V]: ...
-def update_in[K, V](d: Mapping[K, V], keys: Sequence[K], func: Callable[[V], V], default: V | None = None, factory: Callable[..., MutableMapping[K, V]] = dict) -> MutableMapping[K, V]:
+def update_in[K, V](d: Mapping[K, V], keys: Sequence[K], func: Callable[[V | None], V] | Callable[[V], V], default: V | None = None, factory: Callable[..., MutableMapping[K, V]] = dict) -> MutableMapping[K, V]:
 	"""Apply a `Callable` to a value at a nested path in a `Mapping`.
 
 	(AI generated docstring)
@@ -732,26 +739,27 @@ def update_in[K, V](d: Mapping[K, V], keys: Sequence[K], func: Callable[[V], V],
 	rv = dATk = factory(d)
 	dequeKeys: deque[K] = deque(keys)
 	keyFinal: K = dequeKeys.pop()
-	sherpa = factory(d)
+	sherpa: MutableMapping[K, V] = factory(d)
 	while dequeKeys:
 		k: K = dequeKeys.popleft()
-		sherpa = sherpa.get(k, factory()) # pyright: ignore[reportUnknownMemberType, reportAttributeAccessIssue, reportUnknownVariableType]  # ty:ignore[unresolved-attribute]
+		sherpa = cast(MutableMapping[K, V], sherpa.get(k, factory()))
 		dATk[k] = dATk = factory(sherpa)  # pyright: ignore[reportArgumentType] # ty:ignore[invalid-assignment]
-	dATk[keyFinal] = func(sherpa.get(keyFinal, default))  # pyright: ignore[reportArgumentType, reportUnknownMemberType, reportAttributeAccessIssue] # ty:ignore[unresolved-attribute, invalid-argument-type]
+	dATk[keyFinal] = func(sherpa.get(keyFinal, default))  # pyright: ignore[reportArgumentType] # ty:ignore[invalid-argument-type]
 	return rv
 
 @overload
-def valfilter[K: Hashable, V0, V1](predicate: Callable[[V0], bool], d: Mapping[K, V0], factory: Callable[[], dict[K, V1]]) -> dict[K, V1]: ...
+def valfilter[K: Hashable, V0, V1](predicate: Callable[[V0], TypeIs[V1]], d: Mapping[K, V0], factory: Callable[[], dict[K, V1]] = dict) -> dict[K, V1]: ...
 @overload
-def valfilter[K: Hashable, V0, V1](predicate: Callable[[V0], TypeGuard[V1]], d: Mapping[K, V0], factory: Callable[[], dict[K, V1]]) -> dict[K, V1]: ...
+def valfilter[K: Hashable, V0, V1](predicate: Callable[[V0], TypeGuard[V1]], d: Mapping[K, V0], factory: Callable[[], dict[K, V1]] = dict) -> dict[K, V1]: ...
 @overload
-def valfilter[K: Hashable, V0, V1](predicate: Callable[[V0], TypeIs[V1]], d: Mapping[K, V0], factory: Callable[[], dict[K, V1]]) -> dict[K, V1]: ...
+def valfilter[K: Hashable, V](predicate: Callable[[V], bool], d: Mapping[K, V]) -> dict[K, V]: ...
 @overload
 def valfilter[K: Hashable, V0, V1](predicate: Callable[[V0], TypeIs[V1]], d: Mapping[K, V0], factory: Callable[[], MutableMapping[K, V1]]) -> MutableMapping[K, V1]: ...
 @overload
 def valfilter[K: Hashable, V0, V1](predicate: Callable[[V0], TypeGuard[V1]], d: Mapping[K, V0], factory: Callable[[], MutableMapping[K, V1]]) -> MutableMapping[K, V1]: ...
 @overload
 def valfilter[K: Hashable, V0, V1](predicate: Callable[[V0], bool], d: Mapping[K, V0], factory: Callable[[], MutableMapping[K, V1]]) -> MutableMapping[K, V1]: ...
+
 def valfilter[K: Hashable, V0, V1](predicate: Callable[[V0], bool] | Callable[[V0], TypeGuard[V1]] | Callable[[V0], TypeIs[V1]], d: Mapping[K, V0], factory: Callable[[], MutableMapping[K, V1]] = dict) -> MutableMapping[K, V1]:
 	"""Retain only items from `d` whose values satisfy `predicate` and return a new `Mapping`.
 
@@ -799,8 +807,7 @@ def valfilter[K: Hashable, V0, V1](predicate: Callable[[V0], bool] | Callable[[V
 	rv: MutableMapping[K, V1] = factory()
 	for k, v in d.items():
 		if predicate(v):
-			# TODO Is `cast` appropriate?
-			rv[k] = v  # pyright: ignore[reportArgumentType] # ty:ignore[invalid-assignment]
+			rv[k] = cast(V1, v)
 	return rv
 
 @overload
