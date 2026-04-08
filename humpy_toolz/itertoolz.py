@@ -1,3 +1,4 @@
+# ruff: noqa: D100
 from collections.abc import Sequence
 from functools import partial
 from humpy_toolz.utils import no_default
@@ -7,10 +8,10 @@ import heapq
 import itertools
 import operator
 
-__all__ = ('remove', 'accumulate', 'groupby', 'merge_sorted', 'interleave', 'unique', 'isiterable', 'isdistinct', 'take', 'drop', 'take_nth', 'first', 'second', 'nth', 'last', 'get', 'concat', 'concatv', 'mapcat', 'cons', 'interpose', 'frequencies', 'reduceby', 'iterate', 'sliding_window', 'partition', 'partition_all', 'count', 'pluck', 'join', 'tail', 'diff', 'topk', 'peek', 'peekn', 'random_sample')
+__all__ = ('accumulate', 'concat', 'concatv', 'cons', 'count', 'diff', 'drop', 'first', 'frequencies', 'get', 'groupby', 'interleave', 'interpose', 'isdistinct', 'isiterable', 'iterate', 'join', 'last', 'mapcat', 'merge_sorted', 'nth', 'partition', 'partition_all', 'peek', 'peekn', 'pluck', 'random_sample', 'reduceby', 'remove', 'second', 'sliding_window', 'tail', 'take', 'take_nth', 'topk', 'unique')
 
 def remove(predicate, seq):
-    """ Return those items of sequence for which predicate(item) is False
+    """Return those items of sequence for which predicate(item) is False
 
     >>> def iseven(x):
     ...     return x % 2 == 0
@@ -20,7 +21,7 @@ def remove(predicate, seq):
     return filterfalse(predicate, seq)
 
 def accumulate(binop, seq, initial=no_default):
-    """ Repeatedly apply binary function to a sequence, accumulating results
+    """Repeatedly apply binary function to a sequence, accumulating results
 
     >>> from operator import add, mul
     >>> list(accumulate(add, [1, 2, 3, 4, 5]))
@@ -60,7 +61,7 @@ def accumulate(binop, seq, initial=no_default):
         yield result
 
 def groupby(key, seq):
-    """ Group a collection by a key function
+    """Group a collection by a key function
 
     >>> names = ['Alice', 'Bob', 'Charlie', 'Dan', 'Edith', 'Frank']
     >>> groupby(len, names)  # doctest: +SKIP
@@ -95,7 +96,7 @@ def groupby(key, seq):
     return rv
 
 def merge_sorted(*seqs, **kwargs):
-    """ Merge and sort a collection of sorted collections
+    """Merge and sort a collection of sorted collections
 
     This works lazily and only keeps one value from each iterable in memory.
 
@@ -114,7 +115,7 @@ def merge_sorted(*seqs, **kwargs):
         return iter([])
     elif len(seqs) == 1:
         return iter(seqs[0])
-    key = kwargs.get('key', None)
+    key = kwargs.get('key')
     if key is None:
         return _merge_sorted_binary(seqs)
     else:
@@ -198,7 +199,7 @@ def _merge_sorted_binary_key(seqs, key):
     yield from seq1
 
 def interleave(seqs):
-    """ Interleave a sequence of sequences
+    """Interleave a sequence of sequences
 
     >>> list(interleave([[1, 2], [3, 4]]))
     [1, 3, 2, 4]
@@ -221,7 +222,7 @@ def interleave(seqs):
             iters = itertools.cycle(itertools.takewhile(predicate, iters))
 
 def unique(seq, key=None):
-    """ Return only unique elements of a sequence
+    """Return only unique elements of a sequence
 
     >>> tuple(unique((1, 2, 3)))
     (1, 2, 3)
@@ -248,7 +249,7 @@ def unique(seq, key=None):
                 yield item
 
 def isiterable(x):
-    """ Is x iterable?
+    """Is x iterable?
 
     >>> isiterable([1, 2, 3])
     True
@@ -264,7 +265,7 @@ def isiterable(x):
         return False
 
 def isdistinct(seq):
-    """ All values in sequence are distinct
+    """All values in sequence are distinct
 
     >>> isdistinct([1, 2, 3])
     True
@@ -288,7 +289,7 @@ def isdistinct(seq):
         return len(seq) == len(set(seq))
 
 def take(n, seq):
-    """ The first n elements of a sequence
+    """The first n elements of a sequence
 
     >>> list(take(2, [10, 20, 30, 40, 50]))
     [10, 20]
@@ -300,7 +301,7 @@ def take(n, seq):
     return itertools.islice(seq, n)
 
 def tail(n, seq):
-    """ The last n elements of a sequence
+    """The last n elements of a sequence
 
     >>> tail(2, [10, 20, 30, 40, 50])
     [40, 50]
@@ -315,7 +316,7 @@ def tail(n, seq):
         return tuple(collections.deque(seq, n))
 
 def drop(n, seq):
-    """ The sequence following the first n elements
+    """The sequence following the first n elements
 
     >>> list(drop(2, [10, 20, 30, 40, 50]))
     [30, 40, 50]
@@ -327,7 +328,7 @@ def drop(n, seq):
     return itertools.islice(seq, n, None)
 
 def take_nth(n, seq):
-    """ Every nth item in seq
+    """Every nth item in seq
 
     >>> list(take_nth(2, [10, 20, 30, 40, 50]))
     [10, 30, 50]
@@ -335,7 +336,7 @@ def take_nth(n, seq):
     return itertools.islice(seq, 0, None, n)
 
 def first(seq):
-    """ The first element in a sequence
+    """The first element in a sequence
 
     >>> first('ABC')
     'A'
@@ -343,7 +344,7 @@ def first(seq):
     return next(iter(seq))
 
 def second(seq):
-    """ The second element in a sequence
+    """The second element in a sequence
 
     >>> second('ABC')
     'B'
@@ -353,7 +354,7 @@ def second(seq):
     return next(seq)
 
 def nth(n, seq):
-    """ The nth element in a sequence
+    """The nth element in a sequence
 
     >>> nth(1, 'ABC')
     'B'
@@ -364,7 +365,7 @@ def nth(n, seq):
         return next(itertools.islice(seq, n, None))
 
 def last(seq):
-    """ The last element in a sequence
+    """The last element in a sequence
 
     >>> last('ABC')
     'C'
@@ -379,7 +380,7 @@ def _get(ind, seq, default):
         return default
 
 def get(ind, seq, default=no_default):
-    """ Get element in a sequence or dict
+    """Get element in a sequence or dict
 
     Provides standard indexing
 
@@ -423,7 +424,7 @@ def get(ind, seq, default=no_default):
                 else:
                     return ()
             else:
-                return tuple((_get(i, seq, default) for i in ind))
+                return tuple(_get(i, seq, default) for i in ind)
         elif default != no_default:
             return default
         else:
@@ -431,11 +432,10 @@ def get(ind, seq, default=no_default):
     except (KeyError, IndexError):
         if default == no_default:
             raise
-        else:
-            return default
+        return default
 
 def concat(seqs):
-    """ Concatenate zero or more iterables, any of which may be infinite.
+    """Concatenate zero or more iterables, any of which may be infinite.
 
     An infinite sequence will prevent the rest of the arguments from
     being included.
@@ -452,7 +452,7 @@ def concat(seqs):
     return itertools.chain.from_iterable(seqs)
 
 def concatv(*seqs):
-    """ Variadic version of concat
+    """Variadic version of concat
 
     >>> list(concatv([], ["a"], ["b", "c"]))
     ['a', 'b', 'c']
@@ -463,7 +463,7 @@ def concatv(*seqs):
     return concat(seqs)
 
 def mapcat(func, seqs):
-    """ Apply func to each sequence in seqs, concatenating results.
+    """Apply func to each sequence in seqs, concatenating results.
 
     >>> list(mapcat(lambda s: [c.upper() for c in s],
     ...             [["a", "b"], ["c", "d", "e"]]))
@@ -472,7 +472,7 @@ def mapcat(func, seqs):
     return concat(map(func, seqs))
 
 def cons(el, seq):
-    """ Add el to beginning of (possibly infinite) sequence seq.
+    """Add el to beginning of (possibly infinite) sequence seq.
 
     >>> list(cons(1, [2, 3]))
     [1, 2, 3]
@@ -480,7 +480,7 @@ def cons(el, seq):
     return itertools.chain([el], seq)
 
 def interpose(el, seq):
-    """ Introduce element between each pair of elements in seq
+    """Introduce element between each pair of elements in seq
 
     >>> list(interpose("a", [1, 2, 3]))
     [1, 'a', 2, 'a', 3]
@@ -490,7 +490,7 @@ def interpose(el, seq):
     return inposed
 
 def frequencies(seq):
-    """ Find number of occurrences of each value in seq
+    """Find number of occurrences of each value in seq
 
     >>> frequencies(['cat', 'cat', 'ox', 'pig', 'pig', 'cat'])  #doctest: +SKIP
     {'cat': 3, 'ox': 1, 'pig': 2}
@@ -505,7 +505,7 @@ def frequencies(seq):
     return dict(d)
 
 def reduceby(key, binop, seq, init=no_default):
-    """ Perform a simultaneous groupby and reduction
+    """Perform a simultaneous groupby and reduction
 
     The computation:
 
@@ -584,7 +584,7 @@ def reduceby(key, binop, seq, init=no_default):
     return d
 
 def iterate(func, x):
-    """ Repeatedly apply a function func onto an original input
+    """Repeatedly apply a function func onto an original input
 
     Yields x, then func(x), then func(func(x)), then func(func(func(x))), etc..
 
@@ -613,7 +613,7 @@ def iterate(func, x):
         x = func(x)
 
 def sliding_window(n, seq):
-    """ A sequence of overlapping subsequences
+    """A sequence of overlapping subsequences
 
     >>> list(sliding_window(2, [1, 2, 3, 4]))
     [(1, 2), (2, 3), (3, 4)]
@@ -629,7 +629,7 @@ def sliding_window(n, seq):
 no_pad = '__no__pad__'
 
 def partition(n, seq, pad=no_pad):
-    """ Partition sequence into tuples of length n
+    """Partition sequence into tuples of length n
 
     >>> list(partition(2, [1, 2, 3, 4]))
     [(1, 2), (3, 4)]
@@ -653,7 +653,7 @@ def partition(n, seq, pad=no_pad):
         return zip_longest(*args, fillvalue=pad)
 
 def partition_all(n, seq):
-    """ Partition all elements of sequence into tuples of length at most n
+    """Partition all elements of sequence into tuples of length at most n
 
     The final tuple may be shorter to accommodate extra elements.
 
@@ -694,7 +694,7 @@ def partition_all(n, seq):
         yield prev
 
 def count(seq):
-    """ Count the number of items in seq
+    """Count the number of items in seq
 
     Like the builtin ``len`` but works on lazy sequences.
 
@@ -705,7 +705,7 @@ def count(seq):
     """
     if hasattr(seq, '__len__'):
         return len(seq)
-    return sum((1 for i in seq))
+    return sum(1 for i in seq)
 
 def pluck(ind, seqs, default=no_default):
     """ plucks an element or several elements from each item in a sequence.
@@ -734,7 +734,7 @@ def pluck(ind, seqs, default=no_default):
         get = getter(ind)
         return map(get, seqs)
     elif isinstance(ind, list):
-        return (tuple((_get(item, seq, default) for item in ind)) for seq in seqs)
+        return (tuple(_get(item, seq, default) for item in ind) for seq in seqs)
     return (_get(ind, seq, default) for seq in seqs)
 
 def getter(index):
@@ -750,7 +750,7 @@ def getter(index):
         return operator.itemgetter(index)
 
 def join(leftkey, leftseq, rightkey, rightseq, left_default=no_default, right_default=no_default):
-    """ Join two sequences on common attributes
+    """Join two sequences on common attributes
 
     This is a semi-streaming operation.  The LEFT sequence is fully evaluated
     and placed into memory.  The RIGHT sequence is evaluated lazily and so can
@@ -852,7 +852,7 @@ def join(leftkey, leftseq, rightkey, rightseq, left_default=no_default, right_de
                     yield (match, right_default)
 
 def diff(*seqs, **kwargs):
-    """ Return those items that differ between sequences
+    """Return those items that differ between sequences
 
     >>> list(diff([1, 2, 3], [1, 2, 10, 100]))
     [(3, 10)]
@@ -879,7 +879,7 @@ def diff(*seqs, **kwargs):
         iters = zip(*seqs)
     else:
         iters = zip_longest(*seqs, fillvalue=default)
-    key = kwargs.get('key', None)
+    key = kwargs.get('key')
     if key is None:
         for items in iters:
             if items.count(items[0]) != N:
@@ -891,7 +891,7 @@ def diff(*seqs, **kwargs):
                 yield items
 
 def topk(k, seq, key=None):
-    """ Find the k largest elements of a sequence
+    """Find the k largest elements of a sequence
 
     Operates lazily in ``n*log(k)`` time
 
@@ -911,7 +911,7 @@ def topk(k, seq, key=None):
     return tuple(heapq.nlargest(k, seq, key=key))
 
 def peek(seq):
-    """ Retrieve the next element of a sequence
+    """Retrieve the next element of a sequence
 
     Returns the first element and an iterable equivalent to the original
     sequence, still having the element retrieved.
@@ -928,7 +928,7 @@ def peek(seq):
     return (item, itertools.chain((item,), iterator))
 
 def peekn(n, seq):
-    """ Retrieve the next n elements of a sequence
+    """Retrieve the next n elements of a sequence
 
     Returns a tuple of the first n elements and an iterable equivalent
     to the original, still having the elements retrieved.
@@ -945,7 +945,7 @@ def peekn(n, seq):
     return (peeked, itertools.chain(iter(peeked), iterator))
 
 def random_sample(prob, seq, random_state=None):
-    """ Return elements from a sequence with probability of prob
+    """Return elements from a sequence with probability of prob
 
     Returns a lazy iterator of random items from seq.
 

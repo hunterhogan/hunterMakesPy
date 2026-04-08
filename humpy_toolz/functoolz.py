@@ -7,11 +7,11 @@ import inspect
 import sys
 
 PYPY = hasattr(sys, 'pypy_version_info') and sys.version_info[0] > 2
-__all__ = ('identity', 'apply', 'thread_first', 'thread_last', 'memoize', 'compose', 'compose_left', 'pipe', 'complement', 'juxt', 'do', 'curry', 'flip', 'excepts')
+__all__ = ('apply', 'complement', 'compose', 'compose_left', 'curry', 'do', 'excepts', 'flip', 'identity', 'juxt', 'memoize', 'pipe', 'thread_first', 'thread_last')
 PYPY = hasattr(sys, 'pypy_version_info')
 
 def identity(x):
-    """ Identity function. Return x
+    """Identity function. Return x
 
     >>> identity(3)
     3
@@ -19,7 +19,7 @@ def identity(x):
     return x
 
 def apply(*func_and_args, **kwargs):
-    """ Applies a function and returns the results
+    """Applies a function and returns the results
 
     >>> def double(x): return 2*x
     >>> def inc(x):    return x + 1
@@ -35,7 +35,7 @@ def apply(*func_and_args, **kwargs):
     return func(*args, **kwargs)
 
 def thread_first(val, *forms):
-    """ Thread value through a sequence of functions/forms
+    """Thread value through a sequence of functions/forms
 
     >>> def double(x): return 2*x
     >>> def inc(x):    return x + 1
@@ -69,7 +69,7 @@ def thread_first(val, *forms):
     return reduce(evalform_front, forms, val)
 
 def thread_last(val, *forms):
-    """ Thread value through a sequence of functions/forms
+    """Thread value through a sequence of functions/forms
 
     >>> def double(x): return 2*x
     >>> def inc(x):    return x + 1
@@ -108,7 +108,7 @@ def thread_last(val, *forms):
     return reduce(evalform_back, forms, val)
 
 def instanceproperty(fget=None, fset=None, fdel=None, doc=None, classval=None):
-    """ Like @property, but returns ``classval`` when used as a class attribute
+    """Like @property, but returns ``classval`` when used as a class attribute
 
     >>> class MyClass(object):
     ...     '''The class docstring'''
@@ -134,7 +134,7 @@ def instanceproperty(fget=None, fset=None, fdel=None, doc=None, classval=None):
     return InstanceProperty(fget=fget, fset=fset, fdel=fdel, doc=doc, classval=classval)
 
 class InstanceProperty(property):
-    """ Like @property, but returns ``classval`` when used as a class attribute
+    """Like @property, but returns ``classval`` when used as a class attribute
 
     Should not be used directly.  Use ``instanceproperty`` instead.
     """
@@ -153,7 +153,7 @@ class InstanceProperty(property):
         return (InstanceProperty, state)
 
 class curry:
-    """ Curry a callable function
+    """Curry a callable function
 
     Enables partial application of arguments through calling a function with an
     incomplete set of arguments.
@@ -292,9 +292,7 @@ class curry:
             sigspec = self._sigspec
         if is_partial_args(func, args, kwargs, sigspec) is False:
             return False
-        elif self._has_unknown_args:
-            return True
-        elif not is_valid_args(func, args, kwargs, sigspec):
+        elif self._has_unknown_args or not is_valid_args(func, args, kwargs, sigspec):
             return True
         else:
             return False
@@ -351,7 +349,7 @@ def _restore_curry(cls, func, args, kwargs, userdict, is_decorated):
 
 @curry
 def memoize(func, cache=None, key=None):
-    """ Cache a function's result for speedy future evaluation
+    """Cache a function's result for speedy future evaluation
 
     Considerations:
         Trades memory for speed.
@@ -426,7 +424,7 @@ def memoize(func, cache=None, key=None):
     return memof
 
 class Compose:
-    """ A composition of functions
+    """A composition of functions
 
     See Also:
         compose
@@ -467,12 +465,12 @@ class Compose:
     @property
     def __name__(self):
         try:
-            return '_of_'.join((f.__name__ for f in reversed((self.first,) + self.funcs)))
+            return '_of_'.join(f.__name__ for f in reversed((self.first,) + self.funcs))
         except AttributeError:
             return type(self).__name__
 
     def __repr__(self):
-        return '{.__class__.__name__}{!r}'.format(self, tuple(reversed((self.first,) + self.funcs)))
+        return f'{self.__class__.__name__}{tuple(reversed((self.first,) + self.funcs))!r}'
 
     def __eq__(self, other):
         if isinstance(other, Compose):
@@ -497,7 +495,7 @@ class Compose:
     __wrapped__ = instanceproperty(attrgetter('first'))
 
 def compose(*funcs):
-    """ Compose functions to operate in series.
+    """Compose functions to operate in series.
 
     Returns a function that applies other functions in sequence.
 
@@ -522,7 +520,7 @@ def compose(*funcs):
         return Compose(funcs)
 
 def compose_left(*funcs):
-    """ Compose functions to operate in series.
+    """Compose functions to operate in series.
 
     Returns a function that applies other functions in sequence.
 
@@ -542,7 +540,7 @@ def compose_left(*funcs):
     return compose(*reversed(funcs))
 
 def pipe(data, *funcs):
-    """ Pipe a value through a sequence of functions
+    """Pipe a value through a sequence of functions
 
     I.e. ``pipe(data, f, g, h)`` is equivalent to ``h(g(f(data)))``
 
@@ -566,7 +564,7 @@ def pipe(data, *funcs):
     return data
 
 def complement(func):
-    """ Convert a predicate function to its logical complement.
+    """Convert a predicate function to its logical complement.
 
     In other words, return a function that, for inputs that normally
     yield True, yields False, and vice-versa.
@@ -581,7 +579,7 @@ def complement(func):
     return compose(not_, func)
 
 class juxt:
-    """ Creates a function that calls several functions with the same arguments
+    """Creates a function that calls several functions with the same arguments
 
     Takes several functions and returns a function that applies its arguments
     to each of those functions then returns a tuple of the results.
@@ -604,7 +602,7 @@ class juxt:
         self.funcs = tuple(funcs)
 
     def __call__(self, *args, **kwargs):
-        return tuple((func(*args, **kwargs) for func in self.funcs))
+        return tuple(func(*args, **kwargs) for func in self.funcs)
 
     def __getstate__(self):
         return self.funcs
@@ -613,7 +611,7 @@ class juxt:
         self.funcs = state
 
 def do(func, x):
-    """ Runs ``func`` on ``x``, returns ``x``
+    """Runs ``func`` on ``x``, returns ``x``
 
     Because the results of ``func`` are not returned, only the side
     effects of ``func`` are relevant.
@@ -639,7 +637,7 @@ def do(func, x):
 
 @curry
 def flip(func, a, b):
-    """ Call the function call with the arguments flipped
+    """Call the function call with the arguments flipped
 
     This function is curried.
 
@@ -664,9 +662,9 @@ def flip(func, a, b):
     return func(b, a)
 
 def return_none(exc):
-    """ Returns None.
+    """Returns None.
     """
-    return None
+    return
 
 class excepts:
     """A wrapper around a function to catch exceptions and
@@ -762,19 +760,19 @@ def num_required_args(func, sigspec=None):
     sigspec, rv = _check_sigspec(sigspec, func, _sigs._num_required_args, func)
     if sigspec is None:
         return rv
-    return sum((1 for p in sigspec.parameters.values() if p.default is p.empty and p.kind in (p.POSITIONAL_OR_KEYWORD, p.POSITIONAL_ONLY)))
+    return sum(1 for p in sigspec.parameters.values() if p.default is p.empty and p.kind in (p.POSITIONAL_OR_KEYWORD, p.POSITIONAL_ONLY))
 
 def has_varargs(func, sigspec=None):
     sigspec, rv = _check_sigspec(sigspec, func, _sigs._has_varargs, func)
     if sigspec is None:
         return rv
-    return any((p.kind == p.VAR_POSITIONAL for p in sigspec.parameters.values()))
+    return any(p.kind == p.VAR_POSITIONAL for p in sigspec.parameters.values())
 
 def has_keywords(func, sigspec=None):
     sigspec, rv = _check_sigspec(sigspec, func, _sigs._has_keywords, func)
     if sigspec is None:
         return rv
-    return any((p.default is not p.empty or p.kind in (p.KEYWORD_ONLY, p.VAR_KEYWORD) for p in sigspec.parameters.values()))
+    return any(p.default is not p.empty or p.kind in (p.KEYWORD_ONLY, p.VAR_KEYWORD) for p in sigspec.parameters.values())
 
 def is_valid_args(func, args, kwargs, sigspec=None):
     sigspec, rv = _check_sigspec(sigspec, func, _sigs._is_valid_args, func, args, kwargs)
@@ -797,7 +795,7 @@ def is_partial_args(func, args, kwargs, sigspec=None):
     return True
 
 def is_arity(n, func, sigspec=None):
-    """ Does a function have only n positional arguments?
+    """Does a function have only n positional arguments?
 
     This function relies on introspection and does not call the function.
     Returns None if validity can't be determined.
@@ -833,5 +831,4 @@ has_varargs.__doc__ = " Does a function have variadic positional arguments?\n\n 
 has_keywords.__doc__ = " Does a function have keyword arguments?\n\n    This function relies on introspection and does not call the function.\n    Returns None if validity can't be determined.\n\n    >>> def f(x, y=0):\n    ...     return x + y\n\n    >>> has_keywords(f)\n    True\n    "
 is_valid_args.__doc__ = " Is ``func(*args, **kwargs)`` a valid function call?\n\n    This function relies on introspection and does not call the function.\n    Returns None if validity can't be determined.\n\n    >>> def add(x, y):\n    ...     return x + y\n\n    >>> is_valid_args(add, (1,), {})\n    False\n    >>> is_valid_args(add, (1, 2), {})\n    True\n    >>> is_valid_args(map, (), {})\n    False\n\n    **Implementation notes**\n    Python 2 relies on ``inspect.getargspec``, which only works for\n    user-defined functions.  Python 3 uses ``inspect.signature``, which\n    works for many more types of callables.\n\n    Many builtins in the standard library are also supported.\n    "
 is_partial_args.__doc__ = " Can partial(func, *args, **kwargs)(*args2, **kwargs2) be a valid call?\n\n    Returns True *only* if the call is valid or if it is possible for the\n    call to become valid by adding more positional or keyword arguments.\n\n    This function relies on introspection and does not call the function.\n    Returns None if validity can't be determined.\n\n    >>> def add(x, y):\n    ...     return x + y\n\n    >>> is_partial_args(add, (1,), {})\n    True\n    >>> is_partial_args(add, (1, 2), {})\n    True\n    >>> is_partial_args(add, (1, 2, 3), {})\n    False\n    >>> is_partial_args(map, (), {})\n    True\n\n    **Implementation notes**\n    Python 2 relies on ``inspect.getargspec``, which only works for\n    user-defined functions.  Python 3 uses ``inspect.signature``, which\n    works for many more types of callables.\n\n    Many builtins in the standard library are also supported.\n    "
-from . import _signatures as _sigs
-
+from . import _signatures as _sigs  # noqa: E402

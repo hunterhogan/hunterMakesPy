@@ -1,6 +1,6 @@
 [project]
 name = "hunterMakesPy"
-version = "0.5.0"
+version = "0.5.1"
 description = "Easy Python functions making making functional Python functions easier."
 readme = "README.md"
 requires-python = ">=3.12"
@@ -59,12 +59,25 @@ dependencies = [
 optional-dependencies = { development = [
   "astToolkit",
   "setuptools>=62.3",
+  "pytest-cov",
 ], testing = [
   "cython",
   "pytest",
-  "pytest-cov",
   "pytest-xdist",
 ] }
+import-names = [
+  "humpy_cytoolz",
+  "humpy_cytoolz.curried",
+  "humpy_cytoolz.tests",
+  "humpy_tlz",
+  "humpy_toolz",
+  "humpy_toolz.curried",
+  "humpy_toolz.sandbox",
+  "humpy_toolz.sandbox.tests",
+  "humpy_toolz.tests",
+  "hunterMakesPy",
+  "hunterMakesPy.tests",
+]
 
 [build-system]
 requires = [
@@ -72,6 +85,19 @@ requires = [
   "setuptools>=62.3",
 ]
 build-backend = "setuptools.build_meta"
+
+[tool.cibuildwheel]
+build = "*"
+skip = ""
+
+test-command = "pytest"
+test-extras = ["testing"]
+
+[tool.cibuildwheel.linux]
+repair-wheel-command = "auditwheel repair -w {dest_dir} {wheel}"
+
+[tool.cibuildwheel.macos]
+repair-wheel-command = "delocate-wheel --require-archs {delocate_archs} -w {dest_dir} -v {wheel}"
 
 [tool.coverage]
 report = { exclude_lines = [
