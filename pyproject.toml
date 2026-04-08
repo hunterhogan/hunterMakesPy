@@ -59,25 +59,12 @@ dependencies = [
 optional-dependencies = { development = [
   "astToolkit",
   "setuptools>=62.3",
-], testing = [
   "pytest-cov",
+], testing = [
   "cython",
   "pytest",
   "pytest-xdist",
 ] }
-import-names = [
-  "humpy_cytoolz",
-  "humpy_cytoolz.curried",
-  "humpy_cytoolz.tests",
-  "humpy_tlz",
-  "humpy_toolz",
-  "humpy_toolz.curried",
-  "humpy_toolz.sandbox",
-  "humpy_toolz.sandbox.tests",
-  "humpy_toolz.tests",
-  "hunterMakesPy",
-  "hunterMakesPy.tests",
-]
 
 [build-system]
 requires = [
