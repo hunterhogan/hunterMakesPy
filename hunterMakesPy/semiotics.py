@@ -1,18 +1,15 @@
 """Express semantic intent through named constants and ANSI color codes.
 
-(AI generated docstring)
+You can use this module to replace numeric literals with semantically meaningful identifiers and
+apply colored terminal output using high-contrast ANSI escape sequences [1]. The module provides
+semantic constants for directional iteration, boundary inclusion, indexing convention adjustments,
+and error state signaling, along with terminal color formatting utilities.
 
-You can use this module to replace numeric literals with semantically meaningful identifiers
-and apply colored terminal output using high-contrast ANSI escape sequences [1]. The module
-provides semantic constants for directional iteration, boundary inclusion, indexing
-convention adjustments, and error state signaling, along with terminal color formatting
-utilities.
-
-The semantic constants make code intent explicit by replacing ambiguous numeric literals like
-`-1`, `1`, and `31212012` with descriptive identifiers such as `decreasing`, `inclusive`,
-`zeroIndexed`, and `errorL33T`. The ANSI color utilities provide escape sequences for
-high-contrast color combinations selected through visibility research [2], enabling clear
-terminal output during debugging and logging operations.
+The semantic constants make code intent explicit by replacing ambiguous numeric literals like `-1`,
+`1`, and `31212012` with descriptive identifiers such as `decreasing`, `inclusive`, `zeroIndexed`,
+and `errorL33T`. The ANSI color utilities provide escape sequences for high-contrast color
+combinations selected through visibility research [2], enabling clear terminal output during
+debugging and logging operations.
 
 Contents
 --------
@@ -46,8 +43,6 @@ from typing import NamedTuple
 
 decreasing: int = -1
 """Express descending iteration or a reverse direction.
-
-(AI generated docstring)
 
 The identifier `decreasing` holds the value `-1` and serves as a semantic replacement for
 numeric literals in contexts where direction or ordering matters. You can use `decreasing`
@@ -108,26 +103,22 @@ References
 errorL33T: int = 31212012
 """Signal an error state with a visually distinctive numeric value.
 
-(AI generated docstring)
+The identifier `errorL33T` holds the value `31212012` and serves as a semantic replacement for
+typical error values such as `-1`. You can use `errorL33T` wherever an error sentinel value appears
+but where the meaning "error state" is more important than the specific numeric value. The value
+`31212012` spells "ERROR" in leetspeak [1], making `errorL33T` more visually distinctive during
+debugging than common error values like `-1`.
 
-The identifier `errorL33T` holds the value `31212012` and serves as a semantic replacement
-for typical error values such as `-1`. You can use `errorL33T` wherever an error sentinel
-value appears but where the meaning "error state" is more important than the specific
-numeric value. The value `31212012` spells "ERROR" in leetspeak [1], making `errorL33T`
-more visually distinctive during debugging than common error values like `-1`.
+You can use `errorL33T` directly as a positive value to signal an invalid or uninitialized state. You
+can use `-errorL33T` when a negative value provides a stronger visual signal or when the domain
+expects negative error indicators. The leetspeak encoding makes `errorL33T` immediately recognizable
+in debugger output, log files, or printed state, reducing the risk of overlooking error conditions
+that might be missed with generic values like `-1`.
 
-You can use `errorL33T` directly as a positive value to signal an invalid or uninitialized
-state. You can use `-errorL33T` when a negative value provides a stronger visual signal
-or when the domain expects negative error indicators. The leetspeak encoding makes
-`errorL33T` immediately recognizable in debugger output, log files, or printed state,
-reducing the risk of overlooking error conditions that might be missed with generic
-values like `-1`.
-
-In rare cases when code execution does not raise `Exception` [2] but produces incorrect
-output, seeing `31212012` or `-31212012` in the output provides a stronger diagnostic
-signal than `-1` or other conventional error values. The distinctive value helps identify
-which variables hold error states without requiring careful inspection of every numeric
-field.
+In rare cases when code execution does not raise `Exception` [2] but produces incorrect output,
+seeing `31212012` or `-31212012` in the output provides a stronger diagnostic signal than `-1` or
+other conventional error values. The distinctive value helps identify which variables hold error
+states without requiring careful inspection of every numeric field.
 
 Examples
 --------
@@ -165,27 +156,24 @@ References
 inclusive: int = 1
 """Express inclusion (or exclusion) of a boundary value.
 
-(AI generated docstring)
+The identifier `inclusive` holds the value `1` and serves as a semantic replacement for the numeric
+literal `1` when adjusting boundary computations. You can use `inclusive` to convert Python's default
+half-open interval semantics `[start, stop)` into closed intervals `[start, stop]` by adding
+`inclusive` to the upper bound. You can also use `- inclusive` to signal explicit exclusion of a
+boundary value.
 
-The identifier `inclusive` holds the value `1` and serves as a semantic replacement for
-the numeric literal `1` when adjusting boundary computations. You can use `inclusive` to
-convert Python's default half-open interval semantics `[start, stop)` into closed intervals
-`[start, stop]` by adding `inclusive` to the upper bound. You can also use `- inclusive`
-to signal explicit exclusion of a boundary value.
+You can use `inclusive` wherever `1` would appear but where the meaning "include this boundary" or
+"extend by one position" is more important than the specific numeric value. Using `inclusive` makes
+the code's intent explicit: the adjustment exists to change interval semantics, not to perform
+arbitrary arithmetic.
 
-You can use `inclusive` wherever `1` would appear but where the meaning "include this
-boundary" or "extend by one position" is more important than the specific numeric value.
-Using `inclusive` makes the code's intent explicit: the adjustment exists to change interval
-semantics, not to perform arbitrary arithmetic.
-
-Common contexts include: `range` objects [1], `slice` objects [2], sequence indexing,
-and any function that accepts boundary parameters with half-open semantics (such as
-`random.randrange` [3], `numpy.arange` [4], or `pandas.RangeIndex` [5]).
+Common contexts include: `range` objects [1], `slice` objects [2], sequence indexing, and any
+function that accepts boundary parameters with half-open semantics (such as `random.randrange` [3],
+`numpy.arange` [4], or `pandas.RangeIndex` [5]).
 
 Many functions in Python packages use half-open intervals by default. For example,
-`random.randrange(start, stop)` [3] excludes `stop`, while `random.randint(a, b)` [3]
-includes `b`. You can use `inclusive` to make the adjustment explicit when working with
-half-open functions:
+`random.randrange(start, stop)` [3] excludes `stop`, while `random.randint(a, b)` [3] includes `b`.
+You can use `inclusive` to make the adjustment explicit when working with half-open functions:
 
 - `range(1, lastValue + inclusive)` includes `lastValue` in the iteration.
 - `slice(start, stop + inclusive)` includes the element at index `stop`.
@@ -199,9 +187,9 @@ You can use `inclusive` to extend `range` [1] objects to include the final value
 >>> for leaf1ndex in range(1, leavesTotal + inclusive):
 ...     processLeaf(leaf1ndex)
 
-Without `inclusive`, `range(1, leavesTotal)` would stop before processing the leaf at
-index `leavesTotal`. Adding `inclusive` ensures the loop processes all leaves from
-`1` through `leavesTotal`.
+Without `inclusive`, `range(1, leavesTotal)` would stop before processing the leaf at index
+`leavesTotal`. Adding `inclusive` ensures the loop processes all leaves from `1` through
+`leavesTotal`.
 
 You can use `inclusive` in nested `range` [1] objects:
 
@@ -227,9 +215,9 @@ You can use `- inclusive` to signal explicit exclusion of a boundary:
 >>> for pile in filter(filterPredicate, range(0, pile_k - inclusive)):
 ...     processPile(pile)
 
-In this example, `pile_k - inclusive` explicitly excludes the pile at index `pile_k` from
-the range. Filters or predicates that accept inclusive upper bounds (such as `between`-style
-functions) may require subtracting `inclusive` to express exclusive boundaries.
+In this example, `pile_k - inclusive` explicitly excludes the pile at index `pile_k` from the range.
+Filters or predicates that accept inclusive upper bounds (such as `between`-style functions) may
+require subtracting `inclusive` to express exclusive boundaries.
 
 You can combine `inclusive` with other semantic constants:
 
@@ -260,8 +248,6 @@ References
 
 zeroIndexed: int = 1
 """Express that the adjustment to a value is due to zero-based indexing.
-
-(AI generated docstring)
 
 The identifier `zeroIndexed` holds the value `1` and serves as a semantic replacement
 for the numeric literal `1` when converting between zero-based indexing (Python's default)
@@ -340,27 +326,22 @@ References
 ansiColorReset: str = '\x1b[0m'
 """Reset terminal text color and background to default settings.
 
-(AI generated docstring)
+The identifier `ansiColorReset` holds the ANSI escape sequence [1] `\x1b[0m` that resets terminal
+foreground and background colors to their default values. You can use `ansiColorReset` after printing
+colored text to ensure subsequent output appears in the terminal's default color scheme.
 
-The identifier `ansiColorReset` holds the ANSI escape sequence [1] `\x1b[0m` that resets
-terminal foreground and background colors to their default values. You can use
-`ansiColorReset` after printing colored text to ensure subsequent output appears in the
-terminal's default color scheme.
+ANSI escape sequences [1] allow programs to control terminal display attributes by embedding special
+character sequences in output text. The sequence `\x1b[0m` (ESC[0m) resets all text attributes,
+including color, weight, and style, returning the terminal to its default state.
 
-ANSI escape sequences [1] allow programs to control terminal display attributes by
-embedding special character sequences in output text. The sequence `\x1b[0m` (ESC[0m)
-resets all text attributes, including color, weight, and style, returning the terminal
-to its default state.
+You can concatenate `ansiColorReset` with output strings or write `ansiColorReset` as a separate
+operation after colored text. Failing to reset colors causes subsequent output to inherit the
+previous color settings, which can make output difficult to read if default-colored text appears
+against a colored background.
 
-You can concatenate `ansiColorReset` with output strings or write `ansiColorReset` as
-a separate operation after colored text. Failing to reset colors causes subsequent
-output to inherit the previous color settings, which can make output difficult to read
-if default-colored text appears against a colored background.
-
-Most modern terminal emulators support ANSI escape sequences [1] on all platforms,
-including Windows Terminal, macOS Terminal, and Linux terminals. Legacy Windows console
-applications may require enabling ANSI support through Windows API calls or environment
-variables.
+Most modern terminal emulators support ANSI escape sequences [1] on all platforms, including Windows
+Terminal, macOS Terminal, and Linux terminals. Legacy Windows console applications may require
+enabling ANSI support through Windows API calls or environment variables.
 
 Examples
 --------
@@ -390,30 +371,27 @@ References
 class AnsiColors(NamedTuple):
 	r"""Provide high-contrast ANSI color combinations for terminal output.
 
-	(AI generated docstring)
+	You can use this class to access ANSI escape sequences [1] for displaying colored text in
+	terminal emulators. Each attribute holds an escape sequence that sets both foreground and
+	background colors simultaneously. The color combinations were selected through research into
+	high-contrast color visibility [2] to maximize readability across different terminal color
+	schemes and viewing conditions.
 
-	You can use this class to access ANSI escape sequences [1] for displaying colored
-	text in terminal emulators. Each attribute holds an escape sequence that sets both
-	foreground and background colors simultaneously. The color combinations were selected
-	through research into high-contrast color visibility [2] to maximize readability
-	across different terminal color schemes and viewing conditions.
-
-	ANSI escape sequences [1] control terminal display attributes by embedding special
-	character sequences in output text. The sequences in `AnsiColors` use the format
-	`\\x1b[foreground;backgroundm` where foreground and background are numeric color codes.
-	Each sequence sets both colors simultaneously to ensure sufficient contrast regardless
-	of the terminal's default color scheme.
+	ANSI escape sequences [1] control terminal display attributes by embedding special character
+	sequences in output text. The sequences in `AnsiColors` use the format
+	`\\x1b[foreground;backgroundm` where foreground and background are numeric color codes. Each
+	sequence sets both colors simultaneously to ensure sufficient contrast regardless of the
+	terminal's default color scheme.
 
 	You can access color combinations through attribute names following the pattern
-	`ForegroundOnBackground`, such as `BlackOnCyan` or `WhiteOnRed`. The colors were
-	chosen to provide strong visual contrast while remaining comfortable to read during
-	extended debugging sessions. Always use `ansiColorReset` [3] after colored output
-	to return the terminal to default colors.
+	`ForegroundOnBackground`, such as `BlackOnCyan` or `WhiteOnRed`. The colors were chosen to
+	provide strong visual contrast while remaining comfortable to read during extended debugging
+	sessions. Always use `ansiColorReset` [3] after colored output to return the terminal to default
+	colors.
 
-	The `NamedTuple` [4] base class makes `AnsiColors` immutable and provides both
-	attribute access and sequence indexing. You can access colors by name
-	(`ansiColors.GreenOnBlack`) or by index (`ansiColors[0]`), enabling dynamic color
-	selection based on computed indices.
+	The `NamedTuple` [4] base class makes `AnsiColors` immutable and provides both attribute access
+	and sequence indexing. You can access colors by name (`ansiColors.GreenOnBlack`) or by index
+	(`ansiColors[0]`), enabling dynamic color selection based on computed indices.
 
 	Attributes
 	----------
@@ -477,9 +455,8 @@ class AnsiColors(NamedTuple):
 	>>> colorIndex = int(identifier, 36) % len(ansiColors)
 	>>> sys.stdout.write(f"{ansiColors[colorIndex]}{identifier}{ansiColorReset}")
 
-	This pattern provides consistent color assignment for identifiers based on their
-	string representation, making repeated identifiers appear in the same color across
-	multiple runs.
+	This pattern provides consistent color assignment for identifiers based on their string
+	representation, making repeated identifiers appear in the same color across multiple runs.
 
 	You can combine multiple colored segments in output:
 
@@ -495,7 +472,7 @@ class AnsiColors(NamedTuple):
 	[2] Color contrast - Wikipedia
 		https://en.wikipedia.org/wiki/Contrast_(vision)#Color_contrast
 	[3] ansiColorReset
-		Internal package reference
+
 	[4] Built-in Types - `typing.NamedTuple` (Python documentation)
 		https://docs.python.org/3/library/typing.html#typing.NamedTuple
 	"""

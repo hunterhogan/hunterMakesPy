@@ -33,6 +33,7 @@ from collections.abc import Mapping
 from humpy_cytoolz.functoolz import identity
 from humpy_cytoolz.recipes import partitionby
 from hunterMakesPy import Ordinals
+from more_itertools import consecutive_groups
 from numpy import integer
 from numpy.typing import NDArray
 from typing import Any, cast
@@ -76,88 +77,67 @@ def autoDecodingRLE(arrayTarget: NDArray[integer[Any]], *, assumeAddSpaces: bool
 
 	The encoded string uses only builtins — no imports are needed to decode it.
 	"""
-	def measurerCalculatesAdjustedLength(string: str) -> int:
-		"""`assumeAddSpaces` characters: `,` 1; `]*` 2."""
-		return len(string) + assumeAddSpaces * (string.count(',') + string.count(']*') * 2)
-
-	# TODO there is only ONE call to this. Refactor to inline it and remove the function definition.
-	def encoderConvertsTokenToString(token: int | tuple[int, int]) -> str:
-		string: str = str(token)
-		if isinstance(token, tuple):
-			rangeStart, rangeEnd = token
-			if rangeStart == 0:
-				string = f"*range({rangeEnd})"
-			else:
-				string = f"*range({rangeStart},{rangeEnd})"
-		return string
-
-	def encoderTransformsOneDimensionalSequenceToString(listIntegers: list[int]) -> str:
-		stringRepresentingArray: str = '[]'
-
-		if listIntegers:
-			listTokens: list[int | tuple[int, int]] = []
-			index: int = 0
-			countIntegers: int = len(listIntegers)
-
-			while index < countIntegers:
-				countConsecutive: int = 1
-				while (index + countConsecutive < countIntegers) and (listIntegers[index + countConsecutive] == listIntegers[index] + countConsecutive):
-					countConsecutive += 1
-
-				integerStart: int = listIntegers[index]
-				integerEnd: int = integerStart + countConsecutive
-				stringRangeSyntax: str = ''
-				if integerStart == 0:
-					stringRangeSyntax = f"*range({integerEnd})"
-				else:
-					stringRangeSyntax = f"*range({integerStart},{integerEnd})"
-				stringCommaSeparated: str = ','.join(str(integerStart + offset) for offset in range(countConsecutive))
-
-				if measurerCalculatesAdjustedLength(stringRangeSyntax) < measurerCalculatesAdjustedLength(stringCommaSeparated):
-					listTokens.append((integerStart, integerEnd))
-				else:
-					for indexOffset in range(countConsecutive):
-						listTokens.append(integerStart + indexOffset)  # noqa: PERF401
-				index += countConsecutive
-
-			listSegments: list[str] = []
-			listBuffer: list[str] = []
-
-			for groupTokens in partitionby(identity, listTokens):
-				listGroup: list[int | tuple[int, int]] = list(groupTokens)
-				tokenActive: int | tuple[int, int] = listGroup[0]
-				countRepetitions: int = len(listGroup)
-
-				stringTokenActive: str = encoderConvertsTokenToString(tokenActive)
-
-				if 1 < countRepetitions:
-					stringMultiplicationSyntax: str = f"[{stringTokenActive}]*{countRepetitions}"
-					stringListSyntax: str = "[" + ",".join([stringTokenActive] * countRepetitions) + "]"
-					if measurerCalculatesAdjustedLength(stringMultiplicationSyntax) < measurerCalculatesAdjustedLength(stringListSyntax):
-						if listBuffer:
-							listSegments.append('[' + ','.join(listBuffer) + ']')
-							listBuffer = []
-						listSegments.append(stringMultiplicationSyntax)
-						continue
-
-				listBuffer.extend([stringTokenActive] * countRepetitions)
-
-			if listBuffer:
-				listSegments.append('[' + ','.join(listBuffer) + ']')
-
-			if listSegments:
-				stringRepresentingArray = '+'.join(listSegments)
-
-		return stringRepresentingArray
-
-	def encoderTransformsArrayRecursively(arraySlice: NDArray[integer[Any]]) -> str:
+	def encodeByRecursion(arraySlice: NDArray[integer[Any]]) -> str:
 		if arraySlice.ndim == 0:
 			return str(int(arraySlice))
 		if arraySlice.ndim == 1:
-			return encoderTransformsOneDimensionalSequenceToString(arraySlice.tolist())
-		return '[' + ','.join(encoderTransformsArrayRecursively(arraySlice[indexRow]) for indexRow in range(arraySlice.shape[0])) + ']'
+			return encodeListAsString(arraySlice.tolist())
+		return '[' + ','.join(map(encodeByRecursion, arraySlice)) + ']'
 
-	return encoderTransformsArrayRecursively(arrayTarget)
+	def encodeListAsString(listIntegers: list[int]) -> str:
+		listTokens: list[str] = []
+
+		for integersConsecutive in consecutive_groups(listIntegers):
+			tupleIntegersConsecutive: tuple[int, ...] = tuple(integersConsecutive)
+			integersConsecutiveLength: int = len(tupleIntegersConsecutive)
+
+			if integersConsecutiveLength == 1:
+				listTokens.append(str(tupleIntegersConsecutive[0]))
+			else:
+				start: int = tupleIntegersConsecutive[0]
+				stop: int = start + integersConsecutiveLength
+				if start == 0:
+					startAs_str: str = ''
+				else:
+					startAs_str = f"{start},"
+				stringRangeSyntax: str = f"*range({startAs_str}{stop})"
+
+				stringCommaSeparated: str = ','.join(map(str, tupleIntegersConsecutive))
+
+				if measureStringLength(stringRangeSyntax) < measureStringLength(stringCommaSeparated):
+					listTokens.append(stringRangeSyntax)
+				else:
+					listTokens.append(stringCommaSeparated)
+
+		listSegments: list[str] = []
+		listBuffer: list[str] = []
+
+		for tokensIdentical in partitionby(identity, listTokens):
+			tokenAs_str: str = tokensIdentical[0]
+			countRepetitions: int = len(tokensIdentical)
+
+			if 1 < countRepetitions:
+				stringMultiplicationSyntax: str = f"[{tokenAs_str}]*{countRepetitions}"
+				stringListSyntax: str = "[" + ",".join([tokenAs_str] * countRepetitions) + "]"
+				if measureStringLength(stringMultiplicationSyntax) < measureStringLength(stringListSyntax):
+					if listBuffer:
+						listSegments.append('[' + ','.join(listBuffer) + ']')
+						listBuffer = []
+					listSegments.append(stringMultiplicationSyntax)
+					continue
+
+			listBuffer.extend([tokenAs_str] * countRepetitions)
+
+		if listBuffer:
+			listSegments.append('[' + ','.join(listBuffer) + ']')
+
+		return '+'.join(listSegments)
+
+	def measureStringLength(string: str) -> int:
+		"""`assumeAddSpaces` characters: `,` 1; `]*` 2."""
+		return len(string) + assumeAddSpaces * (string.count(',') + string.count(']*') * 2)
+
+	return encodeByRecursion(arrayTarget)
 
 def stringItUp(*scrapPile: Any) -> list[str]:
 	"""Convert, if possible, every element in the input data structure to a string.
