@@ -1,5 +1,27 @@
 # Software development issues and wishlist
 
+## `[dependency-groups]`
+
+I don't know how VS Code/Python Environments handles `[dependency-groups]`. I'm 95% sure it is `uv` under the hood, so I can probably get this to work without much effort.
+
+### Testing
+
+I currently define `testing` as an "extra" in many packages, but it's not really an extra.
+
+1. Migrate away from using `project.optional-dependencies, testing = ...`
+2. Use `[dependency-groups]`.
+3. Change "pythonTests.yml" away from `run: pip install -e .[testing]`.
+4. When trying to build wheels with `cibuildwheel` in "pypiRelease.yml", running the tests was an obstacle. `[dependency-groups]` could help a little.
+
+### Development or "dev"
+
+I sometimes define `development` as an "extra" in packages, but it's not really an extra.
+
+1. Migrate away from using `project.optional-dependencies, development = ...`
+2. Use `[dependency-groups]`.
+3. `uv` uses "dev" as a special group name, but I dislike diminutives.
+4. If I use `uv`, then I will probably want to use their [Default groups feature](https://docs.astral.sh/uv/concepts/projects/dependencies/#default-groups).
+
 ## Default files for repos
 
 <https://docs.github.com/en/communities/setting-up-your-project-for-healthy-contributions/creating-a-default-community-health-file>
