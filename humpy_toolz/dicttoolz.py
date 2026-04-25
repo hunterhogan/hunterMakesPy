@@ -49,7 +49,8 @@ References
 from collections import defaultdict, deque
 from collections.abc import Callable, Hashable, Mapping, MutableMapping, Sequence
 from functools import reduce
-from typing import Any, cast, Literal, overload, Protocol, TypeGuard, TypeVar
+from humpy_toolz.utils import SupportsGetItem
+from typing import Any, cast, Literal, overload, TypeGuard
 from typing_extensions import TypeIs
 import contextlib
 import operator
@@ -234,21 +235,15 @@ def dissoc[K: Hashable, V](d: Mapping[K, V], *keys: K, factory: Callable[[], Mut
 			d2[k] = d[k]
 	return d2
 
-_KT_contra = TypeVar("_KT_contra", contravariant=True)
-_VT_co = TypeVar("_VT_co", covariant=True)
-
-class Z0Z_SupportsGetItem(Protocol[_KT_contra, _VT_co]):
-    def __getitem__(self, key: _KT_contra, /) -> _VT_co: ...
-
 @overload
-def get_in[K, V](keys: Sequence[K], coll: Z0Z_SupportsGetItem[K, V], default: None = None, *, no_default: Literal[True]) -> V: ...
+def get_in[K, V](keys: Sequence[K], coll: Sequence[V] | SupportsGetItem[K, V], default: None = None, *, no_default: Literal[True]) -> V: ...
 @overload
-def get_in[K, V](keys: Sequence[K], coll: Z0Z_SupportsGetItem[K, V], default: V, *, no_default: Literal[True]) -> V: ...
-
+def get_in[K, V](keys: Sequence[K], coll: Sequence[V] | SupportsGetItem[K, V], default: V, no_default: Literal[True]) -> V: ...
 @overload
-def get_in[K, V](keys: Sequence[K], coll: Z0Z_SupportsGetItem[K, V], default: V | None = None, *, no_default: Literal[False] = False) -> V | None: ...
-
-def get_in[K, V](keys: Sequence[K], coll: Z0Z_SupportsGetItem[K, V], default: V | None = None, *, no_default: bool = False) -> V | None:
+def get_in[K, V0, V1](keys: Sequence[K], coll: Sequence[V0] | SupportsGetItem[K, V0], default: V1, no_default: bool = False) -> V0 | V1: ...  # noqa: FBT001, FBT002
+@overload
+def get_in[K, V](keys: Sequence[K], coll: Sequence[V] | SupportsGetItem[K, V], default: None = None, no_default: bool = False) -> V | None: ...  # noqa: FBT001, FBT002
+def get_in[K, V0, V1](keys: Sequence[K], coll: Sequence[V0] | SupportsGetItem[K, V0], default: V1 | None = None, no_default: bool = False) -> V0 | V1 | None:  # noqa: FBT001, FBT002
 	"""Retrieve a value from a potentially nested `coll` (***coll***ection) using a `Sequence` of `keys`.
 
 	You can use `get_in` to navigate into a nested `coll` (***coll***ection) by following a
@@ -322,10 +317,16 @@ def get_in[K, V](keys: Sequence[K], coll: Z0Z_SupportsGetItem[K, V], default: V 
 	if no_default:
 		return reduce(operator.getitem, keys, coll)  # pyright: ignore[reportArgumentType, reportReturnType] # ty:ignore[invalid-return-type]
 	else:
-		v: V | None = default
+		v: V1 | None = default
 		with contextlib.suppress(KeyError, IndexError, TypeError):
 			v = reduce(operator.getitem, keys, coll)  # pyright: ignore[reportAssignmentType, reportArgumentType] # ty:ignore[invalid-assignment]
 		return v
+	try:
+		return reduce(operator.getitem, keys, coll)
+	except (KeyError, IndexError, TypeError):
+		if no_default:
+			raise
+		return default
 
 @overload
 def itemfilter[K0: Hashable, V0, K1: Hashable, V1](predicate: Callable[[tuple[K0, V0]], TypeIs[tuple[K1, V1]]], d: Mapping[K0, V0], factory: Callable[[], dict[K1, V1]] = dict) -> dict[K1, V1]: ...

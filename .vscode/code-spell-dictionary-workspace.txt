@@ -39,6 +39,7 @@ dtemp
 ection
 eehhhh
 embedsignature
+fillvalue
 filterwarnings
 fixturename
 freethreading

@@ -103,7 +103,8 @@ cdef class accumulate:
     >>> list(accumulate(add, [], 1))
     [1]
 
-    See Also:
+    See Also
+    --------
         itertools.accumulate :  In standard itertools for Python 3.2+
     """
     def __cinit__(self, object binop, object seq, object initial='__no__default__'):
@@ -159,7 +160,8 @@ cpdef dict groupby(object key, object seq):
 
     Not to be confused with ``itertools.groupby``
 
-    See Also:
+    See Also
+    --------
         countby
     """
     cdef dict d = {}
@@ -512,7 +514,8 @@ cpdef object take(Py_ssize_t n, object seq):
     >>> list(take(2, [10, 20, 30, 40, 50]))
     [10, 20]
 
-    See Also:
+    See Also
+    --------
         drop
         tail
     """
@@ -526,7 +529,8 @@ cpdef object tail(Py_ssize_t n, object seq):
     >>> tail(2, [10, 20, 30, 40, 50])
     [40, 50]
 
-    See Also:
+    See Also
+    --------
         drop
         take
     """
@@ -542,7 +546,8 @@ cpdef object drop(Py_ssize_t n, object seq):
     >>> list(drop(2, [10, 20, 30, 40, 50]))
     [30, 40, 50]
 
-    See Also:
+    See Also
+    --------
         take
         tail
     """
@@ -668,7 +673,8 @@ cpdef object get(object ind, object seq, object default='__no__default__'):
     >>> get(['Alice', 'Dennis'], phonebook, None)
     ('555-1234', None)
 
-    See Also:
+    See Also
+    --------
         pluck
     """
     cdef Py_ssize_t i
@@ -731,7 +737,8 @@ cpdef object concat(object seqs):
     >>> list(concat([[], [1], [2, 3]]))
     [1, 2, 3]
 
-    See also:
+    See Also
+    --------
         itertools.chain.from_iterable  equivalent
     """
     return _chain_from_iterable(seqs)
@@ -744,7 +751,8 @@ def concatv(*seqs):
     >>> list(concatv([], ["a"], ["b", "c"]))
     ['a', 'b', 'c']
 
-    See also:
+    See Also
+    --------
         itertools.chain
     """
     return _chain_from_iterable(seqs)
@@ -808,7 +816,8 @@ cpdef dict frequencies(object seq):
     >>> frequencies(['cat', 'cat', 'ox', 'pig', 'pig', 'cat'])  #doctest: +SKIP
     {'cat': 3, 'ox': 1, 'pig': 2}
 
-    See Also:
+    See Also
+    --------
         countby
         groupby
     """
@@ -1034,7 +1043,8 @@ cpdef object partition(Py_ssize_t n, object seq, object pad='__no__pad__'):
     >>> list(partition(2, [1, 2, 3, 4, 5], pad=None))
     [(1, 2), (3, 4), (5, None)]
 
-    See Also:
+    See Also
+    --------
         partition_all
     """
     args = [iter(seq)] * n
@@ -1057,7 +1067,8 @@ cdef class partition_all:
     >>> list(partition_all(2, [1, 2, 3, 4, 5]))
     [(1, 2), (3, 4), (5,)]
 
-    See Also:
+    See Also
+    --------
         partition
     """
     def __cinit__(self, Py_ssize_t n, object seq):
@@ -1109,7 +1120,8 @@ cpdef object count(object seq):
 
     Not to be confused with ``itertools.count``
 
-    See also:
+    See Also
+    --------
         len
     """
     if iter(seq) is not seq and hasattr(seq, '__len__'):
@@ -1213,7 +1225,7 @@ cdef class _pluck_list_default:
 
 cpdef object pluck(object ind, object seqs, object default='__no__default__'):
     """
-    plucks an element or several elements from each item in a sequence.
+    Plucks an element or several elements from each item in a sequence.
 
     ``pluck`` maps ``itertoolz.get`` over a sequence and returns one or more
     elements of each item in the sequence.
@@ -1231,7 +1243,8 @@ cpdef object pluck(object ind, object seqs, object default='__no__default__'):
     >>> list(pluck([0, 1], [[1, 2, 3], [4, 5, 7]]))
     [(1, 2), (4, 5)]
 
-    See Also:
+    See Also
+    --------
         get
         map
     """
@@ -1700,7 +1713,8 @@ cpdef object topk(Py_ssize_t k, object seq, object key=None):
     >>> topk(2, ['Alice', 'Bob', 'Charlie', 'Dan'], key=len)
     ('Charlie', 'Alice')
 
-    See also:
+    See Also
+    --------
         heapq.nlargest
     """
     cdef object item, val, top
