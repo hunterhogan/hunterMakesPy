@@ -1,0 +1,5 @@
+- Purpose: Python utility package plus typed forks of toolz/cytoolz (`humpy_toolz`, `humpy_cytoolz`, `humpy_tlz`).
+- Main language: Python (requires >=3.12).
+- Packaging/build: setuptools with Cython extension modules for `humpy_cytoolz`.
+- Notable modules: `hunterMakesPy/` core utilities, `humpy_toolz/` pure-python typed functional utilities, `humpy_tlz/` auto-dispatch layer.
+- Repo includes typing artifacts (`.pyi`, `py.typed`) and broad tests across packages.

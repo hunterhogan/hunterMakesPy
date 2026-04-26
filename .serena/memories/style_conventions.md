@@ -1,0 +1,4 @@
+- Strong emphasis on typing and typed APIs (`Typing :: Typed`, many overloads and generics).
+- Modern Python generics syntax (PEP 695 style in codebase, e.g., `def fn[T](...)`).
+- Prefer minimal diffs and preserve existing formatting/style unless correctness requires change.
+- Functions are heavily documented with examples/docstrings in utility modules.
