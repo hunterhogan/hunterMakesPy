@@ -41,6 +41,8 @@ References
 	https://pycqa.github.io/isort/
 
 """
+from __future__ import annotations
+
 from autoflake import fix_code as autoflake_fix_code
 from hunterMakesPy import identifierDotAttribute
 from isort import code as isort_code

@@ -6,6 +6,8 @@ This module validates the behavior of package setting retrieval,
 null-check utilities, and installation path resolution.
 
 """
+from __future__ import annotations
+
 from hunterMakesPy import PackageSettings, raiseIfNone
 from hunterMakesPy.coping import getIdentifierPackagePACKAGING, getPathPackageINSTALLING
 from hunterMakesPy.tests.conftest import uniformTestFailureMessage

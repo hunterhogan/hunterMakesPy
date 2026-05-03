@@ -33,6 +33,8 @@ References
 	https://github.com/Ousret/charset_normalizer
 
 """
+from __future__ import annotations
+
 from collections.abc import Iterable, Sized
 from dataclasses import dataclass
 from typing import Any, TYPE_CHECKING

@@ -1,4 +1,6 @@
 """I type, you type, we all `type` for `theTypes`."""
+from __future__ import annotations
+
 from hunterMakesPy.theTypesCallableFunction import CallableFunction as CallableFunction
 from typing import Protocol, Self
 

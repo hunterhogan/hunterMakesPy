@@ -1,4 +1,6 @@
 """Package configuration and defensive programming utilities for Python projects."""
+from __future__ import annotations
+
 from importlib.util import find_spec
 from pathlib import Path
 from tomllib import loads as tomllib_loads

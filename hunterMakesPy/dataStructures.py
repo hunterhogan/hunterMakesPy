@@ -28,31 +28,42 @@ References
 	https://numpy.org/doc/stable/reference/index.html
 
 """
+from __future__ import annotations
+
 from charset_normalizer import CharsetMatch
 from collections.abc import Mapping
-from humpy_cytoolz.functoolz import identity
-from humpy_cytoolz.recipes import partitionby
 from hunterMakesPy import Ordinals
-from more_itertools import consecutive_groups
 from numpy import integer
 from numpy.typing import NDArray
-from typing import Any, cast
+from typing import Any, cast, TYPE_CHECKING
 import charset_normalizer
+import more_itertools
+import re as regex
 import sys
 
-# TODO refine autoDecodingRLE.
+if TYPE_CHECKING:
+	from collections.abc import Iterator
+
+def removeExtraWhitespace(string: str) -> str:
+	"""Remove extra whitespace from string representation of Python data structures."""
+	commas: str = regex.sub(r',\s+', ',', string)
+	bracketsOpening: str = regex.sub(r'([\[\(])\s+', r'\1', commas)
+	# Remove spaces before closing brackets/parentheses.
+	return regex.sub(r'\s+([\]\)])', r'\1', bracketsOpening)
+
 def autoDecodingRLE(arrayTarget: NDArray[integer[Any]], *, assumeAddSpaces: bool = False) -> str:
 	"""Transform a NumPy array into a compact, self-decoding run-length encoded string representation.
 
-	This function converts a NumPy array into a string that, when evaluated as Python code, recreates
-	the original array structure. The function employs two compression strategies:
-	1. Python's `range` syntax for consecutive integer sequences
-	2. Multiplication syntax for repeated elements
+	Use this function to convert a NumPy array into a string that, when evaluated as Python code,
+	creates a list or nested lists representing the original array structure, and if used as an
+	argument to `numpy.array()`, will recreate the original array structure. The RLE (Run-Length
+	Encoding) string does _not_ need a special decoder function: it is already native Python syntax.
+	The function employs two encoding strategies:
+	1. Python `range` syntax for consecutive integer sequences.
+	2. Multiplication syntax for repeated elements.
 
-	The resulting string representation is designed to be both human-readable and space-efficient,
-	especially for large cartesian mappings with repetitive patterns. When this string is used as a
-	data source, Python will automatically decode it into Python `list`, which if used as an argument
-	to `numpy.array()`, will recreate the original array structure.
+	The resulting string representation is merely minified Python code, so it is space-efficient and,
+	hypothetically, human-readable.
 
 	Parameters
 	----------
@@ -61,83 +72,126 @@ def autoDecodingRLE(arrayTarget: NDArray[integer[Any]], *, assumeAddSpaces: bool
 	assumeAddSpaces : bool = False
 		Affects internal length comparison during compression decisions. This parameter doesn't
 		directly change output format but influences whether `range` or multiplication syntax is
-		preferred in certain cases. The parameter exists because the Abstract Syntax Tree (AST)
-		inserts spaces in its string representation.
+		preferred in certain cases. The parameter exists because `ast.unparse()` (Abstract Syntax
+		Tree) inserts spaces in the RLE string.
 
 	Returns
 	-------
 	encodedString : str
 		A string representation of the array using run-length encoding that, when evaluated as Python
 		code, reproduces the original array structure.
-
-	Notes
-	-----
-	The "autoDecoding" feature means that the string representation evaluates directly to the desired
-	data structure without explicit decompression steps.
-
-	The encoded string uses only builtins — no imports are needed to decode it.
 	"""
-	def encodeByRecursion(arraySlice: NDArray[integer[Any]]) -> str:
-		if arraySlice.ndim == 0:
-			return str(int(arraySlice))
+	def sliceNDArrayToNestedLists(arraySlice: NDArray[integer[Any]]) -> Any:
+		def getLengthOption(optionAsStr: str) -> int:
+			"""`assumeAddSpaces` characters: `,` 1 space; `]*` 2 spaces."""
+			return assumeAddSpaces * (optionAsStr.count(',') + optionAsStr.count(']*') * 2) + len(optionAsStr)
+
+		if 1 < arraySlice.ndim:
+			axisOfOperation = 0
+			return [sliceNDArrayToNestedLists(arraySlice[index]) for index in range(arraySlice.shape[axisOfOperation])]
 		if arraySlice.ndim == 1:
-			return encodeListAsString(arraySlice.tolist())
-		return '[' + ','.join(map(encodeByRecursion, arraySlice)) + ']'
-
-	def encodeListAsString(listIntegers: list[int]) -> str:
-		listTokens: list[str] = []
-
-		for integersConsecutive in consecutive_groups(listIntegers):
-			tupleIntegersConsecutive: tuple[int, ...] = tuple(integersConsecutive)
-			integersConsecutiveLength: int = len(tupleIntegersConsecutive)
-
-			if integersConsecutiveLength == 1:
-				listTokens.append(str(tupleIntegersConsecutive[0]))
-			else:
-				start: int = tupleIntegersConsecutive[0]
-				stop: int = start + integersConsecutiveLength
-				if start == 0:
-					startAs_str: str = ''
+			arraySliceAsList: list[int | range] = []
+			cache_consecutiveGroup_addMe: dict[Iterator[Any], list[int] | list[range]] = {}
+			for consecutiveGroup in more_itertools.consecutive_groups(arraySlice.tolist()):
+				if consecutiveGroup in cache_consecutiveGroup_addMe:
+					addMe = cache_consecutiveGroup_addMe[consecutiveGroup]
 				else:
-					startAs_str = f"{start},"
-				stringRangeSyntax: str = f"*range({startAs_str}{stop})"
+					ImaSerious: list[int] = list(consecutiveGroup)
+					ImaRange: list[range] = [range(ImaSerious[0], ImaSerious[-1] + 1)]
+					ImaRangeAsStr: str = removeExtraWhitespace(str(ImaRange)).replace('range(0,', 'range(').replace('range', '*range')
 
-				stringCommaSeparated: str = ','.join(map(str, tupleIntegersConsecutive))
+					option1 = ImaRange
+					option1AsStr = ImaRangeAsStr
+					option2 = ImaSerious
+					option2AsStr: str | None = None
 
-				if measureStringLength(stringRangeSyntax) < measureStringLength(stringCommaSeparated):
-					listTokens.append(stringRangeSyntax)
+					# alpha, potential function
+					option1AsStr: str = option1AsStr or removeExtraWhitespace(str(option1))
+					lengthOption1: int = getLengthOption(option1AsStr)
+
+					option2AsStr = option2AsStr or removeExtraWhitespace(str(option2))
+					lengthOption2: int = getLengthOption(option2AsStr)
+
+					if lengthOption1 < lengthOption2:
+						addMe = option1
+					else:
+						addMe = option2
+
+					cache_consecutiveGroup_addMe[consecutiveGroup] = addMe
+
+				arraySliceAsList += addMe
+
+			listRangeAndTuple: list[int | range | tuple[int | range, int]] = []
+			cache_malkovichGrouped_addMe: dict[tuple[int | range, int], list[tuple[int | range, int]] | list[int | range]] = {}
+			for malkovichGrouped in more_itertools.run_length.encode(arraySliceAsList):
+				if malkovichGrouped in cache_malkovichGrouped_addMe:
+					addMe = cache_malkovichGrouped_addMe[malkovichGrouped]
 				else:
-					listTokens.append(stringCommaSeparated)
+					lengthMalkovich: int = malkovichGrouped[-1]
+					malkovichAsList: list[int | range] = list(more_itertools.run_length.decode([malkovichGrouped]))
+					malkovichMalkovich: str = f"[{malkovichGrouped[0]}]*{lengthMalkovich}"
 
-		listSegments: list[str] = []
-		listBuffer: list[str] = []
+					option1 = [malkovichGrouped]
+					option1AsStr = malkovichMalkovich
+					option2 = malkovichAsList
+					option2AsStr = None
 
-		for tokensIdentical in partitionby(identity, listTokens):
-			tokenAs_str: str = tokensIdentical[0]
-			countRepetitions: int = len(tokensIdentical)
+					# beta, potential function
+					option1AsStr = option1AsStr or removeExtraWhitespace(str(option1))
+					lengthOption1 = getLengthOption(option1AsStr)
 
-			if 1 < countRepetitions:
-				stringMultiplicationSyntax: str = f"[{tokenAs_str}]*{countRepetitions}"
-				stringListSyntax: str = "[" + ",".join([tokenAs_str] * countRepetitions) + "]"
-				if measureStringLength(stringMultiplicationSyntax) < measureStringLength(stringListSyntax):
-					if listBuffer:
-						listSegments.append('[' + ','.join(listBuffer) + ']')
-						listBuffer = []
-					listSegments.append(stringMultiplicationSyntax)
-					continue
+					option2AsStr = option2AsStr or removeExtraWhitespace(str(option2))
+					lengthOption2 = getLengthOption(option2AsStr)
 
-			listBuffer.extend([tokenAs_str] * countRepetitions)
+					if lengthOption1 < lengthOption2:
+						addMe = option1
+					else:
+						addMe = option2
 
-		if listBuffer:
-			listSegments.append('[' + ','.join(listBuffer) + ']')
+					cache_malkovichGrouped_addMe[malkovichGrouped] = addMe
 
-		return '+'.join(listSegments)
+				listRangeAndTuple += addMe
 
-	def measureStringLength(string: str) -> int:
-		"""`assumeAddSpaces` characters: `,` 1; `]*` 2."""
-		return len(string) + assumeAddSpaces * (string.count(',') + string.count(']*') * 2)
+			return listRangeAndTuple
+		return arraySlice
 
-	return encodeByRecursion(arrayTarget)
+	arrayAsNestedLists = sliceNDArrayToNestedLists(arrayTarget)
+
+	arrayAsStr: str = removeExtraWhitespace(str(arrayAsNestedLists))
+
+	patternRegex: regex.Pattern[str] = regex.compile(
+		"(?<!rang)(?:"
+		# Pattern 1: Comma ahead, bracket behind  # noqa: ERA001
+		"(?P<joinAhead>,)\\((?P<malkovich>\\d+),(?P<multiply>\\d+)\\)(?P<bracketBehind>])|"
+		# Pattern 2: Bracket or start ahead, comma behind  # noqa: ERA001
+		"(?P<bracketOrStartAhead>\\[|^.)\\((?P<malkovichMalkovich>\\d+),(?P<multiplyIDK>\\d+)\\)(?P<joinBehind>,)|"
+		# Pattern 3: Bracket ahead, bracket behind  # noqa: ERA001
+		"(?P<bracketAhead>\\[)\\((?P<malkovichMalkovichMalkovich>\\d+),(?P<multiply_whatever>\\d+)\\)(?P<bracketBehindBracketBehind>])|"
+		# Pattern 4: Comma ahead, comma behind  # noqa: ERA001
+		"(?P<joinAheadJoinAhead>,)\\((?P<malkovichMalkovichMalkovichMalkovich>\\d+),(?P<multiplyOrSomething>\\d+)\\)(?P<joinBehindJoinBehind>,)"
+		")"
+	)
+
+	def replacementByContext(match: regex.Match[str]) -> str:
+		"""Generate replacement string based on context patterns."""
+		elephino: dict[str, str | None] = match.groupdict()
+		joinAhead: str | None = elephino.get('joinAhead') or elephino.get('joinAheadJoinAhead')
+		malkovich: str | None = elephino.get('malkovich') or elephino.get('malkovichMalkovich') or elephino.get('malkovichMalkovichMalkovich') or elephino.get('malkovichMalkovichMalkovichMalkovich')
+		multiply: str | None = elephino.get('multiply') or elephino.get('multiplyIDK') or elephino.get('multiply_whatever') or elephino.get('multiplyOrSomething')
+		joinBehind: str | None = elephino.get('joinBehind') or elephino.get('joinBehindJoinBehind')
+
+		replaceAhead: str = "]+[" if joinAhead == "," else "["
+
+		replaceBehind: str = "+[" if joinBehind == "," else ""
+
+		return f"{replaceAhead}{malkovich}]*{multiply}{replaceBehind}"
+
+	arrayAsStr = patternRegex.sub(replacementByContext, arrayAsStr)
+	arrayAsStr = patternRegex.sub(replacementByContext, arrayAsStr)
+
+	# Replace `range(0,stop)` syntax with `range(stop)` syntax.  # noqa: ERA001
+	# Add unpack operator `*` for automatic decoding when evaluated.
+	return arrayAsStr.replace('range(0,', 'range(').replace('range', '*range')
 
 def stringItUp(*scrapPile: Any) -> list[str]:
 	"""Convert, if possible, every element in the input data structure to a string.

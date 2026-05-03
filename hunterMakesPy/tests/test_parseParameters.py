@@ -6,6 +6,8 @@ This module provides test suites for concurrency limits, integer initialization,
 and string-based boolean parsing.
 
 """
+from __future__ import annotations
+
 # pyright: standard
 from collections.abc import Callable, Iterable, Iterator
 from hunterMakesPy import defineConcurrencyLimit, intInnit, oopsieKwargsie

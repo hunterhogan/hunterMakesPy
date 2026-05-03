@@ -37,6 +37,8 @@ References
 	https://en.wikipedia.org/wiki/Contrast_(vision)#Color_contrast
 
 """
+from __future__ import annotations
+
 from typing import NamedTuple
 
 #======== Semantic replacements for ambiguous values. =======

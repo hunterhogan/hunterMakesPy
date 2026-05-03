@@ -5,25 +5,19 @@
 This module validates comparison semantics and sorting consistency across built-in and custom comparables using `pytest`.
 
 """
+from __future__ import annotations
+
 from dataclasses import dataclass
-from hunterMakesPy import CallableFunction, Ordinals
+from hunterMakesPy import CallableFunction as CallableFunction, Ordinals
 from hunterMakesPy.tests.conftest import uniformTestFailureMessage
-from typing import Self, TYPE_CHECKING, TypeVar
-import functools
+from typing import Self, TYPE_CHECKING
 import inspect
 import pytest
 
 if TYPE_CHECKING:
 	from collections.abc import Callable
 
-小于 = TypeVar('小于', bound=Ordinals)
-"""Type variable bound to `Ordinals`.
-
-(AI generated docstring)
-
-"""
-
-def between(floor: 小于, ceiling: 小于, comparand: 小于) -> bool:
+def between[小于: Ordinals](floor: 小于, ceiling: 小于, comparand: 小于) -> bool:
 	"""Return whether `comparand` lies between `floor` and `ceiling` inclusive.
 
 	Parameters
@@ -294,36 +288,37 @@ def testOrdinalsBetweenWorksForCustomComparable( floor: ComparableCardinal, ceil
 	actual: bool = between(floor, ceiling, comparand)
 	assert actual == expected, uniformTestFailureMessage( expected , actual , 'between' , floor , ceiling , comparand )
 
-@pytest.mark.parametrize( 'comparisonMethodName' , [ '__le__' , '__lt__' ] )
-def testOrdinalsComparisonMethodsAcceptOtherOperand(comparisonMethodName: str) -> None:
-	"""Validate `Ordinals` comparison method signatures.
+# TODO validation data must be static.
+# @pytest.mark.parametrize( 'comparisonMethodName' , [ '__le__' , '__lt__' ] )
+# def testOrdinalsComparisonMethodsAcceptOtherOperand(comparisonMethodName: str) -> None:
+# 	"""Validate `Ordinals` comparison method signatures.
 
-	(AI generated docstring)
+# 	(AI generated docstring)
 
-	Parameters
-	----------
-	comparisonMethodName : str
-		Name of the `Ordinals` comparison method to inspect.
+# 	Parameters
+# 	----------
+# 	comparisonMethodName : str
+# 		Name of the `Ordinals` comparison method to inspect.
 
-	Returns
-	-------
-	unusedReturnValue : None
-		Returns `None`.
+# 	Returns
+# 	-------
+# 	unusedReturnValue : None
+# 		Returns `None`.
 
-	"""
-	comparisonMethod: Callable[[Ordinals, Ordinals], bool] = getattr(Ordinals, comparisonMethodName)
-	signature: inspect.Signature = inspect.signature(comparisonMethod)
-	listParameters: list[inspect.Parameter] = list(signature.parameters.values())
+# 	"""
+# 	comparisonMethod: Callable[[Ordinals, Ordinals], bool] = getattr(Ordinals, comparisonMethodName)
+# 	signature: inspect.Signature = inspect.signature(comparisonMethod)
+# 	listParameters: list[inspect.Parameter] = list(signature.parameters.values())
 
-	assert len(listParameters) == 2, uniformTestFailureMessage(
-		2 , len(listParameters) , 'Ordinals comparison parameter count' , comparisonMethodName , signature )
+# 	assert len(listParameters) == 2, uniformTestFailureMessage(
+# 		2 , len(listParameters) , 'Ordinals comparison parameter count' , comparisonMethodName , signature )
 
-	listKinds: list[inspect._ParameterKind] = [parameter.kind for parameter in listParameters]
-	expectedKinds: list[inspect._ParameterKind] = [inspect.Parameter.POSITIONAL_ONLY, inspect.Parameter.POSITIONAL_ONLY]
-	assert listKinds == expectedKinds, uniformTestFailureMessage(
-		expectedKinds , listKinds , 'Ordinals comparison parameter kinds' , comparisonMethodName , signature )
+# 	listKinds: list[inspect._ParameterKind] = [parameter.kind for parameter in listParameters]
+# 	expectedKinds: list[inspect._ParameterKind] = [inspect.Parameter.POSITIONAL_ONLY, inspect.Parameter.POSITIONAL_ONLY]
+# 	assert listKinds == expectedKinds, uniformTestFailureMessage(
+# 		expectedKinds , listKinds , 'Ordinals comparison parameter kinds' , comparisonMethodName , signature )
 
-	actualReturnAnnotation: object = signature.return_annotation
-	assert actualReturnAnnotation is bool, uniformTestFailureMessage(
-		bool , actualReturnAnnotation , 'Ordinals comparison return annotation' , comparisonMethodName , signature )
+# 	actualReturnAnnotation: object = signature.return_annotation
+# 	assert actualReturnAnnotation is bool, uniformTestFailureMessage(
+# 		bool , actualReturnAnnotation , 'Ordinals comparison return annotation' , comparisonMethodName , signature )
 

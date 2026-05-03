@@ -1,12 +1,12 @@
+# pyright: standard
 """Configuration and fixtures for pytest.
-
-(AI generated docstring)
 
 This module provides shared fixtures and utility functions for the test suite,
 including data paths, source code samples, and standardized assertion functions.
 
 """
-# pyright: standard
+from __future__ import annotations
+
 from collections.abc import Callable
 from typing import Any
 import io

@@ -1,3 +1,4 @@
+# pyright: standard
 """Tests for data structure utilities.
 
 (AI generated docstring)
@@ -6,18 +7,20 @@ This module validates the behavior of data structure manipulation functions,
 string conversion utilities, and Run-Length Encoding (RLE) tools.
 
 """
-# pyright: standard
-from collections.abc import Callable, Iterable, Iterator
+from __future__ import annotations
+
+from collections.abc import Iterable, Iterator
 from decimal import Decimal
 from fractions import Fraction
 from hunterMakesPy import autoDecodingRLE, stringItUp, updateExtendPolishDictionaryLists
 from hunterMakesPy.tests.conftest import standardizedEqualTo
+from hunterMakesPy.tests.dataSamples.rle import AUTO_DECODING_RLE_CASES
 from numpy.typing import NDArray
 from typing import Any
 import datetime
+import librosa.filters
 import numpy
 import pytest
-import sys
 
 class CustomIterable:
 	"""A simple custom iterable for testing purposes.
@@ -120,412 +123,67 @@ def testUpdateExtendPolishDictionaryLists(description: str, value_dictionaryList
 	"""
 	standardizedEqualTo(expected, updateExtendPolishDictionaryLists, *value_dictionaryLists, **keywordArguments)
 
-# ruff: noqa: RUF005
+@pytest.mark.parametrize(
+	"assumeAddSpaces",
+	[
+		pytest.param(False, id="without-spaces"),
+		pytest.param(True, id="with-spaces"),
+	],
+)
+@pytest.mark.parametrize(
+	"description,arrayExpression,expectedWithoutSpaces,expectedWithSpaces",
+	[
+		pytest.param(description, arrayExpression, expectedWithoutSpaces, expectedWithSpaces, id=description)
+		for description, arrayExpression, expectedWithoutSpaces, expectedWithSpaces in AUTO_DECODING_RLE_CASES
+	],
+)
+def testAutoDecodingRLE(
+	description: str,
+	arrayExpression: str,
+	expectedWithoutSpaces: str,
+	expectedWithSpaces: str,
+	assumeAddSpaces: bool,
+) -> None:
+	"""Verify exact output, structural properties, and roundtrip decoding for all RLE cases."""
+	expected: str = expectedWithSpaces if assumeAddSpaces else expectedWithoutSpaces
+
+	evaluationContext: dict[str, Any] = {
+		"numpy": numpy,
+		"librosa": librosa,
+		"range": range,
+		"list": list,
+	}
+	value_arrayTarget: NDArray[numpy.integer[Any]] = eval(arrayExpression, evaluationContext)  # noqa: S307
+
+	resultRLE: str = autoDecodingRLE(value_arrayTarget, assumeAddSpaces=assumeAddSpaces)
 
-def generateCartesianMapping(dimensions: tuple[int, int], formula: Callable[[int, int], int]) -> NDArray[numpy.int32]:
-	"""Generate a 2D cartesian mapping based on a formula.
-
-	Parameters
-	----------
-	dimensions : tuple[int, int]
-		The (height, width) of the array to generate.
-	formula : Callable[[int, int], int]
-		A function taking (x, y) coordinates and returning an integer value.
-
-	Returns
-	-------
-	arrayMapping : NDArray[numpy.int32]
-		The generated 2D numpy array.
-
-	"""
-	height, width = dimensions
-	arrayMapping = numpy.zeros((height, width), dtype=numpy.int32)
-
-	for y in range(height):
-		for x in range(width):
-			arrayMapping[y, x] = formula(x, y)
-
-	return arrayMapping
-
-def generateWavePattern(dimensions: tuple[int, int]) -> NDArray[numpy.int32]:
-	"""Generate a sine wave pattern that produces many RLE-friendly sequences.
-
-	Parameters
-	----------
-	dimensions : tuple[int, int]
-		The (height, width) of the array.
-
-	Returns
-	-------
-	arrayMapping : NDArray[numpy.int32]
-		The generated wave pattern array.
-
-	"""
-
-	def waveFormula(x: int, y: int) -> int:
-		return int(10 * numpy.sin(x / 5) + 10 * numpy.sin(y / 5))
-
-	return generateCartesianMapping(dimensions, waveFormula)
-
-def generateChessboard(dimensions: tuple[int, int], squareSize: int = 4) -> NDArray[numpy.int32]:
-	"""Generate a chessboard pattern with alternating values.
-
-	Parameters
-	----------
-	dimensions : tuple[int, int]
-		The (height, width) of the array.
-	squareSize : int = 4
-		The size of each chessboard square.
-
-	Returns
-	-------
-	arrayMapping : NDArray[numpy.int32]
-		The generated chessboard pattern array.
-
-	"""
-	def chessboardFormula(x: int, y: int) -> int:
-		return 1 if ((x // squareSize) + (y // squareSize)) % 2 == 0 else 0
-
-	return generateCartesianMapping(dimensions, chessboardFormula)
-
-def generatePrimeModuloMatrix(dimensions: tuple[int, int], modulus: int = 6) -> NDArray[numpy.int32]:
-	"""Generate a matrix where each cell is (x*y) % modulus.
-
-	Parameters
-	----------
-	dimensions : tuple[int, int]
-		The (height, width) of the array.
-	modulus : int = 6
-		The modulus to apply to the product of coordinates.
-
-	Returns
-	-------
-	arrayMapping : NDArray[numpy.int32]
-		The generated prime modulo matrix.
-
-	"""
-	def primeModuloFormula(x: int, y: int) -> int:
-		return ((x + 1) * (y + 1)) % modulus
-
-	return generateCartesianMapping(dimensions, primeModuloFormula)
-
-def generateSpiralPattern(dimensions: tuple[int, int], scale: int = 1) -> NDArray[numpy.int32]:
-	"""Generate a spiral pattern that creates interesting RLE sequences.
-
-	Parameters
-	----------
-	dimensions : tuple[int, int]
-		The (height, width) of the array.
-	scale : int = 1
-		Scaling factor for the spiral values.
-
-	Returns
-	-------
-	arrayMapping : NDArray[numpy.int32]
-		The generated spiral pattern array.
-
-	"""
-	height, width = dimensions
-
-	def spiralFormula(x: int, y: int) -> int:
-		xCenter: int = width // 2
-		yCenter: int = height // 2
-		distanceX: int = x - xCenter
-		distanceY: int = y - yCenter
-		distance: float = numpy.sqrt(distanceX**2 + distanceY**2)
-		angle: float = numpy.arctan2(distanceY, distanceX)
-		return int((distance + 5 * angle) * scale) % 10
-
-	return generateCartesianMapping(dimensions, spiralFormula)
-
-def generateSignedQuadraticFunction(dimensions: tuple[int, int]) -> NDArray[numpy.int32]:
-	"""Generate a matrix with a quadratic function that includes negative values.
-
-	Parameters
-	----------
-	dimensions : tuple[int, int]
-		The (height, width) of the array.
-
-	Returns
-	-------
-	arrayMapping : NDArray[numpy.int32]
-		The generated quadratic function array.
-
-	"""
-	height, width = dimensions
-
-	def quadraticFormula(x: int, y: int) -> int:
-		xCenter: int = width // 2
-		yCenter: int = height // 2
-		return (x - xCenter)**2 - (y - yCenter)**2
-
-	return generateCartesianMapping(dimensions, quadraticFormula)
-
-def generateTilePattern(dimensions: tuple[int, int], tileSize: int = 10) -> NDArray[numpy.int32]:
-	"""Generate a repeating tile pattern.
-
-	Parameters
-	----------
-	dimensions : tuple[int, int]
-		The (height, width) of the array.
-	tileSize : int = 10
-		The size of the repeating tile.
-
-	Returns
-	-------
-	arrayMapping : NDArray[numpy.int32]
-		The generated tile pattern array.
-
-	"""
-	def tileFormula(x: int, y: int) -> int:
-		patternX: int = x % tileSize
-		patternY: int = y % tileSize
-		if patternX < patternY:
-			return patternX
-		else:
-			return patternY
-
-	return generateCartesianMapping(dimensions, tileFormula)
-
-def generateRepeatingZones(dimensions: tuple[int, int], zoneWidth: int = 15) -> NDArray[numpy.int32]:
-	"""Generate horizontal zones with repeating values.
-
-	Parameters
-	----------
-	dimensions : tuple[int, int]
-		The (height, width) of the array.
-	zoneWidth : int = 15
-		The width of each zone.
-
-	Returns
-	-------
-	arrayMapping : NDArray[numpy.int32]
-		The generated zonal pattern array.
-
-	"""
-	def zoneFormula(x: int, y: int) -> int:
-		zone: int = y // zoneWidth
-		return zone % 5  # 5 different zones
-
-	return generateCartesianMapping(dimensions, zoneFormula)
-
-def generateStepPattern(dimensions: tuple[int, int], step: int = 5) -> NDArray[numpy.int32]:
-	"""Generate a stepping pattern that increases along the x-axis.
-
-	Parameters
-	----------
-	dimensions : tuple[int, int]
-		The (height, width) of the array.
-	step : int = 5
-		The step size for value increments.
-
-	Returns
-	-------
-	arrayMapping : NDArray[numpy.int32]
-		The generated step pattern array.
-
-	"""
-	def stepFormula(x: int, y: int) -> int:
-		return x // step
-
-	return generateCartesianMapping(dimensions, stepFormula)
-
-def generateAlternatingColumns(dimensions: tuple[int, int], blockSize: int = 1) -> NDArray[numpy.int32]:
-	"""Generate alternating columns with different values.
-
-	Parameters
-	----------
-	dimensions : tuple[int, int]
-		The (height, width) of the array.
-	blockSize : int = 1
-		The width of each column block.
-
-	Returns
-	-------
-	arrayMapping : NDArray[numpy.int32]
-		The generated alternating columns array.
-
-	"""
-	def columnFormula(x: int, y: int) -> int:
-		return (x // blockSize) % 2
-
-	return generateCartesianMapping(dimensions, columnFormula)
-
-AUTO_DECODING_RLE_EXACT_CASES: list[tuple[str, NDArray[numpy.integer[Any]], str]] = [
-	("One range", numpy.array(list(range(50,60))), "[*range(50,60)]"),
-	("Value, range", numpy.array([123]+list(range(71,81))), "[123,*range(71,81)]"),
-	("range, value", numpy.array(list(range(91,97))+[101]), "[*range(91,97),101]"),
-	("Value, range, value", numpy.array([151]+list(range(163,171))+[181]), "[151,*range(163,171),181]"),
-	("Repeat values", numpy.array([191, 191, 191]), "[191]*3"),
-	("Value with repeat", numpy.array([211, 223, 223, 223]), "[211]+[223]*3"),
-	("Range with repeat", numpy.array(list(range(251,257))+[271, 271, 271]), "[*range(251,257)]+[271]*3"),
-	("Value, range, repeat", numpy.array([281]+list(range(291,297))+[307, 307]), "[281,*range(291,297)]+[307]*2"),
-	("repeat, value", numpy.array([313, 313, 313, 331, 331, 349]), "[313]*3+[331]*2+[349]"),
-	("repeat, range", numpy.array([373, 373, 373]+list(range(383,389))), "[373]*3+[*range(383,389)]"),
-	("repeat, range, value", numpy.array(7*[401]+list(range(409,415))+[421]), "[401]*7+[*range(409,415),421]"),
-	("Repeated primes", numpy.array([431, 431, 431, 443, 443, 457]), "[431]*3+[443]*2+[457]"),
-	("Two Ranges", numpy.array(list(range(461,471))+list(range(479,487))), "[*range(461,471),*range(479,487)]"),
-	("2D array primes", numpy.array([[491, 499, 503], [509, 521, 523]]), "[[491,499,503],[509,521,523]]"),
-	("3D array primes", numpy.array([[[541, 547], [557, 563]], [[569, 571], [577, 587]]]), "[[[541,547],[557,563]],[[569,571],[577,587]]]"),
-]
-
-AUTO_DECODING_RLE_REALISTIC_CASES: list[tuple[str, NDArray[numpy.integer[Any]]]] = [
-	("Simple range", numpy.array(list(range(50,60)))),
-	("Small chessboard", generateChessboard((8, 8))),
-	("Alternating columns", generateAlternatingColumns((5, 20), 2)),
-	("Step pattern", generateStepPattern((6, 30), 3)),
-	("Repeating zones", generateRepeatingZones((40, 40), 8)),
-	("Tile pattern", generateTilePattern((15, 15), 5)),
-	("Signed quadratic", generateSignedQuadraticFunction((10, 10))),
-	("Prime modulo", generatePrimeModuloMatrix((12, 12), 7)),
-	("Wave pattern", generateWavePattern((20, 20))),
-	("Spiral pattern", generateSpiralPattern((15, 15), 2)),
-]
-
-AUTO_DECODING_RLE_ROUNDTRIP_CASES: list[tuple[str, NDArray[numpy.integer[Any]]]] = [
-	("1D range", numpy.array(list(range(50,60)))),
-	("1D repeats", numpy.array([5, 5, 5, 10, 10, 10, 10, 20])),
-	("1D mixed", numpy.array([1, 3, 5, 6, 7, 8, 9, 2, 2, 2])),
-	("2D small", numpy.array([[1, 2, 3], [4, 5, 6]])),
-	("2D chessboard", generateChessboard((8, 8))),
-	("2D zones", generateRepeatingZones((10, 10), 3)),
-	("3D tiny", numpy.array([[[1, 2], [3, 4]], [[5, 6], [7, 8]]])),
-	("1D with zero start", numpy.array(list(range(10)))),
-	("1D negative values", numpy.array([-5, -4, -3, -2, -1, 0, 1, 2])),
-	("1D single element", numpy.array([42])),
-	("Large cartesian", generateCartesianMapping((50, 50), lambda x, y: ((x * 17) % 11 + (y * 13) % 7) % 10)),
-]
-
-@pytest.mark.parametrize("description,value_arrayTarget,expected", AUTO_DECODING_RLE_EXACT_CASES, ids=lambda x: x if isinstance(x, str) else "")
-def testAutoDecodingRLE(description: str, value_arrayTarget: NDArray[numpy.integer[Any]], expected: str) -> None:
-	"""Test autoDecodingRLE with various input arrays.
-
-	Parameters
-	----------
-	description : str
-		Description of the test case.
-	value_arrayTarget : NDArray[numpy.integer[Any]]
-		The input numpy array to encode.
-	expected : str
-		The expected string representation of the RLE.
-
-	"""
-	standardizedEqualTo(expected, autoDecodingRLE, value_arrayTarget)
-
-@pytest.mark.parametrize("description,value_arrayTarget", AUTO_DECODING_RLE_REALISTIC_CASES, ids=lambda x: x if isinstance(x, str) else "")
-def testAutoDecodingRLEWithRealisticData(description: str, value_arrayTarget: NDArray[numpy.integer[Any]]) -> None:
-	"""Test autoDecodingRLE with more realistic data patterns.
-
-	Parameters
-	----------
-	description : str
-		Description of the test pattern.
-	value_arrayTarget : NDArray[numpy.integer[Any]]
-		The input array generated by a pattern function.
-
-	"""
-	# Here we test the function behavior rather than expected string output
-	resultRLE: str = autoDecodingRLE(value_arrayTarget)
-
-	# Test that the result is a valid string
 	assert isinstance(resultRLE, str), (
-		f"autoDecodingRLE returned {type(resultRLE).__name__}, expected str for {description=}."
+		f"autoDecodingRLE returned {type(resultRLE).__name__}, expected str for {description=} and {assumeAddSpaces=}."
 	)
-
-	# Test that the result contains the expected syntax elements
 	assert "[" in resultRLE, (
-		f"autoDecodingRLE returned {resultRLE!r}, expected output containing '[' for {description=}."
+		f"autoDecodingRLE returned {resultRLE!r}, expected '[' in output for {description=} and {assumeAddSpaces=}."
 	)
 	assert "]" in resultRLE, (
-		f"autoDecodingRLE returned {resultRLE!r}, expected output containing ']' for {description=}."
+		f"autoDecodingRLE returned {resultRLE!r}, expected ']' in output for {description=} and {assumeAddSpaces=}."
 	)
 
-	# Check that the result is more compact than the raw string representation
 	rawStrLength: int = len(str(value_arrayTarget.tolist()))
 	encodedLength: int = len(resultRLE)
 	assert encodedLength <= rawStrLength, (
-		f"autoDecodingRLE produced length {encodedLength}, expected <= {rawStrLength} for {description=}."
+		f"autoDecodingRLE produced length {encodedLength}, expected <= {rawStrLength} for {description=} and {assumeAddSpaces=}."
 	)
 
-@pytest.mark.parametrize("description,addSpaces", [
-	("With spaces", True),
-	("Without spaces", False),
-], ids=lambda x: x if isinstance(x, str) else "")
-def testAutoDecodingRLEWithSpaces(description: str, addSpaces: bool) -> None:
-	"""Test that the addSpaces parameter affects the internal comparison logic.
-
-	Note: addSpaces doesn't directly change the output format, it just changes
-	the comparison when measuring the length of the string representation.
-	The feature exists because `ast` inserts spaces in its string representation.
-
-	Parameters
-	----------
-	description : str
-		Description of the test configuration.
-	addSpaces : bool
-		Value for the `assumeAddSpaces` parameter.
-
-	"""
-	# Create a pattern that has repeated sequences to trigger the RLE logic
-	arrayTarget: NDArray[numpy.int32] = generateRepeatingZones((10, 10), 2)
-
-	# Test both configurations
-	resultWithSpacesFlag: str = autoDecodingRLE(arrayTarget, assumeAddSpaces=addSpaces)
-	resultNoSpacesFlag: str = autoDecodingRLE(arrayTarget, assumeAddSpaces=False)
-
-	assert isinstance(resultWithSpacesFlag, str), (
-		f"autoDecodingRLE returned {type(resultWithSpacesFlag).__name__}, expected str for {description=} and {addSpaces=}."
-	)
-	assert isinstance(resultNoSpacesFlag, str), (
-		f"autoDecodingRLE returned {type(resultNoSpacesFlag).__name__}, expected str for baseline comparison with {description=}."
+	assert resultRLE == expected, (
+		f"autoDecodingRLE returned {resultRLE!r}, expected {expected!r} for {description=} and {assumeAddSpaces=}."
 	)
 
-@pytest.mark.parametrize("description,dimensions", [
-	("Large Cartesian mapping", (100, 100)),
-], ids=lambda x: x if isinstance(x, str) else "")
-def testAutoDecodingRLELargeCartesianMapping(description: str, dimensions: tuple[int, int]) -> None:
-	"""Test autoDecodingRLE with a large (100x100) cartesian mapping."""
-
-	# Generate a large cartesian mapping with a complex pattern
-	def complexFormula(x: int, y: int) -> int:
-		return ((x * 17) % 11 + (y * 13) % 7) % 10
-
-	arrayMapping: NDArray[numpy.int32] = generateCartesianMapping(dimensions, complexFormula)
-
-	# Verify the function works with large arrays
-	resultRLE: str = autoDecodingRLE(arrayMapping)
-
-	# The result should be a valid string representation
-	assert isinstance(resultRLE, str), (
-		f"autoDecodingRLE returned {type(resultRLE).__name__}, expected str for {description=}."
-	)
-	assert "[" in resultRLE, (
-		f"autoDecodingRLE returned {resultRLE!r}, expected output containing '[' for {description=}."
-	)
-	assert "]" in resultRLE, (
-		f"autoDecodingRLE returned {resultRLE!r}, expected output containing ']' for {description=}."
-	)
-
-	# The RLE encoding should be more compact than the raw representation
-	rawStrLength: int = len(str(arrayMapping.tolist()))
-	encodedLength: int = len(resultRLE)
-	assert encodedLength <= rawStrLength, (
-		f"autoDecodingRLE produced length {encodedLength}, expected <= {rawStrLength} for {description=}."
-	)
-
-@pytest.mark.parametrize("description,value_arrayTarget", AUTO_DECODING_RLE_ROUNDTRIP_CASES, ids=lambda x: x if isinstance(x, str) else "")
-def testAutoDecodingRLERoundtrip(description: str, value_arrayTarget: NDArray[numpy.integer[Any]]) -> None:
-	"""Test that eval of autoDecodingRLE output reproduces the original array data.
-
-	Parameters
-	----------
-	description : str
-		Description of the test case.
-	value_arrayTarget : NDArray[numpy.integer[Any]]
-		The input array to encode and then roundtrip via eval.
-
-	"""
-	resultRLE: str = autoDecodingRLE(value_arrayTarget)
 	decodedData = eval(resultRLE)  # noqa: S307
 	reconstructedArray: NDArray[numpy.integer[Any]] = numpy.array(decodedData)
-	numpy.testing.assert_array_equal(reconstructedArray, value_arrayTarget)
+	numpy.testing.assert_array_equal(
+		reconstructedArray,
+		value_arrayTarget,
+		err_msg=(
+			f"autoDecodingRLE roundtrip produced {reconstructedArray.tolist()}, "
+			f"expected {value_arrayTarget.tolist()} for {description=} and {assumeAddSpaces=}."
+		),
+	)
