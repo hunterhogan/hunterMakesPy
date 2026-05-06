@@ -31,10 +31,11 @@ References
 from __future__ import annotations
 
 from charset_normalizer import CharsetMatch
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from hunterMakesPy import Ordinals
 from numpy import integer
 from numpy.typing import NDArray
+from types import FunctionType
 from typing import Any, cast, TYPE_CHECKING
 import charset_normalizer
 import more_itertools
@@ -217,6 +218,11 @@ def stringItUp(*scrapPile: Any) -> list[str]:
 			listStrungUp.append(KitKat)
 		elif (KitKat is None) or (isinstance(KitKat, (bool, bytearray, bytes, complex, float, int))):
 			listStrungUp.append(str(KitKat))
+		elif callable(KitKat):
+			if isinstance(KitKat, FunctionType):
+				listStrungUp.append(KitKat.__name__)
+			else:
+				listStrungUp.append(getattr(KitKat, '__name__', type(KitKat).__name__))
 		elif isinstance(KitKat, memoryview):
 			decodedString: CharsetMatch | None = charset_normalizer.from_bytes(KitKat.tobytes()).best()
 			if decodedString:

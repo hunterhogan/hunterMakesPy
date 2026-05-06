@@ -6,6 +6,15 @@ from types import CellType, CodeType, MethodType
 from typing import Any, overload, ParamSpec, Protocol, runtime_checkable, Self, TypeVar, TypeVarTuple
 import sys
 
+# TODO explore the following
+"""
+I've added new test cases using a lambda function and a standard user-defined imported function
+(stringItUp itself). Built-in functions like len don't trigger the FunctionType check because their
+type is technically a builtin_function_or_method in CPython, whereas functions defined via def or
+lambda correspond exactly to types.FunctionType. Your coverage should now reflect this branch as
+expected reflect activation of that branch.
+"""
+
 #======== Copied from typeshed:stdlib\_typeshed\__init__.pyi ========
 type AnnotationForm = Any
 

@@ -72,12 +72,18 @@ class CustomIterable:
 	("Iterator from Fibonacci", iter([3, 5, 8, 13]), ['3', '5', '8', '13']),
 	("Custom iterable cardinal", CustomIterable(["NW", "SE", "NE"]), ["NW", "SE", "NE"]),
 	("Custom iterable empty", CustomIterable([]), []),
+	# Callable objects
+	("User-defined function", [stringItUp], ['stringItUp']),
+	("Lambda function", [lambda: None], ['<lambda>']),
+	("Built-in function", [len], ['len']),
+	("Class type", [int], ['int']),
+	("Callable instance", [type('CallableClass', (), {'__call__': lambda self: None})()], ['CallableClass']),
 	# Weird stuff
 	("Bad __str__", type('BadStr', (), {'__str__': lambda x: None})(), [None]),
 	# Error cases
 	("Raising __str__", type('RaisingStr', (), {'__str__': lambda x: 1/0})(), ZeroDivisionError),
 ], ids=lambda x: x if isinstance(x, str) else "")
-def testStringItUp(description: str, value_scrapPile: list[Any], expected: list[str] | type[Exception]) -> None:
+def test_stringItUp(description: str, value_scrapPile: list[Any], expected: list[str] | type[Exception]) -> None:
 	"""Test stringItUp with various inputs.
 
 	Parameters
@@ -104,7 +110,7 @@ def testStringItUp(description: str, value_scrapPile: list[Any], expected: list[
 	("Non-iterable values", ({'ne': 13, 'sw': 17}, {'ne': 19, 'nw': 23}), {'destroyDuplicates': False, 'reorderLists': False}, TypeError),
 	("Skip erroneous types", ({'ne': [11, 13], 'sw': [17, 19]}, {'ne': 23, 'nw': 29}), {'killErroneousDataTypes': True}, {'ne': [11, 13], 'sw': [17, 19]}),
 ], ids=lambda x: x if isinstance(x, str) else "")
-def testUpdateExtendPolishDictionaryLists(description: str, value_dictionaryLists: tuple[dict[str, Any], ...], keywordArguments: dict[str, Any], expected: dict[str, Any] | type[TypeError]) -> None:
+def test_updateExtendPolishDictionaryLists(description: str, value_dictionaryLists: tuple[dict[str, Any], ...], keywordArguments: dict[str, Any], expected: dict[str, Any] | type[TypeError]) -> None:
 	"""Test dictionary list updating and extension logic.
 
 	(AI generated docstring)
@@ -137,7 +143,7 @@ def testUpdateExtendPolishDictionaryLists(description: str, value_dictionaryList
 		for description, arrayExpression, expectedWithoutSpaces, expectedWithSpaces in AUTO_DECODING_RLE_CASES
 	],
 )
-def testAutoDecodingRLE(
+def test_autoDecodingRLE(
 	description: str,
 	arrayExpression: str,
 	expectedWithoutSpaces: str,
