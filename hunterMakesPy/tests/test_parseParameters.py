@@ -9,11 +9,13 @@ and string-based boolean parsing.
 from __future__ import annotations
 
 # pyright: standard
-from collections.abc import Callable, Iterable, Iterator
-from hunterMakesPy import defineConcurrencyLimit, intInnit, oopsieKwargsie
-from typing import Any, NoReturn, ParamSpec, TypeVar
+from hunterMakesPy.parseParameters import defineConcurrencyLimit, intInnit, oopsieKwargsie
+from typing import Any, NoReturn, ParamSpec, TYPE_CHECKING, TypeVar
 from unittest.mock import Mock, patch
 import pytest
+
+if TYPE_CHECKING:
+	from collections.abc import Callable, Iterable, Iterator
 
 parameters = ParamSpec('parameters')
 returnType = TypeVar('returnType')
@@ -339,7 +341,7 @@ def PytestFor_oopsieKwargsie(callableToTest: Callable[[Any], object] = oopsieKwa
 	]
 
 @pytest.mark.parametrize("nameOfTest,aPytest", PytestFor_defineConcurrencyLimit())
-def testConcurrencyLimit(nameOfTest: str, aPytest: Callable[parameters, returnType], *arguments: parameters.args, **keywordArguments: parameters.kwargs) -> None:
+def test_concurrencyLimit(nameOfTest: str, aPytest: Callable[parameters, returnType], *arguments: parameters.args, **keywordArguments: parameters.kwargs) -> None:
 	"""Execute generated tests for concurrency limit definitions.
 
 	(AI generated docstring)
@@ -359,7 +361,7 @@ def testConcurrencyLimit(nameOfTest: str, aPytest: Callable[parameters, returnTy
 	aPytest(*arguments, **keywordArguments)
 
 @pytest.mark.parametrize("nameOfTest,aPytest", PytestFor_intInnit())
-def testIntInnit(nameOfTest: str, aPytest: Callable[parameters, returnType], *arguments: parameters.args, **keywordArguments: parameters.kwargs) -> None:
+def test_intInnit(nameOfTest: str, aPytest: Callable[parameters, returnType], *arguments: parameters.args, **keywordArguments: parameters.kwargs) -> None:
 	"""Execute generated tests for integer initialization.
 
 	(AI generated docstring)
@@ -379,7 +381,7 @@ def testIntInnit(nameOfTest: str, aPytest: Callable[parameters, returnType], *ar
 	aPytest(*arguments, **keywordArguments)
 
 @pytest.mark.parametrize("nameOfTest,aPytest", PytestFor_oopsieKwargsie())
-def testOopsieKwargsie(nameOfTest: str, aPytest: Callable[parameters, returnType], *arguments: parameters.args, **keywordArguments: parameters.kwargs) -> None:
+def test_oopsieKwargsie(nameOfTest: str, aPytest: Callable[parameters, returnType], *arguments: parameters.args, **keywordArguments: parameters.kwargs) -> None:
 	"""Execute generated tests for boolean string parsing.
 
 	(AI generated docstring)

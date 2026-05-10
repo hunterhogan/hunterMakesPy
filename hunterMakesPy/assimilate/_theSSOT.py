@@ -1,5 +1,8 @@
+from __future__ import annotations
+
 from functools import partial
-from hunterMakesPy import identifierDotAttribute, PackageSettings, settingsPackage
+from hunterMakesPy import identifierDotAttribute, PackageSettings
+from hunterMakesPy._theSSOT import settingsPackage
 from hunterMakesPy.filesystemToolkit import settings_autoflakeDEFAULT, settings_isortDEFAULT, writeStringToHere
 from pathlib import Path
 from typing import Any

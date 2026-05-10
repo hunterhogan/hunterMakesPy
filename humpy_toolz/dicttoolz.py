@@ -46,14 +46,18 @@ References
 [1] Python `collections.abc` module
 	https://docs.python.org/3/library/collections.abc.html
 """
+from __future__ import annotations
+
 from collections import defaultdict, deque
 from collections.abc import Callable, Hashable, Mapping, MutableMapping, Sequence
 from functools import reduce
-from humpy_toolz.utils import SupportsGetItem
-from typing import Any, cast, Literal, overload, TypeGuard
+from typing import Any, cast, Literal, overload, TYPE_CHECKING, TypeGuard
 from typing_extensions import TypeIs
 import contextlib
 import operator
+
+if TYPE_CHECKING:
+	from humpy_toolz.utils import SupportsGetItem
 
 __all__ = ('assoc', 'assoc_in', 'dissoc', 'get_in', 'itemfilter', 'itemmap', 'keyfilter', 'keymap', 'merge', 'merge_with', 'update_in', 'valfilter', 'valmap')
 
@@ -391,7 +395,7 @@ def itemfilter[K0: Hashable, V0, K1: Hashable, V1](predicate: Callable[[tuple[K0
 	rv: MutableMapping[K1, V1] = factory()
 	for item in d.items():
 		if predicate(item):
-			k, v = cast(tuple[K1, V1], item)
+			k, v = cast('tuple[K1, V1]', item)
 			rv[k] = v
 	return rv
 
@@ -503,7 +507,7 @@ def keyfilter[K0: Hashable, K1: Hashable, V](predicate: Callable[[K0], bool] | C
 	rv: MutableMapping[K1, V] = factory()
 	for k, v in d.items():
 		if predicate(k):
-			rv[cast(K1, k)] = v
+			rv[cast('K1', k)] = v
 	return rv
 
 @overload
@@ -743,7 +747,7 @@ def update_in[K, V](d: Mapping[K, V], keys: Sequence[K], func: Callable[[V | Non
 	sherpa: MutableMapping[K, V] = factory(d)
 	while dequeKeys:
 		k: K = dequeKeys.popleft()
-		sherpa = cast(MutableMapping[K, V], sherpa.get(k, factory()))
+		sherpa = cast('MutableMapping[K, V]', sherpa.get(k, factory()))
 		dATk[k] = dATk = factory(sherpa)  # pyright: ignore[reportArgumentType] # ty:ignore[invalid-assignment]
 	dATk[keyFinal] = func(sherpa.get(keyFinal, default))  # pyright: ignore[reportArgumentType] # ty:ignore[invalid-argument-type]
 	return rv
@@ -808,7 +812,7 @@ def valfilter[K: Hashable, V0, V1](predicate: Callable[[V0], bool] | Callable[[V
 	rv: MutableMapping[K, V1] = factory()
 	for k, v in d.items():
 		if predicate(v):
-			rv[k] = cast(V1, v)
+			rv[k] = cast('V1', v)
 	return rv
 
 @overload

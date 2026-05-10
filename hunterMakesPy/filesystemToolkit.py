@@ -44,9 +44,7 @@ References
 from __future__ import annotations
 
 from autoflake import fix_code as autoflake_fix_code
-from hunterMakesPy import identifierDotAttribute
 from isort import code as isort_code
-from os import PathLike
 from pathlib import Path, PurePath
 from typing import Any, overload, TYPE_CHECKING
 import contextlib
@@ -55,7 +53,9 @@ import importlib.util
 import io
 
 if TYPE_CHECKING:
+	from hunterMakesPy import identifierDotAttribute
 	from importlib.machinery import ModuleSpec
+	from os import PathLike
 	from types import ModuleType
 
 def importLogicalPath2Identifier[归个](logicalPathModule: identifierDotAttribute, identifier: str, packageIdentifierIfRelative: str | None = None) -> 归个:

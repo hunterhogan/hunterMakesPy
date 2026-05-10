@@ -10,12 +10,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from hunterMakesPy import CallableFunction as CallableFunction, Ordinals
 from hunterMakesPy.tests.conftest import uniformTestFailureMessage
-from typing import Self, TYPE_CHECKING
-import inspect
+from typing import Self
 import pytest
-
-if TYPE_CHECKING:
-	from collections.abc import Callable
 
 def between[小于: Ordinals](floor: 小于, ceiling: 小于, comparand: 小于) -> bool:
 	"""Return whether `comparand` lies between `floor` and `ceiling` inclusive.

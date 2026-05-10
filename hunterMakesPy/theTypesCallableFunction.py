@@ -2,9 +2,11 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from types import CellType, CodeType, MethodType
-from typing import Any, overload, ParamSpec, Protocol, runtime_checkable, Self, TypeVar, TypeVarTuple
+from typing import Any, overload, ParamSpec, Protocol, runtime_checkable, Self, TYPE_CHECKING, TypeVar, TypeVarTuple
 import sys
+
+if TYPE_CHECKING:
+	from types import CellType, CodeType, MethodType
 
 # TODO explore the following
 """

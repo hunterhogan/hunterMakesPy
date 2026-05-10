@@ -7,11 +7,13 @@ including data paths, source code samples, and standardized assertion functions.
 """
 from __future__ import annotations
 
-from collections.abc import Callable
-from typing import Any
+from typing import Any, TYPE_CHECKING
 import io
 import pathlib
 import pytest
+
+if TYPE_CHECKING:
+	from collections.abc import Callable
 
 # SSOT for test data paths and filenames
 pathDataSamples: pathlib.Path = pathlib.Path("hunterMakesPy/tests/dataSamples")

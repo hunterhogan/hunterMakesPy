@@ -9,18 +9,20 @@ string conversion utilities, and Run-Length Encoding (RLE) tools.
 """
 from __future__ import annotations
 
-from collections.abc import Iterable, Iterator
 from decimal import Decimal
 from fractions import Fraction
-from hunterMakesPy import autoDecodingRLE, stringItUp, updateExtendPolishDictionaryLists
+from hunterMakesPy.dataStructures import autoDecodingRLE, stringItUp, updateExtendPolishDictionaryLists
 from hunterMakesPy.tests.conftest import standardizedEqualTo
 from hunterMakesPy.tests.dataSamples.rle import AUTO_DECODING_RLE_CASES
-from numpy.typing import NDArray
-from typing import Any
+from typing import Any, TYPE_CHECKING
 import datetime
 import librosa.filters
 import numpy
 import pytest
+
+if TYPE_CHECKING:
+	from collections.abc import Iterable, Iterator
+	from numpy.typing import NDArray
 
 class CustomIterable:
 	"""A simple custom iterable for testing purposes.

@@ -9,7 +9,8 @@ including safe directory creation, file writing, and dynamic importing.
 """
 from __future__ import annotations
 
-from hunterMakesPy import importLogicalPath2Identifier, importPathFilename2Identifier, makeDirsSafely, writePython, writeStringToHere
+from hunterMakesPy.filesystemToolkit import (
+	importLogicalPath2Identifier, importPathFilename2Identifier, makeDirsSafely, writePython, writeStringToHere)
 from hunterMakesPy.tests.conftest import standardizedEqualTo
 import io
 import math

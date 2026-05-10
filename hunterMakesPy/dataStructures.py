@@ -31,10 +31,7 @@ References
 from __future__ import annotations
 
 from charset_normalizer import CharsetMatch
-from collections.abc import Callable, Mapping
 from hunterMakesPy import Ordinals
-from numpy import integer
-from numpy.typing import NDArray
 from types import FunctionType
 from typing import Any, cast, TYPE_CHECKING
 import charset_normalizer
@@ -43,7 +40,9 @@ import re as regex
 import sys
 
 if TYPE_CHECKING:
-	from collections.abc import Iterator
+	from collections.abc import Iterator, Mapping
+	from numpy import integer
+	from numpy.typing import NDArray
 
 def removeExtraWhitespace(string: str) -> str:
 	"""Remove extra whitespace from string representation of Python data structures."""
@@ -228,7 +227,7 @@ def stringItUp(*scrapPile: Any) -> list[str]:
 			if decodedString:
 				listStrungUp.append(str(decodedString))
 		elif isinstance(KitKat, dict):
-			DictDact: dict[Any, Any] = cast(dict[Any, Any], KitKat)
+			DictDact: dict[Any, Any] = cast('dict[Any, Any]', KitKat)
 			for broken, piece in DictDact.items():
 				drill(broken)
 				drill(piece)
