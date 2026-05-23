@@ -114,6 +114,8 @@ def _constructErrorMessage(context: ErrorMessageContext, parameterName: str, par
 
 	return "".join(messageParts)
 
+# TODO Should I change the function because "On Windows, max_workers must be less than or equal to 61."?
+# https://docs.python.org/3/library/concurrent.futures.html#concurrent.futures.ProcessPoolExecutor
 def defineConcurrencyLimit(*, limit: bool | float | int | None, cpuTotal: int = multiprocessing.cpu_count()) -> int:
 	"""Determine the concurrency limit based on the provided parameter.
 

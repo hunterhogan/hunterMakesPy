@@ -426,7 +426,14 @@ def _get[K, T](ind: K, seq: SupportsGetItem[K, T], default: T) -> T:
 		return seq[ind]
 	except (KeyError, IndexError):
 		return default
-
+# TODO
+"""
+	# NOTE this part is correct.
+	ww: Callable[[fs2Path], DecodedFilename] = compose(librarianDecodesFilename, fs_path.basename)
+	# NOTE `T` should be a TypeVar. The input to get is `DecodedFilename`, a typeddict[str, str].
+	# I guess the annotation is returning an item tuple instead of the value.
+	qq: Callable[[fs2Path], tuple[T, ...]] = compose(get('fractionType'), ww)
+"""
 @overload
 def get[K, T](ind: Sequence[K], seq: SupportsGetItem[K, T], default: T | Literal['__no__default__'] = no_default) -> tuple[T, ...]: ...
 @overload
