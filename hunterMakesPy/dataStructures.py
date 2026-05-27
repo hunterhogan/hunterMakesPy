@@ -161,13 +161,13 @@ def autoDecodingRLE(arrayTarget: NDArray[integer[Any]], *, assumeAddSpaces: bool
 
 	patternRegex: regex.Pattern[str] = regex.compile(
 		"(?<!rang)(?:"
-		# Pattern 1: Comma ahead, bracket behind  # noqa: ERA001
+		# Pattern 1: Comma ahead, bracket behind
 		"(?P<joinAhead>,)\\((?P<malkovich>\\d+),(?P<multiply>\\d+)\\)(?P<bracketBehind>])|"
-		# Pattern 2: Bracket or start ahead, comma behind  # noqa: ERA001
+		# Pattern 2: Bracket or start ahead, comma behind
 		"(?P<bracketOrStartAhead>\\[|^.)\\((?P<malkovichMalkovich>\\d+),(?P<multiplyIDK>\\d+)\\)(?P<joinBehind>,)|"
-		# Pattern 3: Bracket ahead, bracket behind  # noqa: ERA001
+		# Pattern 3: Bracket ahead, bracket behind
 		"(?P<bracketAhead>\\[)\\((?P<malkovichMalkovichMalkovich>\\d+),(?P<multiply_whatever>\\d+)\\)(?P<bracketBehindBracketBehind>])|"
-		# Pattern 4: Comma ahead, comma behind  # noqa: ERA001
+		# Pattern 4: Comma ahead, comma behind
 		"(?P<joinAheadJoinAhead>,)\\((?P<malkovichMalkovichMalkovichMalkovich>\\d+),(?P<multiplyOrSomething>\\d+)\\)(?P<joinBehindJoinBehind>,)"
 		")"
 	)
@@ -189,7 +189,7 @@ def autoDecodingRLE(arrayTarget: NDArray[integer[Any]], *, assumeAddSpaces: bool
 	arrayAsStr = patternRegex.sub(replacementByContext, arrayAsStr)
 	arrayAsStr = patternRegex.sub(replacementByContext, arrayAsStr)
 
-	# Replace `range(0,stop)` syntax with `range(stop)` syntax.  # noqa: ERA001
+	# Replace `range(0,stop)` syntax with `range(stop)` syntax.
 	# Add unpack operator `*` for automatic decoding when evaluated.
 	return arrayAsStr.replace('range(0,', 'range(').replace('range', '*range')
 
