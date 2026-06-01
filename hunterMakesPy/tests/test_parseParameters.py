@@ -239,14 +239,14 @@ def PytestFor_intInnit(callableToTest: Callable[[Iterable[Any], str | None, type
 
 	def testHandlesComplexIntegers() -> None:
 		testCases: list[tuple[list[complex], list[int]]] = [
-			([13+0j], [13]),
-			([21+0j, 34+0j], [21, 34])
+			([13 + 0j], [13]),
+			([21 + 0j, 34 + 0j], [21, 34])
 		]
 		for inputData, expected in testCases:
 			assert callableToTest(inputData, 'test', None) == expected
 
 	def testRejectsInvalidComplex() -> None:
-		for invalidComplex in [13+1j, 21+0.5j, 34.5+0j]:
+		for invalidComplex in [13 + 1j, 21 + 0.5j, 34.5 + 0j]:
 			with pytest.raises(ValueError):
 				callableToTest([invalidComplex], 'test', None)
 

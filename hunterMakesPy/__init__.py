@@ -72,7 +72,7 @@ from hunterMakesPy.semiotics import decreasing as decreasing, errorL33T as error
 
 # isort: split
 from hunterMakesPy.theTypes import (
-	CallableFunction as CallableFunction, identifierDotAttribute as identifierDotAttribute, Ordinals as Ordinals)
+	CallableFunction as CallableFunction, identifierDotAttribute as identifierDotAttribute, Ordinals as Ordinals, 小于 as 小于)
 
 # isort: split
 from hunterMakesPy.coping import PackageSettings as PackageSettings, raiseIfNone as raiseIfNone

@@ -2,11 +2,12 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from typing import Any, overload, ParamSpec, Protocol, runtime_checkable, Self, TYPE_CHECKING, TypeVar, TypeVarTuple
+from typing import Any, overload, ParamSpec, Protocol, runtime_checkable, TYPE_CHECKING, TypeAlias, TypeVar
+from typing_extensions import Self, TypeVarTuple
 import sys
 
 if TYPE_CHECKING:
-	from types import CellType, CodeType, MethodType
+	from types import CodeType, MethodType
 
 # TODO explore the following
 """
@@ -18,18 +19,21 @@ expected reflect activation of that branch.
 """
 
 #======== Copied from typeshed:stdlib\_typeshed\__init__.pyi ========
-type AnnotationForm = Any
+AnnotationForm: TypeAlias = Any
 
 if (3, 14) <= sys.version_info:
 	from annotationlib import Format
 
 # NOTE These return annotations, which can be arbitrary objects
-	type AnnotateFunc = Callable[[Format], dict[str, AnnotationForm]]
-	type EvaluateFunc = Callable[[Format], AnnotationForm]
+	AnnotateFunc: TypeAlias = Callable[[Format], dict[str, AnnotationForm]]
+	EvaluateFunc: TypeAlias = Callable[[Format], AnnotationForm]
 #======== End Copied from typeshed:stdlib\_typeshed\__init__.pyi ========
 
+_P = ParamSpec("_P")
+_R_co = TypeVar("_R_co", covariant=True)
+
 @runtime_checkable
-class CallableFunction[**P, R](Protocol):
+class CallableFunction(Protocol[_P, _R_co]):
 	"""A Protocol representing callable functions with descriptor support.
 
 	Mimics types.FunctionType while being a drop-in replacement for `collections.abc.Callable`. Includes all standard function
@@ -38,31 +42,21 @@ class CallableFunction[**P, R](Protocol):
 	Note: @runtime_checkable only validates attribute presence, not signatures.
 	"""
 
-	@property
-	def __closure__(self) -> tuple[CellType, ...] | None:
-		"""Tuple of cells that contain bindings for the function's free variables."""
-		...
 	__code__: CodeType
 	__defaults__: tuple[Any, ...] | None
 	__dict__: dict[str, Any]
-	@property
-	def __globals__(self) -> dict[str, Any]:
-		"""The global namespace in which the function was defined."""
-		...
+
 	__name__: str
 	__qualname__: str
 	__annotations__: dict[str, AnnotationForm]
 	if (3, 14) <= sys.version_info:
 		__annotate__: AnnotateFunc | None
 	__kwdefaults__: dict[str, Any] | None
-	@property
-	def __builtins__(self) -> dict[str, Any]:
-		"""The built-in namespace in which the function was defined."""
-		...
+
 	__type_params__: tuple[TypeVar | ParamSpec | TypeVarTuple, ...]
 	__module__: str
 
-	def __call__(self, *args: P.args, **kwargs: P.kwargs) -> R:
+	def __call__(self, *args: _P.args, **kwargs: _P.kwargs) -> _R_co:
 		"""Execute the callable with the given arguments."""
 		...
 

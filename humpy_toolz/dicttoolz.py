@@ -110,20 +110,20 @@ def assoc[K: Hashable, V](d: Mapping[K, V], key: K, value: V, factory: Callable[
 @overload
 def assoc_in[K1, K2, V1, V2](d: Mapping[K1, Mapping[K2, V2] | V1], keys: tuple[K1, K2], value: V2) -> dict[K1, dict[K2, V2] | V1 | V2]: ...
 @overload
-def assoc_in[K1, K2, V1, V2](d: Mapping[K1, Mapping[K2, V2] | V1], keys: tuple[K1, K2], value: V2, *, factory: Callable[ [], MutableMapping[K1, Any] ]) -> MutableMapping[K1, Any]: ...
+def assoc_in[K1, K2, V1, V2](d: Mapping[K1, Mapping[K2, V2] | V1], keys: tuple[K1, K2], value: V2, *, factory: Callable[[], MutableMapping[K1, Any]]) -> MutableMapping[K1, Any]: ...
 
 # Overloads for nested dictionaries with tuple keys (3-level nesting)
 @overload
-def assoc_in[K1, K2, K3, V1, V2, V3](d: Mapping[ K1, Mapping[K2, Mapping[K3, V3] | V2] | V1 ], keys: tuple[K1, K2, K3], value: V3) -> dict[K1, dict[K2, dict[K3, V3] | V2 | V3] | V1 | V3]: ...
+def assoc_in[K1, K2, K3, V1, V2, V3](d: Mapping[K1, Mapping[K2, Mapping[K3, V3] | V2] | V1], keys: tuple[K1, K2, K3], value: V3) -> dict[K1, dict[K2, dict[K3, V3] | V2 | V3] | V1 | V3]: ...
 @overload
-def assoc_in[K1, K2, K3, V1, V2, V3](d: Mapping[ K1, Mapping[K2, Mapping[K3, V3] | V2] | V1 ], keys: tuple[K1, K2, K3], value: V3, *, factory: Callable[ [], MutableMapping[K1, Any] ]) -> MutableMapping[K1, Any]: ...
+def assoc_in[K1, K2, K3, V1, V2, V3](d: Mapping[K1, Mapping[K2, Mapping[K3, V3] | V2] | V1], keys: tuple[K1, K2, K3], value: V3, *, factory: Callable[[], MutableMapping[K1, Any]]) -> MutableMapping[K1, Any]: ...
 
 # General overloads for backwards compatibility
 @overload
 def assoc_in[K, V](d: Mapping[K, V], keys: Sequence[K], value: V) -> dict[K, V]: ...
 @overload
 def assoc_in[K, V](d: Mapping[K, V], keys: Sequence[K], value: V, *, factory: Callable[[], MutableMapping[K, V]]) -> MutableMapping[K, V]: ...
-def assoc_in[K, V](d: Mapping[K, V], keys: Sequence[K], value: V, *, factory: Callable[[], MutableMapping[K, V]] = dict) -> MutableMapping[K, V]: # pyright: ignore[reportInconsistentOverload]
+def assoc_in[K, V](d: Mapping[K, V], keys: Sequence[K], value: V, *, factory: Callable[[], MutableMapping[K, V]] = dict) -> MutableMapping[K, V]:  # pyright: ignore[reportInconsistentOverload]
 	"""Create a new `MutableMapping` from `d` with `value` at the path specified by `keys`.
 
 	(AI generated docstring)
@@ -863,4 +863,3 @@ def valmap[K: Hashable, V0, V1](func: Callable[[V0], V1], d: Mapping[K, V0], fac
 	rv: MutableMapping[K, V1] = factory()
 	rv.update(zip(d.keys(), map(func, d.values()), strict=True))
 	return rv
-

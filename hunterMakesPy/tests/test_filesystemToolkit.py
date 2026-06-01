@@ -10,7 +10,7 @@ including safe directory creation, file writing, and dynamic importing.
 from __future__ import annotations
 
 from hunterMakesPy.filesystemToolkit import (
-	importLogicalPath2Identifier, importPathFilename2Identifier, makeDirsSafely, writePython, writeStringToHere)
+	importLogicalPath2Identifier, importPathFilename2Identifier, makeDirectorySafely, writePython, writeStringToHere)
 from hunterMakesPy.tests.conftest import standardizedEqualTo
 import io
 import math
@@ -78,7 +78,7 @@ def testImportPathFilename2IdentifierWithCallables(pathTmpTesting: pathlib.Path,
 
 	"""
 	pathFilenameModule: pathlib.Path = pathTmpTesting / f"moduleTest{hash(pythonSourceTarget) % 89}.py"  # Use prime number 89
-	pathFilenameModule.write_text(pythonSourceTarget)
+	pathFilenameModule.write_text(pythonSourceTarget, encoding="utf-8")
 
 	def callImportedIdentifier() -> object:
 		return importPathFilename2Identifier(pathFilenameModule, identifierTarget, moduleIdentifierTarget)()
@@ -115,7 +115,7 @@ def testImportPathFilename2IdentifierWithVariables(pathTmpTesting: pathlib.Path,
 
 	"""
 	pathFilenameModule: pathlib.Path = pathTmpTesting / f"moduleTest{hash(pythonSourceTarget) % 97}.py"  # Use prime number 97
-	pathFilenameModule.write_text(pythonSourceTarget)
+	pathFilenameModule.write_text(pythonSourceTarget, encoding="utf-8")
 
 	standardizedEqualTo(
 		expectedValue,
@@ -152,7 +152,7 @@ def testMakeDirsSafelyCreatesNestedDirectories(pathTmpTesting: pathlib.Path, lis
 		pathDirectoryNested = pathDirectoryNested / directoryComponent
 
 	pathFilenameTarget: pathlib.Path = pathDirectoryNested / filenameTarget
-	makeDirsSafely(pathFilenameTarget)
+	makeDirectorySafely(pathFilenameTarget)
 
 	assert pathDirectoryNested.exists() and pathDirectoryNested.is_dir(), (
 		f"\nTesting: `makeDirsSafely({pathFilenameTarget})`\n"
@@ -177,7 +177,7 @@ def testMakeDirsSafelyWithIOStreamDoesNotRaise(streamTypeTarget: io.IOBase) -> N
 
 	"""
 	# This test verifies that no exception is raised
-	makeDirsSafely(streamTypeTarget)
+	makeDirectorySafely(streamTypeTarget)
 
 	# If we reach this point, no exception was raised
 	assert True
@@ -279,7 +279,7 @@ def testImportLogicalPath2IdentifierWithInvalidInputs(
 		The expected exception type.
 
 	"""
-	standardizedEqualTo( expectedExceptionType, importLogicalPath2Identifier, logicalPathModuleTarget, identifierTarget )
+	standardizedEqualTo(expectedExceptionType, importLogicalPath2Identifier, logicalPathModuleTarget, identifierTarget)
 
 @pytest.mark.parametrize(
 	"pathFilenameTarget, identifierTarget, expectedExceptionType",
@@ -304,7 +304,7 @@ def testImportPathFilename2IdentifierWithInvalidInputs(pathTmpTesting: pathlib.P
 	"""
 	pathFilenameNonexistent: pathlib.Path = pathTmpTesting / pathFilenameTarget
 
-	standardizedEqualTo( expectedExceptionType, importPathFilename2Identifier, pathFilenameNonexistent, identifierTarget )
+	standardizedEqualTo(expectedExceptionType, importPathFilename2Identifier, pathFilenameNonexistent, identifierTarget)
 
 @pytest.mark.parametrize(
 	"pythonSourceTarget, identifierTarget, expectedExceptionType",
@@ -334,9 +334,9 @@ def testImportPathFilename2IdentifierWithValidFileInvalidIdentifier(
 
 	"""
 	pathFilenameModule: pathlib.Path = pathTmpTesting / f"moduleTest{hash(pythonSourceTarget) % 101}.py"  # Use prime number 101
-	pathFilenameModule.write_text(pythonSourceTarget)
+	pathFilenameModule.write_text(pythonSourceTarget, encoding="utf-8")
 
-	standardizedEqualTo( expectedExceptionType, importPathFilename2Identifier, pathFilenameModule, identifierTarget )
+	standardizedEqualTo(expectedExceptionType, importPathFilename2Identifier, pathFilenameModule, identifierTarget)
 
 @pytest.mark.parametrize(
 	"pythonSourceTarget, expectedFormattedContent",
@@ -562,4 +562,3 @@ def testWritePythonRemovesUnusedImports(pathTmpTesting: pathlib.Path, pythonSour
 		f"Expected content to NOT contain: {expectedNotContainsImport}\n"
 		f"Got content:\n{contentActual}"
 	)
-

@@ -2,9 +2,10 @@
 from __future__ import annotations
 
 from hunterMakesPy.theTypesCallableFunction import CallableFunction as CallableFunction
-from typing import Protocol, Self
+from typing import Protocol, TypeAlias
+from typing_extensions import Self, TypeVar
 
-type identifierDotAttribute = str
+identifierDotAttribute: TypeAlias = str
 """`str` (***str***ing) representing a dotted attribute identifier.
 
 `TypeAlias` for a `str` `object` using dot notation to access an attribute, such as 'scipy.signal.windows'.
@@ -20,3 +21,5 @@ class Ordinals(Protocol):
 	def __lt__(self: Self, otherSelfWhichIsNotAnOxymoron: Self, /) -> bool:
 		"""Comparison by "***l***ess ***t***han"."""
 		...
+
+小于 = TypeVar('小于', bound=Ordinals)

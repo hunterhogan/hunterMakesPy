@@ -171,11 +171,11 @@ def defineConcurrencyLimit(*, limit: bool | float | int | None, cpuTotal: int = 
 		- If the value of `CPUlimit` is a `float` greater than 1 or less than -1, the function truncates the value to an `int` with the same sign as the `float`.
 	```
 
-	"""
+	"""  # noqa: DOC501
 	concurrencyLimit: int = cpuTotal
 
 	if isinstance(limit, str):
-		limitFromString: bool | None | str = oopsieKwargsie(limit)
+		limitFromString: bool | str | None = oopsieKwargsie(limit)
 		if isinstance(limitFromString, str):
 			try:
 				limit = float(limitFromString)
@@ -249,7 +249,7 @@ def intInnit(listInt_Allegedly: Iterable[Any], parameterName: str | None = None,
 
 	# Be nice, and assume the input container is valid and every element is valid.
 	# Nevertheless, this is a "fail-early" step, so reject ambiguity and try to induce errors now that could be catastrophic later.
-	try:
+	try:  # noqa: PLW0717
 		iter(listInt_Allegedly)
 		lengthInitial: int | None = None
 		if isinstance(listInt_Allegedly, Sized):
@@ -260,9 +260,9 @@ def intInnit(listInt_Allegedly: Iterable[Any], parameterName: str | None = None,
 		for allegedInt in listInt_Allegedly:
 
 			errorMessageContext: ErrorMessageContext = ErrorMessageContext(
-				parameterValue = allegedInt,
-				parameterValueType = type(allegedInt).__name__,
-				isElement = True
+				parameterValue=allegedInt,
+				parameterValueType=type(allegedInt).__name__,
+				isElement=True
 			)
 
 			# Always rejected as ambiguous
@@ -324,7 +324,7 @@ def intInnit(listInt_Allegedly: Iterable[Any], parameterName: str | None = None,
 	else:
 		return listValidated
 
-def oopsieKwargsie(huh: Any) -> bool | None | str:
+def oopsieKwargsie(huh: Any) -> bool | str | None:
 	"""Interpret a `str` as `True`, `False`, or `None` to avoid an `Exception`.
 
 	If a calling function passes a `str` to a parameter that shouldn't receive a `str`, `oopsieKwargsie()` might help you avoid an

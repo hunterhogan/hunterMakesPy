@@ -31,7 +31,6 @@ References
 from __future__ import annotations
 
 from charset_normalizer import CharsetMatch
-from hunterMakesPy import Ordinals
 from types import FunctionType
 from typing import Any, cast, TYPE_CHECKING
 import charset_normalizer
@@ -41,11 +40,12 @@ import sys
 
 if TYPE_CHECKING:
 	from collections.abc import Iterator, Mapping
+	from hunterMakesPy import 小于
 	from numpy import integer
 	from numpy.typing import NDArray
 
 def removeExtraWhitespace(string: str) -> str:
-	"""Remove extra whitespace from string representation of Python data structures."""
+	"""Remove extra whitespace from string representation of Python data structures."""  # noqa: DOC201
 	commas: str = regex.sub(r',\s+', ',', string)
 	bracketsOpening: str = regex.sub(r'([\[\(])\s+', r'\1', commas)
 	# Remove spaces before closing brackets/parentheses.
@@ -83,7 +83,7 @@ def autoDecodingRLE(arrayTarget: NDArray[integer[Any]], *, assumeAddSpaces: bool
 	"""
 	def sliceNDArrayToNestedLists(arraySlice: NDArray[integer[Any]]) -> Any:
 		def getLengthOption(optionAsStr: str) -> int:
-			"""`assumeAddSpaces` characters: `,` 1 space; `]*` 2 spaces."""
+			"""`assumeAddSpaces` characters: `,` 1 space; `]*` 2 spaces."""  # noqa: DOC201
 			return assumeAddSpaces * (optionAsStr.count(',') + optionAsStr.count(']*') * 2) + len(optionAsStr)
 
 		if 1 < arraySlice.ndim:
@@ -160,20 +160,20 @@ def autoDecodingRLE(arrayTarget: NDArray[integer[Any]], *, assumeAddSpaces: bool
 	arrayAsStr: str = removeExtraWhitespace(str(arrayAsNestedLists))
 
 	patternRegex: regex.Pattern[str] = regex.compile(
-		"(?<!rang)(?:"
+		r"(?<!rang)(?:"
 		# Pattern 1: Comma ahead, bracket behind
-		"(?P<joinAhead>,)\\((?P<malkovich>\\d+),(?P<multiply>\\d+)\\)(?P<bracketBehind>])|"
+		r"(?P<joinAhead>,)\((?P<malkovich>\d+),(?P<multiply>\d+)\)(?P<bracketBehind>])|"
 		# Pattern 2: Bracket or start ahead, comma behind
-		"(?P<bracketOrStartAhead>\\[|^.)\\((?P<malkovichMalkovich>\\d+),(?P<multiplyIDK>\\d+)\\)(?P<joinBehind>,)|"
+		r"(?P<bracketOrStartAhead>\[|^.)\((?P<malkovichMalkovich>\d+),(?P<multiplyIDK>\d+)\)(?P<joinBehind>,)|"
 		# Pattern 3: Bracket ahead, bracket behind
-		"(?P<bracketAhead>\\[)\\((?P<malkovichMalkovichMalkovich>\\d+),(?P<multiply_whatever>\\d+)\\)(?P<bracketBehindBracketBehind>])|"
+		r"(?P<bracketAhead>\[)\((?P<malkovichMalkovichMalkovich>\d+),(?P<multiply_whatever>\d+)\)(?P<bracketBehindBracketBehind>])|"
 		# Pattern 4: Comma ahead, comma behind
-		"(?P<joinAheadJoinAhead>,)\\((?P<malkovichMalkovichMalkovichMalkovich>\\d+),(?P<multiplyOrSomething>\\d+)\\)(?P<joinBehindJoinBehind>,)"
-		")"
+		r"(?P<joinAheadJoinAhead>,)\((?P<malkovichMalkovichMalkovichMalkovich>\d+),(?P<multiplyOrSomething>\d+)\)(?P<joinBehindJoinBehind>,)"
+		r")"
 	)
 
 	def replacementByContext(match: regex.Match[str]) -> str:
-		"""Generate replacement string based on context patterns."""
+		"""Generate replacement string based on context patterns."""  # noqa: DOC201
 		elephino: dict[str, str | None] = match.groupdict()
 		joinAhead: str | None = elephino.get('joinAhead') or elephino.get('joinAheadJoinAhead')
 		malkovich: str | None = elephino.get('malkovich') or elephino.get('malkovichMalkovich') or elephino.get('malkovichMalkovichMalkovich') or elephino.get('malkovichMalkovichMalkovichMalkovich')
@@ -232,14 +232,14 @@ def stringItUp(*scrapPile: Any) -> list[str]:
 				drill(broken)
 				drill(piece)
 		elif isinstance(KitKat, (list, tuple, set, frozenset, range)):
-			for kit in KitKat: # pyright: ignore[reportUnknownVariableType]
+			for kit in KitKat:  # pyright: ignore[reportUnknownVariableType]
 				drill(kit)
 		elif hasattr(KitKat, '__iter__'):  # Unpack other iterables
 			for kat in KitKat:
 				drill(kat)
 		else:
 			try:
-				sharingIsCaring: str = KitKat.__str__()
+				sharingIsCaring: str = KitKat.__str__()  # noqa: PLC2801
 				listStrungUp.append(sharingIsCaring)
 			except AttributeError:
 				pass
@@ -256,7 +256,7 @@ def stringItUp(*scrapPile: Any) -> list[str]:
 		listStrungUp.append(repr(scrap))
 	return listStrungUp
 
-def updateExtendPolishDictionaryLists[小于: Ordinals](*dictionaryLists: Mapping[str, list[小于] | set[小于] | tuple[小于, ...]], destroyDuplicates: bool = False, reorderLists: bool = False, killErroneousDataTypes: bool = False) -> dict[str, list[小于]]:
+def updateExtendPolishDictionaryLists(*dictionaryLists: Mapping[str, list[小于] | set[小于] | tuple[小于, ...]], destroyDuplicates: bool = False, reorderLists: bool = False, killErroneousDataTypes: bool = False) -> dict[str, list[小于]]:
 	"""Merge multiple dictionaries with `list` values into a single dictionary with the `list` values merged.
 
 	Plus options to destroy duplicates, sort `list` values, and handle erroneous data types.
@@ -288,7 +288,7 @@ def updateExtendPolishDictionaryLists[小于: Ordinals](*dictionaryLists: Mappin
 	types will not be preserved. That could have unexpected consequences. Conversion from the
 	original data type to a `list`, for example, may not preserve the order even if you want the
 	order to be preserved.
-	"""
+	"""  # noqa: DOC501
 	ePluribusUnum: dict[str, list[小于]] = {}
 
 	for dictionaryListTarget in dictionaryLists:
@@ -297,7 +297,7 @@ def updateExtendPolishDictionaryLists[小于: Ordinals](*dictionaryLists: Mappin
 				ImaStr = str(keyName)
 				ImaList: list[小于] = list(keyValue)
 				ePluribusUnum.setdefault(ImaStr, []).extend(ImaList)
-			except TypeError:
+			except TypeError:  # noqa: PERF203
 				if killErroneousDataTypes:
 					continue
 				else:

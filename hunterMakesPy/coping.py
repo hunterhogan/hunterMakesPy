@@ -3,22 +3,23 @@ from __future__ import annotations
 
 from importlib.util import find_spec
 from pathlib import Path
-from tomllib import loads as tomllib_loads
+from tomli import loads as tomli_loads
 from typing import TYPE_CHECKING
+from typing_extensions import TypeVar
 import dataclasses
 
 if TYPE_CHECKING:
 	from importlib.machinery import ModuleSpec
 
 def getIdentifierPackagePACKAGING(identifierPackageFALLBACK: str) -> str:
-	"""Get package name from pyproject.toml or fallback to provided value."""
+	"""Get package name from pyproject.toml or fallback to provided value."""  # noqa: DOC201
 	try:
-		return tomllib_loads(Path('pyproject.toml').read_text(encoding='utf-8'))['project']['name']
+		return tomli_loads(Path('pyproject.toml').read_text(encoding='utf-8'))['project']['name']
 	except Exception:  # noqa: BLE001
 		return identifierPackageFALLBACK
 
 def getPathPackageINSTALLING(identifierPackage: str) -> Path:
-	"""Return the root directory of the installed package."""
+	"""Return the root directory of the installed package."""  # noqa: DOC201
 	try:
 		moduleSpecification: ModuleSpec | None = find_spec(identifierPackage)
 		if moduleSpecification and moduleSpecification.origin:
@@ -85,7 +86,9 @@ class PackageSettings:
 		if self.pathPackage == Path() and self.identifierPackage:
 			self.pathPackage = getPathPackageINSTALLING(self.identifierPackage)
 
-def raiseIfNone[TypeSansNone](expression: TypeSansNone | None, errorMessage: str | None = None) -> TypeSansNone:
+TypeSansNone = TypeVar('TypeSansNone')
+
+def raiseIfNone(expression: TypeSansNone | None, errorMessage: str | None = None) -> TypeSansNone:
 	"""Convert the `expression` return annotation from '`cerPytainty | None`' to '`cerPytainty`' because `expression` cannot be `None`; `raise` an `Exception` if you're wrong.
 
 	The Python interpreter evaluates `expression` to a value: think of a function call or an attribute access. You can use

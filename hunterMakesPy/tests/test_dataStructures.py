@@ -17,6 +17,7 @@ from hunterMakesPy.tests.dataSamples.rle import AUTO_DECODING_RLE_CASES
 from typing import Any, TYPE_CHECKING
 import datetime
 import librosa.filters
+import math
 import numpy
 import pytest
 
@@ -48,7 +49,7 @@ class CustomIterable:
 	("None value", [None], ['None']),
 	# Numbers and numeric types
 	("Fibonacci floats", [2.584, -4.236, 6.854], ['2.584', '-4.236', '6.854']),
-	("Complex with primes", [complex(11,0), complex(13,0)], ['(11+0j)', '(13+0j)']),
+	("Complex with primes", [complex(11, 0), complex(13, 0)], ['(11+0j)', '(13+0j)']),
 	("Decimal and Fraction", [Decimal('3.141'), Fraction(89, 55)], ['3.141', '89/55']),
 	("NumPy primes", numpy.array([11, 13, 17]), ['11', '13', '17']),
 	# Temporal types with meaningful dates
@@ -60,7 +61,7 @@ class CustomIterable:
 	("Custom bytearray", [bytearray(b"DEADBEEF")], ["bytearray(b'DEADBEEF')"]),
 	("Memory view decoded", memoryview(b"DEADBEEF"), ["DEADBEEF"]),
 	# Nested structures with unique values
-	("Nested dictionary", {'phi': 1.618, 'euler': 2.718}, ['phi', '1.618', 'euler', '2.718']),
+	("Nested dictionary", {'phi': 1.618, 'euler': math.e}, ['phi', '1.618', 'euler', '2.718']),
 	("Mixed nesting", [{'NE': 37}, {'SW': 41}], ['NE', '37', 'SW', '41']),
 	("Tuples and lists", [(13, 17), [19, 23]], ['13', '17', '19', '23']),
 	("Sets and frozensets", [{37, 41}, frozenset([43, 47])], ['41', '37', '43', '47']),
@@ -83,7 +84,7 @@ class CustomIterable:
 	# Weird stuff
 	("Bad __str__", type('BadStr', (), {'__str__': lambda x: None})(), [None]),
 	# Error cases
-	("Raising __str__", type('RaisingStr', (), {'__str__': lambda x: 1/0})(), ZeroDivisionError),
+	("Raising __str__", type('RaisingStr', (), {'__str__': lambda x: 1 / 0})(), ZeroDivisionError),
 ], ids=lambda x: x if isinstance(x, str) else "")
 def test_stringItUp(description: str, value_scrapPile: list[Any], expected: list[str] | type[Exception]) -> None:
 	"""Test stringItUp with various inputs.
@@ -101,7 +102,7 @@ def test_stringItUp(description: str, value_scrapPile: list[Any], expected: list
 	standardizedEqualTo(expected, stringItUp, value_scrapPile)
 
 @pytest.mark.parametrize("description,value_dictionaryLists,keywordArguments,expected", [
-	("Mixed value types", ({'ne': [11, 'prime'], 'sw': [True, None]}, {'ne': [3.141, 'golden'], 'sw': [False, 'void']}), {'destroyDuplicates': False, 'reorderLists': False}, {'ne': [11, 'prime', 3.141, 'golden'], 'sw': [True, None, False, 'void']}),
+	("Mixed value types", ({'ne': [11, 'prime'], 'sw': [True, None]}, {'ne': [math.pi, 'golden'], 'sw': [False, 'void']}), {'destroyDuplicates': False, 'reorderLists': False}, {'ne': [11, 'prime', math.pi, 'golden'], 'sw': [True, None, False, 'void']}),
 	("Empty dictionaries", (dict[str, list[Any]](), dict[str, list[Any]]()), dict[str, Any](), dict[str, list[Any]]()),
 	("Tuple values", ({'ne': (11, 13), 'sw': (17,)}, {'ne': (19, 23, 13, 29, 11), 'sw': (31, 17, 37)}), {'destroyDuplicates': False, 'reorderLists': False}, {'ne': [11, 13, 19, 23, 13, 29, 11], 'sw': [17, 31, 17, 37]}),
 	("Set values", ({'ne': {11, 13}, 'sw': {17}}, {'ne': {19, 23, 13, 29, 11}, 'sw': {31, 17, 37}}), {'destroyDuplicates': True, 'reorderLists': True}, {'ne': [11, 13, 19, 23, 29], 'sw': [17, 31, 37]}),
