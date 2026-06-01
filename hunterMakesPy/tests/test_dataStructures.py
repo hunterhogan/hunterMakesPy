@@ -61,7 +61,7 @@ class CustomIterable:
 	("Custom bytearray", [bytearray(b"DEADBEEF")], ["bytearray(b'DEADBEEF')"]),
 	("Memory view decoded", memoryview(b"DEADBEEF"), ["DEADBEEF"]),
 	# Nested structures with unique values
-	("Nested dictionary", {'phi': 1.618, 'euler': math.e}, ['phi', '1.618', 'euler', '2.718']),
+	("Nested dictionary", {'phi': 1.618, 'euler': math.e}, ['phi', '1.618', 'euler', '2.718281828459045']),
 	("Mixed nesting", [{'NE': 37}, {'SW': 41}], ['NE', '37', 'SW', '41']),
 	("Tuples and lists", [(13, 17), [19, 23]], ['13', '17', '19', '23']),
 	("Sets and frozensets", [{37, 41}, frozenset([43, 47])], ['41', '37', '43', '47']),
