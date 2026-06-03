@@ -211,7 +211,7 @@ def testPackageSettingsDefaultValues() -> None:
 	)
 
 	# identifierPackage should be empty when no fallback provided
-	assert packageSettings.identifierPackage == '', uniformTestFailureMessage(
+	assert not packageSettings.identifierPackage, uniformTestFailureMessage(
 		'', packageSettings.identifierPackage, "PackageSettings default identifierPackage"
 	)
 

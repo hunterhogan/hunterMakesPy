@@ -116,12 +116,6 @@ def testOrdinalsBetweenWorksForInt(floor: int, ceiling: int, comparand: int, exp
 		Value of `comparand` compared against the bounds.
 	expected : bool
 		Expected outcome from `between`.
-
-	Returns
-	-------
-	unusedReturnValue : None
-		Returns `None`.
-
 	"""
 	actual: bool = between(floor, ceiling, comparand)
 	assert actual == expected, uniformTestFailureMessage(expected, actual, 'between', floor, ceiling, comparand)
@@ -141,12 +135,6 @@ def testOrdinalsSortingWorksForInt(values: list[int], expected: list[int]) -> No
 		Input `values` to sort.
 	expected : list[int]
 		Expected sorted output for `values`.
-
-	Returns
-	-------
-	unusedReturnValue : None
-		Returns `None`.
-
 	"""
 	actual: list[int] = sorted(values)
 	assert actual == expected, uniformTestFailureMessage(expected, actual, 'sorted', values)
@@ -170,12 +158,6 @@ def testOrdinalsBetweenWorksForStr(floor: str, ceiling: str, comparand: str, exp
 		Value of `comparand` compared against the bounds.
 	expected : bool
 		Expected outcome from `between`.
-
-	Returns
-	-------
-	unusedReturnValue : None
-		Returns `None`.
-
 	"""
 	actual: bool = between(floor, ceiling, comparand)
 	assert actual == expected, uniformTestFailureMessage(expected, actual, 'between', floor, ceiling, comparand)
@@ -195,12 +177,6 @@ def testOrdinalsSortingWorksForStr(values: list[str], expected: list[str]) -> No
 		Input `values` to sort.
 	expected : list[str]
 		Expected sorted output for `values`.
-
-	Returns
-	-------
-	unusedReturnValue : None
-		Returns `None`.
-
 	"""
 	actual: list[str] = sorted(values)
 	assert actual == expected, uniformTestFailureMessage(expected, actual, 'sorted', values)
@@ -224,12 +200,6 @@ def testOrdinalsBetweenWorksForTuple(floor: tuple[int, int], ceiling: tuple[int,
 		Value of `comparand` compared against the bounds.
 	expected : bool
 		Expected outcome from `between`.
-
-	Returns
-	-------
-	unusedReturnValue : None
-		Returns `None`.
-
 	"""
 	actual: bool = between(floor, ceiling, comparand)
 	assert actual == expected, uniformTestFailureMessage(expected, actual, 'between', floor, ceiling, comparand)
@@ -246,12 +216,6 @@ def testOrdinalsSortingWorksForTuple(values: list[tuple[int, int]], expected: li
 		Input `values` to sort.
 	expected : list[tuple[int, int]]
 		Expected sorted output for `values`.
-
-	Returns
-	-------
-	unusedReturnValue : None
-		Returns `None`.
-
 	"""
 	actual: list[tuple[int, int]] = sorted(values)
 	assert actual == expected, uniformTestFailureMessage(expected, actual, 'sorted', values)
@@ -278,46 +242,6 @@ def testOrdinalsBetweenWorksForCustomComparable(floor: ComparableCardinal, ceili
 		Value of `comparand` compared against the bounds.
 	expected : bool
 		Expected outcome from `between`.
-
-	Returns
-	-------
-	unusedReturnValue : None
-		Returns `None`.
-
 	"""
 	actual: bool = between(floor, ceiling, comparand)
 	assert actual == expected, uniformTestFailureMessage(expected, actual, 'between', floor, ceiling, comparand)
-
-# TODO validation data must be static.
-# @pytest.mark.parametrize( 'comparisonMethodName' , [ '__le__' , '__lt__' ] )
-# def testOrdinalsComparisonMethodsAcceptOtherOperand(comparisonMethodName: str) -> None:
-# 	"""Validate `Ordinals` comparison method signatures.
-
-# 	(AI generated docstring)
-
-# 	Parameters
-# 	----------
-# 	comparisonMethodName : str
-# 		Name of the `Ordinals` comparison method to inspect.
-
-# 	Returns
-# 	-------
-# 	unusedReturnValue : None
-# 		Returns `None`.
-
-# 	"""
-# 	comparisonMethod: Callable[[Ordinals, Ordinals], bool] = getattr(Ordinals, comparisonMethodName)
-# 	signature: inspect.Signature = inspect.signature(comparisonMethod)
-# 	listParameters: list[inspect.Parameter] = list(signature.parameters.values())
-
-# 	assert len(listParameters) == 2, uniformTestFailureMessage(
-# 		2 , len(listParameters) , 'Ordinals comparison parameter count' , comparisonMethodName , signature )
-
-# 	listKinds: list[inspect._ParameterKind] = [parameter.kind for parameter in listParameters]
-# 	expectedKinds: list[inspect._ParameterKind] = [inspect.Parameter.POSITIONAL_ONLY, inspect.Parameter.POSITIONAL_ONLY]
-# 	assert listKinds == expectedKinds, uniformTestFailureMessage(
-# 		expectedKinds , listKinds , 'Ordinals comparison parameter kinds' , comparisonMethodName , signature )
-
-# 	actualReturnAnnotation: object = signature.return_annotation
-# 	assert actualReturnAnnotation is bool, uniformTestFailureMessage(
-# 		bool , actualReturnAnnotation , 'Ordinals comparison return annotation' , comparisonMethodName , signature )

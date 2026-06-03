@@ -8,6 +8,7 @@ and string-based boolean parsing.
 """
 from __future__ import annotations
 
+from collections import UserList
 # pyright: standard
 from hunterMakesPy.parseParameters import defineConcurrencyLimit, intInnit, oopsieKwargsie
 from typing import Any, NoReturn, ParamSpec, TYPE_CHECKING, TypeVar
@@ -230,7 +231,7 @@ def PytestFor_intInnit(callableToTest: Callable[[Iterable[Any], str | None, type
 				callableToTest(inputData, 'test', None)
 
 	def testRejectsMutableSequence() -> None:
-		class MutableList(list[int]):
+		class MutableList(UserList[int]):
 			def __iter__(self) -> Iterator[int]:
 				self.append(89)
 				return super().__iter__()

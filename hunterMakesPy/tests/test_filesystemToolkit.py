@@ -149,7 +149,7 @@ def testMakeDirsSafelyCreatesNestedDirectories(pathTmpTesting: pathlib.Path, lis
 	"""
 	pathDirectoryNested: pathlib.Path = pathTmpTesting
 	for directoryComponent in listDirectoryComponents:
-		pathDirectoryNested = pathDirectoryNested / directoryComponent
+		pathDirectoryNested /= directoryComponent
 
 	pathFilenameTarget: pathlib.Path = pathDirectoryNested / filenameTarget
 	makeDirectorySafely(pathFilenameTarget)
@@ -208,7 +208,7 @@ def testWriteStringToHereCreatesFileAndDirectories(pathTmpTesting: pathlib.Path,
 	"""
 	pathDirectoryNested: pathlib.Path = pathTmpTesting
 	for directoryComponent in listDirectoryComponents:
-		pathDirectoryNested = pathDirectoryNested / directoryComponent
+		pathDirectoryNested /= directoryComponent
 
 	pathFilenameTarget: pathlib.Path = pathDirectoryNested / filenameTarget
 	writeStringToHere(contentTarget, pathFilenameTarget)

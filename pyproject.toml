@@ -1,32 +1,22 @@
 [project]
 name = "hunterMakesPy"
-version = "0.6.0"
+version = "0.7.0"
 description = "Easy Python functions making making functional Python functions easier."
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.10"
 license = "CC-BY-NC-4.0"
 authors = [{ name = "Hunter Hogan", email = "HunterHogan@pm.me" }]
 keywords = [
   "attribute loading",
-  "concurrency limit",
   "configuration",
-  "cytoolz",
   "defensive programming",
   "dictionary merging",
-  "directory creation",
   "dynamic import",
-  "error propagation",
   "file system utilities",
   "input validation",
-  "integer parsing",
   "module loading",
-  "nested data structures",
   "package settings",
   "parameter validation",
-  "pytest",
-  "string extraction",
-  "test utilities",
-  "toolz",
 ]
 classifiers = [
   "Development Status :: 5 - Production/Stable",
@@ -38,11 +28,8 @@ classifiers = [
   "Natural Language :: English",
   "Operating System :: OS Independent",
   "Programming Language :: Python",
-  "Programming Language :: Python :: 3",
-  "Programming Language :: Python :: 3.12",
-  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.14",
-  "Programming Language :: Python :: Implementation :: CPython",
   "Topic :: Software Development :: Libraries :: Python Modules",
   "Topic :: Utilities",
   "Typing :: Typed",
@@ -56,15 +43,9 @@ dependencies = [
   "tomli",
   "typing_extensions>=4.10.0"
 ]
-optional-dependencies = { development = [
-  "astToolkit",
-  "setuptools>=62.3",
-  "pytest-cov",
-], testing = [
-  "cython",
+optional-dependencies = { development = ["pytest-cov"], testing = [
   "librosa",
   "pytest",
-  "pytest-xdist",
 ] }
 
 [project.urls]
@@ -75,69 +56,23 @@ Issues = "https://github.com/hunterhogan/hunterMakesPy/issues"
 Repository = "https://github.com/hunterhogan/hunterMakesPy"
 
 [build-system]
-requires = [
-  "cython",
-  "setuptools>=62.3",
-]
+requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
 [tool.coverage]
-report = { exclude_lines = [
-  "if TYPE_CHECKING:",
-  "if __name__ == \"__main__\":",
-], ignore_errors = false }
-run = { branch = true, concurrency = [
-  "multiprocessing",
-], data_file = "tests/coverage/.coverage", omit = [
-  "tests/*",
-  "hunterMakesPy/assimilate/*",
-  "hunterMakesPy/tests/*",
-  "humpy_toolz/sandbox/tests",
-  "humpy_toolz/tests",
-  "humpy_cytoolz/tests",
-], parallel = true, source = [
-  ".",
-] }
+report = { exclude_lines = ["if TYPE_CHECKING:", "if __name__ == \"__main__\":"], ignore_errors = false }
+run = { branch = true, data_file = "hunterMakesPy/tests/coverage/.coverage", omit = [
+  "hunterMakesPy/tests/*"
+], source = ["."] }
 
 [tool.pytest]
 addopts = ["--color=auto"]
 log_auto_indent = "On"
-testpaths = [
-  "humpy_cytoolz/tests",
-  "humpy_toolz/sandbox/tests",
-  "humpy_toolz/tests",
-  "hunterMakesPy/tests",
-]
+testpaths = ["hunterMakesPy/tests"]
 
 [tool.setuptools]
-ext-modules = [
-  { name = "humpy_cytoolz.dicttoolz", sources = ["humpy_cytoolz/dicttoolz.pyx"] },
-  { name = "humpy_cytoolz.functoolz", sources = ["humpy_cytoolz/functoolz.pyx"] },
-  { name = "humpy_cytoolz.itertoolz", sources = ["humpy_cytoolz/itertoolz.pyx"] },
-  { name = "humpy_cytoolz.recipes", sources = ["humpy_cytoolz/recipes.pyx"] },
-  { name = "humpy_cytoolz.utils", sources = ["humpy_cytoolz/utils.pyx"] },
-]
-package-data = { "*" = [
-  "*.c",
-  "*.pxd",
-  "*.pyi",
-  "*.pyx",
-  "py.typed",
-  "Notice_of_Copyright.txt"
-] }
-packages = [
-  "humpy_cytoolz.curried",
-  "humpy_cytoolz.tests",
-  "humpy_cytoolz",
-  "humpy_tlz",
-  "humpy_toolz",
-  "humpy_toolz.curried",
-  "humpy_toolz.sandbox.tests",
-  "humpy_toolz.sandbox",
-  "humpy_toolz.tests",
-  "hunterMakesPy",
-  "hunterMakesPy.tests",
-]
+package-data = { "*" = ["py.typed"] }
+packages = ["hunterMakesPy", "hunterMakesPy.tests"]
 
 [tool.updateCitation]
 filenameCitationDOTcff = "CITATION.cff"

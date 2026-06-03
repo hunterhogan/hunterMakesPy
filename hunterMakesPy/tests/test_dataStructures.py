@@ -147,11 +147,11 @@ def test_updateExtendPolishDictionaryLists(description: str, value_dictionaryLis
 	],
 )
 def test_autoDecodingRLE(
-	description: str,
-	arrayExpression: str,
-	expectedWithoutSpaces: str,
-	expectedWithSpaces: str,
-	assumeAddSpaces: bool,
+	description: str
+	, arrayExpression: str
+	, expectedWithoutSpaces: str
+	, expectedWithSpaces: str
+	, assumeAddSpaces: bool
 ) -> None:
 	"""Verify exact output, structural properties, and roundtrip decoding for all RLE cases."""
 	expected: str = expectedWithSpaces if assumeAddSpaces else expectedWithoutSpaces
@@ -169,12 +169,8 @@ def test_autoDecodingRLE(
 	assert isinstance(resultRLE, str), (
 		f"autoDecodingRLE returned {type(resultRLE).__name__}, expected str for {description=} and {assumeAddSpaces=}."
 	)
-	assert "[" in resultRLE, (
-		f"autoDecodingRLE returned {resultRLE!r}, expected '[' in output for {description=} and {assumeAddSpaces=}."
-	)
-	assert "]" in resultRLE, (
-		f"autoDecodingRLE returned {resultRLE!r}, expected ']' in output for {description=} and {assumeAddSpaces=}."
-	)
+	assert "[" in resultRLE, (f"autoDecodingRLE returned {resultRLE!r}, expected '[' in output for {description=} and {assumeAddSpaces=}.")
+	assert "]" in resultRLE, (f"autoDecodingRLE returned {resultRLE!r}, expected ']' in output for {description=} and {assumeAddSpaces=}.")
 
 	rawStrLength: int = len(str(value_arrayTarget.tolist()))
 	encodedLength: int = len(resultRLE)
@@ -182,17 +178,14 @@ def test_autoDecodingRLE(
 		f"autoDecodingRLE produced length {encodedLength}, expected <= {rawStrLength} for {description=} and {assumeAddSpaces=}."
 	)
 
-	assert resultRLE == expected, (
-		f"autoDecodingRLE returned {resultRLE!r}, expected {expected!r} for {description=} and {assumeAddSpaces=}."
-	)
+	assert resultRLE == expected, (f"autoDecodingRLE made {resultRLE!r}, expected {expected!r} for {description=} and {assumeAddSpaces=}.")
 
 	decodedData = eval(resultRLE)  # noqa: S307
 	reconstructedArray: NDArray[numpy.integer[Any]] = numpy.array(decodedData)
 	numpy.testing.assert_array_equal(
-		reconstructedArray,
-		value_arrayTarget,
-		err_msg=(
+		reconstructedArray
+		, value_arrayTarget
+		, err_msg=(
 			f"autoDecodingRLE roundtrip produced {reconstructedArray.tolist()}, "
 			f"expected {value_arrayTarget.tolist()} for {description=} and {assumeAddSpaces=}."
-		),
-	)
+	))
