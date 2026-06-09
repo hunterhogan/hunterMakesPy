@@ -37,12 +37,14 @@ from __future__ import annotations
 
 from collections.abc import Iterable, Sized
 from dataclasses import dataclass
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING
 import charset_normalizer
 import multiprocessing
+import sys
 
 if TYPE_CHECKING:
 	from charset_normalizer.models import CharsetMatch
+	from typing import Any
 
 @dataclass
 class ErrorMessageContext:
@@ -114,13 +116,6 @@ def _constructErrorMessage(context: ErrorMessageContext, parameterName: str, par
 
 	return "".join(messageParts)
 
-# TODO Should I change the function because "On Windows, max_workers must be less than or equal to 61."?
-# https://docs.python.org/3/library/concurrent.futures.html#concurrent.futures.ProcessPoolExecutor
-# autoflake
-#         if sys.platform == "win32":
-#			 # Work around https://bugs.python.org/issue26903
-#			 worker_count = min(worker_count, 60)  # noqa: ERA001
-
 def defineConcurrencyLimit(*, limit: bool | float | int | None, cpuTotal: int = multiprocessing.cpu_count()) -> int:
 	"""Determine the concurrency limit based on the provided parameter.
 
@@ -177,8 +172,6 @@ def defineConcurrencyLimit(*, limit: bool | float | int | None, cpuTotal: int = 
 	```
 
 	"""  # noqa: DOC501
-	concurrencyLimit: int = cpuTotal
-
 	if isinstance(limit, str):
 		limitFromString: bool | str | None = oopsieKwargsie(limit)
 		if isinstance(limitFromString, str):
@@ -191,7 +184,9 @@ def defineConcurrencyLimit(*, limit: bool | float | int | None, cpuTotal: int = 
 			limit = limitFromString
 	if isinstance(limit, float) and 1 <= abs(limit):
 		limit = round(limit)
-	if limit is None or limit is False or limit == 0:
+
+	concurrencyLimit: int = cpuTotal
+	if (limit is None) or (limit is False) or (limit == 0):
 		pass
 	elif limit is True:
 		concurrencyLimit = 1
@@ -204,6 +199,9 @@ def defineConcurrencyLimit(*, limit: bool | float | int | None, cpuTotal: int = 
 	elif limit <= -1:
 		concurrencyLimit = cpuTotal - abs(int(limit))
 
+	# https://docs.python.org/3/library/concurrent.futures.html#concurrent.futures.ProcessPoolExecutor
+	if sys.platform == "win32":
+		concurrencyLimit = min(concurrencyLimit, 61)
 	return max(int(concurrencyLimit), 1)
 
 # ruff: noqa: TRY301

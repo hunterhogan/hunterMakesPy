@@ -1,38 +1,24 @@
 """Manipulate data structures with encoding, extraction, and merging utilities.
 
-(AI generated docstring)
-
-You can use this module to transform NumPy arrays [1] into compact run-length encoded
-strings, extract strings from arbitrarily nested data structures, and merge multiple
-dictionaries with list values. The module provides specialized utilities for working with
-Cartesian mappings, heterogeneous nested data, and dictionary consolidation operations.
-
-The run-length encoding function produces self-decoding string representations optimized for
-large arrays with repetitive patterns. The string extraction function recursively traverses
-nested structures to collect all convertible string values. The dictionary merging function
-consolidates multiple dictionaries while offering optional deduplication and sorting.
+You can use this module to transform arrays (in the general sense) into compact run-length encoded
+strings, extract strings from arbitrarily nested data structures, or merge dictionaries of lists.
 
 Contents
 --------
 Functions
 	autoDecodingRLE
-		Transform a NumPy array into a compact, self-decoding run-length encoded string representation.
+		Transform a NumPy array into a compact, self-decoding run-length encoded string
+		representation.
 	stringItUp
 		Convert every element in input data structures to strings.
 	updateExtendPolishDictionaryLists
 		Merge multiple dictionaries with list values into a single dictionary.
-
-References
-----------
-[1] NumPy - Context7
-	https://numpy.org/doc/stable/reference/index.html
-
 """
 from __future__ import annotations
 
 from charset_normalizer import CharsetMatch
 from types import FunctionType
-from typing import Any, cast, TYPE_CHECKING
+from typing import cast, TYPE_CHECKING
 import charset_normalizer
 import more_itertools
 import re as regex
@@ -43,24 +29,23 @@ if TYPE_CHECKING:
 	from hunterMakesPy import 小于
 	from numpy import integer
 	from numpy.typing import NDArray
+	from typing import Any
 
 def removeExtraWhitespace(string: str) -> str:
 	"""Remove extra whitespace from string representation of Python data structures."""  # noqa: DOC201
 	commas: str = regex.sub(r',\s+', ',', string)
 	bracketsOpening: str = regex.sub(r'([\[\(])\s+', r'\1', commas)
-	# Remove spaces before closing brackets/parentheses.
 	return regex.sub(r'\s+([\]\)])', r'\1', bracketsOpening)
 
 def autoDecodingRLE(arrayTarget: NDArray[integer[Any]], *, assumeAddSpaces: bool = False) -> str:
 	"""Transform a NumPy array into a compact, self-decoding run-length encoded string representation.
 
 	Use this function to convert a NumPy array into a string that, when evaluated as Python code,
-	creates a list or nested lists representing the original array structure, and if used as an
-	argument to `numpy.array()`, will recreate the original array structure. The RLE (Run-Length
-	Encoding) string does _not_ need a special decoder function: it is already native Python syntax.
-	The function employs two encoding strategies:
-	1. Python `range` syntax for consecutive integer sequences.
-	2. Multiplication syntax for repeated elements.
+	creates a list or nested lists representing the original array structure. You can create a NumPy
+	array, torch Tensor, or other array-like object with the auto-decoded list of lists. The RLE
+	(Run-Length Encoding) string does _not_ need a decoder function: it is native Python syntax. The
+	function employs two encoding strategies: 1. Python `range` syntax for consecutive integer
+	sequences. 2. Multiplication syntax for repeated elements.
 
 	The resulting string representation is merely minified Python code, so it is space-efficient and,
 	hypothetically, human-readable.
@@ -71,9 +56,8 @@ def autoDecodingRLE(arrayTarget: NDArray[integer[Any]], *, assumeAddSpaces: bool
 		The NumPy array to be encoded.
 	assumeAddSpaces : bool = False
 		Affects internal length comparison during compression decisions. This parameter doesn't
-		directly change output format but influences whether `range` or multiplication syntax is
-		preferred in certain cases. The parameter exists because `ast.unparse()` (Abstract Syntax
-		Tree) inserts spaces in the RLE string.
+		directly change the output: instead, use it to assume that something else will add spaces,
+		such as `ast.unparse()` (Abstract Syntax Tree) or a Python formatter.
 
 	Returns
 	-------
@@ -207,7 +191,6 @@ def stringItUp(*scrapPile: Any) -> list[str]:
 	-------
 	listStrungUp : list[str]
 		(list2strung2up) A `list` of string versions of all convertible elements.
-
 	"""
 	scrap: Any = None
 	listStrungUp: list[str] = []
@@ -283,7 +266,7 @@ def updateExtendPolishDictionaryLists(*dictionaryLists: Mapping[str, list[小于
 	Notes
 	-----
 	The returned value, `ePluribusUnum`, is a so-called primitive dictionary (`dict`). Furthermore,
-	every dictionary key is a so-called primitive string (*cf.* `str()`) and every dictionary value
+	every dictionary key is a so-called primitive string (_cf._ `str()`) and every dictionary value
 	is a so-called primitive `list` (`list`). If `dictionaryLists` has other data types, the data
 	types will not be preserved. That could have unexpected consequences. Conversion from the
 	original data type to a `list`, for example, may not preserve the order even if you want the
