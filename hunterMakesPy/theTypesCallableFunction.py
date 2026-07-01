@@ -2,12 +2,13 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from typing import Any, overload, ParamSpec, Protocol, runtime_checkable, TYPE_CHECKING, TypeAlias, TypeVar
-from typing_extensions import Self, TypeVarTuple
+from typing import Any, overload, ParamSpec, Protocol, runtime_checkable, TYPE_CHECKING, TypeVar
 import sys
 
 if TYPE_CHECKING:
 	from types import CodeType, MethodType
+	from typing import TypeAlias
+	from typing_extensions import Self, TypeVarTuple
 
 # TODO explore the following
 """

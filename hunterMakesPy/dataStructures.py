@@ -17,8 +17,11 @@ Functions
 from __future__ import annotations
 
 from charset_normalizer import CharsetMatch
+from collections.abc import Hashable
+from humpy_cytoolz.dicttoolz import valmap
+from humpy_cytoolz.functoolz import compose
 from types import FunctionType
-from typing import cast, TYPE_CHECKING
+from typing import cast, TYPE_CHECKING, TypeVar
 import charset_normalizer
 import more_itertools
 import re as regex
@@ -173,7 +176,7 @@ def autoDecodingRLE(arrayTarget: NDArray[integer[Any]], *, assumeAddSpaces: bool
 	arrayAsStr = patternRegex.sub(replacementByContext, arrayAsStr)
 	arrayAsStr = patternRegex.sub(replacementByContext, arrayAsStr)
 
-	# Replace `range(0,stop)` syntax with `range(stop)` syntax.
+	# .replace `range(0,stop)` syntax with `range(stop)` syntax.
 	# Add unpack operator `*` for automatic decoding when evaluated.
 	return arrayAsStr.replace('range(0,', 'range(').replace('range', '*range')
 
@@ -239,14 +242,17 @@ def stringItUp(*scrapPile: Any) -> list[str]:
 		listStrungUp.append(repr(scrap))
 	return listStrungUp
 
-def updateExtendPolishDictionaryLists(*dictionaryLists: Mapping[str, list[小于] | set[小于] | tuple[小于, ...]], destroyDuplicates: bool = False, reorderLists: bool = False, killErroneousDataTypes: bool = False) -> dict[str, list[小于]]:
+文件 = TypeVar('文件', bound=Hashable)
+
+# TODO if `reorderLists: bool = False`, the elements do not need to be ordinals, and they should be covariant.
+def updateExtendPolishDictionaryLists(*dictionaryLists: Mapping[文件, list[小于] | set[小于] | tuple[小于, ...]], destroyDuplicates: bool = False, reorderLists: bool = False, killErroneousDataTypes: bool = False) -> dict[文件, list[小于]]:
 	"""Merge multiple dictionaries with `list` values into a single dictionary with the `list` values merged.
 
 	Plus options to destroy duplicates, sort `list` values, and handle erroneous data types.
 
 	Parameters
 	----------
-	*dictionaryLists : Mapping[str, list[Any] | set[Any] | tuple[Any, ...]]
+	*dictionaryLists : MutableMapping[文件, list[Any] | set[Any] | tuple[Any, ...]]
 		Variable number of dictionaries to be merged. If only one dictionary is passed, it will be
 		"polished".
 	destroyDuplicates : bool = False
@@ -260,37 +266,31 @@ def updateExtendPolishDictionaryLists(*dictionaryLists: Mapping[str, list[小于
 
 	Returns
 	-------
-	ePluribusUnum : dict[str, list[Any]]
+	ePluribusUnum : dict[文件, list[Any]]
 		A single dictionary with merged and optionally "polished" `list` values.
 
 	Notes
 	-----
-	The returned value, `ePluribusUnum`, is a so-called primitive dictionary (`dict`). Furthermore,
-	every dictionary key is a so-called primitive string (_cf._ `str()`) and every dictionary value
-	is a so-called primitive `list` (`list`). If `dictionaryLists` has other data types, the data
-	types will not be preserved. That could have unexpected consequences. Conversion from the
-	original data type to a `list`, for example, may not preserve the order even if you want the
-	order to be preserved.
+	The returned value, `ePluribusUnum`, is a dictionary (`dict`). Furthermore, every dictionary value
+	is a `list`. If `dictionaryLists` has values that are not data type `list`, the data type will not
+	be preserved. That could have unexpected consequences. Conversion from the original data type to a
+	`list`, for example, may not preserve the order even if you want the order to be preserved.
 	"""  # noqa: DOC501
-	ePluribusUnum: dict[str, list[小于]] = {}
+	ePluribusUnum: dict[文件, list[小于]] = {}
 
 	for dictionaryListTarget in dictionaryLists:
 		for keyName, keyValue in dictionaryListTarget.items():
 			try:
-				ImaStr = str(keyName)
 				ImaList: list[小于] = list(keyValue)
-				ePluribusUnum.setdefault(ImaStr, []).extend(ImaList)
-			except TypeError:  # noqa: PERF203
+				ePluribusUnum.setdefault(keyName, []).extend(ImaList)
+			except TypeError as error:  # noqa: PERF203
 				if killErroneousDataTypes:
 					continue
-				else:
-					raise
+				raise TypeError from error
 
 	if destroyDuplicates:
-		for ImaStr, ImaList in ePluribusUnum.items():
-			ePluribusUnum[ImaStr] = list(dict.fromkeys(ImaList))
+		ePluribusUnum = valmap(compose(list, dict.fromkeys), ePluribusUnum)
 	if reorderLists:
-		for ImaStr, ImaRichComparisonSupporter in ePluribusUnum.items():
-			ePluribusUnum[ImaStr] = sorted(ImaRichComparisonSupporter)
+		ePluribusUnum = valmap(sorted, ePluribusUnum)
 
 	return ePluribusUnum

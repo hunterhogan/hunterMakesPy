@@ -1,6 +1,6 @@
 [project]
 name = "hunterMakesPy"
-version = "0.7.1"
+version = "0.7.2"
 description = "Easy Python functions making making functional Python functions easier."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -27,6 +27,7 @@ classifiers = [
   "Typing :: Typed",
 ]
 dependencies = [
+  "Z0Z_tools>=2.2.1",
   "autoflake",
   "charset_normalizer",
   "isort",

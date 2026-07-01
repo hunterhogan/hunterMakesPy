@@ -16,12 +16,6 @@ identifiers:
   value: https://github.com/hunterhogan/hunterMakesPy/releases/tag/0.7.1
   description: The URL for hunterMakesPy 0.7.1.
 keywords:
-- attribute loading
-- configuration
-- defensive programming
-- dictionary merging
-- dynamic import
-- file system utilities
 - input validation
 - module loading
 - package settings
