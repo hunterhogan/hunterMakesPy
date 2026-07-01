@@ -9,12 +9,12 @@ authors:
   family-names: Hogan
   email: HunterHogan@pm.me
 cff-version: 1.2.0
-commit: f46ce17b3bf990bb3c4f8228be31ade88be9c0d7
-date-released: '2026-06-09'
+commit: d602ba0fe1d98f717080ab2641c46b1e127dd1cf
+date-released: '2026-07-01'
 identifiers:
 - type: url
-  value: https://github.com/hunterhogan/hunterMakesPy/releases/tag/0.7.1
-  description: The URL for hunterMakesPy 0.7.1.
+  value: https://github.com/hunterhogan/hunterMakesPy/releases/tag/0.7.2
+  description: The URL for hunterMakesPy 0.7.2.
 keywords:
 - input validation
 - module loading
@@ -23,8 +23,8 @@ keywords:
 license: CC-BY-NC-4.0
 message: Cite this software with the metadata in this file.
 repository: https://github.com/hunterhogan/hunterMakesPy
-repository-artifact: https://pypi.org/project/huntermakespy/0.7.1/
-repository-code: https://github.com/hunterhogan/hunterMakesPy/releases/tag/0.7.1
+repository-artifact: https://pypi.org/project/huntermakespy/0.7.2/
+repository-code: https://github.com/hunterhogan/hunterMakesPy/releases/tag/0.7.2
 title: hunterMakesPy
 url: https://github.com/hunterhogan/hunterMakesPy
-version: 0.7.1
+version: 0.7.2
