@@ -7,12 +7,6 @@ requires-python = ">=3.10"
 license = "CC-BY-NC-4.0"
 authors = [{ name = "Hunter Hogan", email = "HunterHogan@pm.me" }]
 keywords = [
-  "attribute loading",
-  "configuration",
-  "defensive programming",
-  "dictionary merging",
-  "dynamic import",
-  "file system utilities",
   "input validation",
   "module loading",
   "package settings",
@@ -23,8 +17,6 @@ classifiers = [
   "Environment :: Console",
   "Framework :: Pytest",
   "Intended Audience :: Developers",
-  "Intended Audience :: End Users/Desktop",
-  "Intended Audience :: Other Audience",
   "Natural Language :: English",
   "Operating System :: OS Independent",
   "Programming Language :: Python",
@@ -45,7 +37,7 @@ dependencies = [
 ]
 optional-dependencies = { development = ["pytest-cov"], testing = [
   "librosa",
-  "pytest",
+  "pytest"
 ] }
 
 [project.urls]
@@ -66,7 +58,7 @@ run = { branch = true, data_file = "hunterMakesPy/tests/coverage/.coverage", omi
 ], source = ["."] }
 
 [tool.pytest]
-addopts = ["--color=auto"]
+addopts = ["--color=yes"]
 log_auto_indent = "On"
 testpaths = ["hunterMakesPy/tests"]
 
