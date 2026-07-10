@@ -11,6 +11,8 @@ identifierDotAttribute: TypeAlias = str
 `TypeAlias` for a `str` `object` using dot notation to access an attribute, such as 'scipy.signal.windows'.
 """
 
+Limitation: TypeAlias = bool | float | int | None
+
 class Ordinals(Protocol):
 	"""Any Python `object` `type` that may be ordered before or after a comparable `object` `type` by comparison operators."""
 

@@ -1,3 +1,4 @@
+# ruff: noqa: TRY301, DOC501, PLW0717 BLE001
 """Validate parameters and parse input with defensive error handling.
 
 (AI generated docstring)
@@ -35,7 +36,7 @@ References
 """
 from __future__ import annotations
 
-from collections.abc import Iterable, Sized
+from collections.abc import Sized
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 import charset_normalizer
@@ -44,6 +45,8 @@ import sys
 
 if TYPE_CHECKING:
 	from charset_normalizer.models import CharsetMatch
+	from collections.abc import Iterable
+	from hunterMakesPy.theTypes import Limitation
 	from typing import Any
 
 @dataclass
@@ -67,6 +70,82 @@ class ErrorMessageContext:
 	parameterValueType: str | None = None
 	containerType: str | None = None
 	isElement: bool = False
+
+def defineConcurrencyLimit(*, limit: Limitation, cpuTotal: int = multiprocessing.cpu_count()) -> int:
+	"""Determine the concurrency limit based on the provided parameter.
+
+	Parameters
+	----------
+	limit : bool | float | int | None
+		Whether and how to limit CPU usage. See notes and examples for details how to describe the options to your users.
+	cpuTotal : int = multiprocessing.cpu_count()
+		The total number of CPUs available in the system. Default is `multiprocessing.cpu_count()`.
+
+	Returns
+	-------
+	concurrencyLimit : int
+		The calculated concurrency limit, ensuring it is at least 1.
+
+	Example parameters
+	------------------
+	```python
+	CPUlimit: bool | float | int | None
+	CPUlimit: Limitation = None
+	```
+
+	Example docstring
+	-----------------
+	```python
+
+	Arguments
+	---------
+	CPUlimit: bool | float | int | None
+		Whether and how to limit the the number of available processors used by the function. See notes for details.
+
+	Notes
+	-----
+	Limits on CPU usage, `CPUlimit`:
+		- `False`, `None`, or `0`: No limits on processor usage; uses all available processors. All other values will potentially limit processor usage.
+		- `True`: Yes, limit the processor usage; limits to 1 processor.
+		- `int >= 1`: The maximum number of available processors to use.
+		- `0 < float < 1`: The maximum number of processors to use expressed as a fraction of available processors.
+		- `-1 < float < 0`: The number of processors to *not* use expressed as a fraction of available processors.
+		- `int <= -1`: The number of available processors to *not* use.
+		- If the value of `CPUlimit` is a `float` greater than 1 or less than -1, the function truncates the value to an `int` with the same sign as the `float`.
+	```
+
+	"""
+	if isinstance(limit, str):
+		limitFromString: bool | str | None = oopsieKwargsie(limit)
+		if isinstance(limitFromString, str):
+			try:
+				limit = float(limitFromString)
+			except ValueError as ERRORmessage:
+				message: str = f"I received '{limitFromString}', but it must be a number, `True`, `False`, or `None`."
+				raise ValueError(message) from ERRORmessage
+		else:
+			limit = limitFromString
+	if isinstance(limit, float) and 1 <= abs(limit):
+		limit = round(limit)
+
+	concurrencyLimit: int = cpuTotal
+	if (limit is None) or (limit is False) or (limit == 0):
+		pass
+	elif limit is True:
+		concurrencyLimit = 1
+	elif 1 <= limit:
+		concurrencyLimit = int(limit)
+	elif 0 < limit < 1:
+		concurrencyLimit = round(limit * cpuTotal)
+	elif -1 < limit < 0:
+		concurrencyLimit = cpuTotal - abs(round(limit * cpuTotal))
+	elif limit <= -1:
+		concurrencyLimit = cpuTotal - abs(int(limit))
+
+	# https://docs.python.org/3/library/concurrent.futures.html#concurrent.futures.ProcessPoolExecutor
+	if sys.platform == "win32":
+		concurrencyLimit = min(concurrencyLimit, 61)
+	return max(int(concurrencyLimit), 1)
 
 def _constructErrorMessage(context: ErrorMessageContext, parameterName: str, parameterType: type[Any] | None) -> str:
 	"""Construct error message from available context using template.
@@ -116,96 +195,6 @@ def _constructErrorMessage(context: ErrorMessageContext, parameterName: str, par
 
 	return "".join(messageParts)
 
-def defineConcurrencyLimit(*, limit: bool | float | int | None, cpuTotal: int = multiprocessing.cpu_count()) -> int:
-	"""Determine the concurrency limit based on the provided parameter.
-
-	Tests for this function can be run with:
-	`from hunterMakesPy.tests.test_parseParameters import PytestFor_defineConcurrencyLimit`
-
-	Parameters
-	----------
-	limit : bool | float | int | None
-		Whether and how to limit CPU usage. See notes and examples for details how to describe the options to your users.
-	cpuTotal : int = multiprocessing.cpu_count()
-		The total number of CPUs available in the system. Default is `multiprocessing.cpu_count()`.
-
-	Returns
-	-------
-	concurrencyLimit : int
-		The calculated concurrency limit, ensuring it is at least 1.
-
-	Notes
-	-----
-	Consider using `hunterMakesPy.oopsieKwargsie()` to handle malformed inputs. For example:
-
-	```
-	if not (CPUlimit is None or isinstance(CPUlimit, (bool, int, float))):
-		CPUlimit = oopsieKwargsie(CPUlimit)
-	```
-
-	Example parameters
-	------------------
-	```python
-	CPUlimit: bool | float | int | None
-	CPUlimit: bool | float | int | None = None
-	```
-
-	Example docstring
-	-----------------
-	```python
-
-	Arguments
-	---------
-	CPUlimit: bool | float | int | None
-		Whether and how to limit the the number of available processors used by the function. See notes for details.
-
-	Notes
-	-----
-	Limits on CPU usage, `CPUlimit`:
-		- `False`, `None`, or `0`: No limits on processor usage; uses all available processors. All other values will potentially limit processor usage.
-		- `True`: Yes, limit the processor usage; limits to 1 processor.
-		- `int >= 1`: The maximum number of available processors to use.
-		- `0 < float < 1`: The maximum number of processors to use expressed as a fraction of available processors.
-		- `-1 < float < 0`: The number of processors to *not* use expressed as a fraction of available processors.
-		- `int <= -1`: The number of available processors to *not* use.
-		- If the value of `CPUlimit` is a `float` greater than 1 or less than -1, the function truncates the value to an `int` with the same sign as the `float`.
-	```
-
-	"""  # noqa: DOC501
-	if isinstance(limit, str):
-		limitFromString: bool | str | None = oopsieKwargsie(limit)
-		if isinstance(limitFromString, str):
-			try:
-				limit = float(limitFromString)
-			except ValueError as ERRORmessage:
-				message: str = f"I received '{limitFromString}', but it must be a number, `True`, `False`, or `None`."
-				raise ValueError(message) from ERRORmessage
-		else:
-			limit = limitFromString
-	if isinstance(limit, float) and 1 <= abs(limit):
-		limit = round(limit)
-
-	concurrencyLimit: int = cpuTotal
-	if (limit is None) or (limit is False) or (limit == 0):
-		pass
-	elif limit is True:
-		concurrencyLimit = 1
-	elif 1 <= limit:
-		concurrencyLimit = int(limit)
-	elif 0 < limit < 1:
-		concurrencyLimit = round(limit * cpuTotal)
-	elif -1 < limit < 0:
-		concurrencyLimit = cpuTotal - abs(round(limit * cpuTotal))
-	elif limit <= -1:
-		concurrencyLimit = cpuTotal - abs(int(limit))
-
-	# https://docs.python.org/3/library/concurrent.futures.html#concurrent.futures.ProcessPoolExecutor
-	if sys.platform == "win32":
-		concurrencyLimit = min(concurrencyLimit, 61)
-	return max(int(concurrencyLimit), 1)
-
-# ruff: noqa: TRY301
-
 def intInnit(listInt_Allegedly: Iterable[Any], parameterName: str | None = None, parameterType: type[Any] | None = None) -> list[int]:
 	"""Validate and convert input values to a `list` of integers.
 
@@ -252,7 +241,7 @@ def intInnit(listInt_Allegedly: Iterable[Any], parameterName: str | None = None,
 
 	# Be nice, and assume the input container is valid and every element is valid.
 	# Nevertheless, this is a "fail-early" step, so reject ambiguity and try to induce errors now that could be catastrophic later.
-	try:  # noqa: PLW0717
+	try:
 		iter(listInt_Allegedly)
 		lengthInitial: int | None = None
 		if isinstance(listInt_Allegedly, Sized):
@@ -349,7 +338,7 @@ def oopsieKwargsie(huh: Any) -> bool | str | None:
 	if not isinstance(huh, str):
 		try:
 			huh = str(huh)
-		except BaseException:  # noqa: BLE001
+		except BaseException:
 			return huh
 	formatted: str = huh.strip().title()
 	if formatted == str(True):
