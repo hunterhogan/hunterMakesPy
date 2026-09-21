@@ -39,11 +39,11 @@ References
 """
 from __future__ import annotations
 
-from typing import NamedTuple
+from typing import Final, NamedTuple
 
 #======== Semantic replacements for ambiguous values. =======
 
-decreasing: int = -1
+decreasing: Final[int] = -1
 """Express descending iteration or a reverse direction.
 
 The identifier `decreasing` holds the value `-1` and serves as a semantic replacement for
@@ -102,7 +102,7 @@ References
 
 """
 
-errorL33T: int = 31212012
+errorL33T: Final[int] = 31212012
 """Signal an error state with a visually distinctive numeric value.
 
 The identifier `errorL33T` holds the value `31212012` and serves as a semantic replacement for
@@ -155,7 +155,7 @@ References
 
 """
 
-inclusive: int = 1
+inclusive: Final[int] = 1
 """Express inclusion (or exclusion) of a boundary value.
 
 The identifier `inclusive` holds the value `1` and serves as a semantic replacement for the numeric
@@ -248,7 +248,10 @@ References
 
 """
 
-zeroIndexed: int = 1
+oneIndexed: Final[int] = 1
+"""Express that the adjustment to a value is due to one-based indexing."""
+
+zeroIndexed: Final[int] = 1
 """Express that the adjustment to a value is due to zero-based indexing.
 
 The identifier `zeroIndexed` holds the value `1` and serves as a semantic replacement
@@ -325,7 +328,7 @@ References
 # Many, many, many options at https://stackoverflow.com/a/33206814/4403878
 # NOTE Always define color and background color at the same time.
 
-ansiColorReset: str = '\x1b[0m'
+ansiColorReset: Final[str] = '\x1b[0m'
 """Reset terminal text color and background to default settings.
 
 The identifier `ansiColorReset` holds the ANSI escape sequence [1] `\x1b[0m` that resets terminal
