@@ -1,4 +1,4 @@
-# ruff: noqa: TRY301, DOC501, PLW0717 BLE001
+# ruff: file-ignore[raise-within-try, docstring-missing-exception, too-many-statements-in-try-clause, blind-except]
 """Validate parameters and parse input with defensive error handling.
 
 (AI generated docstring)
@@ -45,7 +45,7 @@ import sys
 
 if TYPE_CHECKING:
 	from charset_normalizer.models import CharsetMatch
-	from collections.abc import Iterable
+	from collections.abc import Collection
 	from hunterMakesPy.theTypes import Limitation
 	from typing import Any
 
@@ -195,7 +195,7 @@ def _constructErrorMessage(context: ErrorMessageContext, parameterName: str, par
 
 	return "".join(messageParts)
 
-def intInnit(listInt_Allegedly: Iterable[Any], parameterName: str | None = None, parameterType: type[Any] | None = None) -> list[int]:
+def intInnit(listInt_Allegedly: Collection[Any], parameterName: str | None = None, parameterType: type[Any] | None = None) -> list[int]:
 	"""Validate and convert input values to a `list` of integers.
 
 	Accepts various numeric types and attempts to convert them into integers while providing descriptive error messages. This
@@ -204,7 +204,7 @@ def intInnit(listInt_Allegedly: Iterable[Any], parameterName: str | None = None,
 
 	Parameters
 	----------
-	listInt_Allegedly : Iterable[Any]
+	listInt_Allegedly : Collection[Any]
 		The input sequence that should contain integer-compatible values. Accepts integers, strings, floats, complex numbers, and
 		binary data. Rejects boolean values and non-integer numeric values.
 	parameterName : str | None = None
@@ -236,7 +236,7 @@ def intInnit(listInt_Allegedly: Iterable[Any], parameterName: str | None = None,
 	parameterType = parameterType or list
 
 	if not listInt_Allegedly:
-		message: str = f"I did not receive a value for {parameterName}, but it is required."
+		message: str = f"I did not receive a value for `{parameterName}`, but I must have it."
 		raise ValueError(message)
 
 	# Be nice, and assume the input container is valid and every element is valid.
@@ -250,11 +250,10 @@ def intInnit(listInt_Allegedly: Iterable[Any], parameterName: str | None = None,
 		listValidated: list[int] = []
 
 		for allegedInt in listInt_Allegedly:
-
 			errorMessageContext: ErrorMessageContext = ErrorMessageContext(
-				parameterValue=allegedInt,
-				parameterValueType=type(allegedInt).__name__,
-				isElement=True
+				parameterValue=allegedInt
+				, parameterValueType=type(allegedInt).__name__
+				, isElement=True
 			)
 
 			# Always rejected as ambiguous
@@ -292,26 +291,20 @@ def intInnit(listInt_Allegedly: Iterable[Any], parameterName: str | None = None,
 			if lengthInitial is not None and isinstance(listInt_Allegedly, Sized) and len(listInt_Allegedly) != lengthInitial:
 				raise RuntimeError((lengthInitial, len(listInt_Allegedly)))
 
-	except (TypeError, ValueError) as ERRORmessage:
-		if isinstance(ERRORmessage.args[0], ErrorMessageContext):
-			context: ErrorMessageContext = ERRORmessage.args[0]
+	except (TypeError, ValueError) as ERROR:
+		if isinstance(ERROR.args[0], ErrorMessageContext):
+			context: ErrorMessageContext = ERROR.args[0]
 			if not context.containerType:
 				context.containerType = type(listInt_Allegedly).__name__
 			message = _constructErrorMessage(context, parameterName, parameterType)
-			raise type(ERRORmessage)(message) from None
+			raise type(ERROR)(message) from None
 		# If it's not our Exception, don't molest it
 		raise
 
-	except RuntimeError as ERRORruntime:
-		lengthCurrent: int
-		lengthInitial, lengthCurrent = ERRORruntime.args[0]
-		ERRORmessage = (
-			f"The input sequence {parameterName} was modified during iteration. "
-			f"Initial length {lengthInitial}, current length {lengthCurrent}."
-		)
-		raise RuntimeError(
-			ERRORmessage
-		) from None
+	except RuntimeError as ERROR:
+		lengthInitial, lengthCurrent = ERROR.args[0]
+		message = (f"`{parameterName}` was modified during iteration: {lengthInitial = }, current length {lengthCurrent = }.")
+		raise RuntimeError(message) from None
 
 	else:
 		return listValidated

@@ -69,7 +69,8 @@ References
 from __future__ import annotations
 
 from hunterMakesPy.semiotics import (
-	decreasing as decreasing, errorL33T as errorL33T, inclusive as inclusive, oneIndexed as oneIndexed, zeroIndexed as zeroIndexed)
+	ansiColor as ansiColor, ansiColorReset as ansiColorReset, decreasing as decreasing, errorL33T as errorL33T, inclusive as inclusive,
+	oneIndexed as oneIndexed, zeroIndexed as zeroIndexed)
 
 # isort: split
 from hunterMakesPy.theTypes import (

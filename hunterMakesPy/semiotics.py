@@ -503,3 +503,5 @@ class AnsiColors(NamedTuple):
 	YellowOnBlack: str = '\x1b[33;40m'
 	YellowOnBlue: str = '\x1b[33;44m'
 	YellowOnRed: str = '\x1b[33;41m'
+
+ansiColor = AnsiColors()
