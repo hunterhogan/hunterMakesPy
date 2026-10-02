@@ -1,20 +1,13 @@
-# ruff: file-ignore[raise-within-try, docstring-missing-exception, too-many-statements-in-try-clause, blind-except]
-"""Validate parameters and parse input with defensive error handling.
+# ruff: file-ignore[raise-within-try]
+"""Validate integer inputs, calculate worker counts, and interpret string parameters.
 
 (AI generated docstring)
 
-You can use this module to validate and convert input sequences to integers, determine
-concurrency limits based on flexible parameter specifications, and interpret string values
-as boolean or None types. The module provides strict validation functions that follow
-fail-early principles with descriptive error messages for debugging.
-
-The integer validation function accepts various numeric types including strings, floats,
-complex numbers, and binary data, converting them to integers while detecting ambiguous
-or incompatible values. The concurrency limit function interprets boolean, integer, and
-float values to compute processor counts with support for absolute limits, fractional
-allocation, and reserved-processor specifications. The string interpretation function
-attempts to parse string values as True, False, or None to handle parameter type mismatches
-gracefully.
+You can use this module to convert integer-compatible inputs into lists of integers, calculate
+worker counts from absolute or fractional limits, and interpret strings as `True`, `False`, or
+`None`. Integer validation reports incompatible values with context about the caller's parameter.
+Worker-count calculation uses the system CPU count from `multiprocessing` [1] by default and also
+accepts numeric strings. Binary integer inputs use `charset_normalizer` [2] for text decoding.
 
 Contents
 --------
@@ -26,11 +19,15 @@ Functions
 	oopsieKwargsie
 		Interpret a string as True, False, or None to avoid exceptions.
 
+Classes
+	ErrorMessageContext
+		Store value, type, and container information for integer-validation error messages.
+
 References
 ----------
-[1] multiprocessing - Context7
+[1] Python `multiprocessing`.
 	https://docs.python.org/3/library/multiprocessing.html
-[2] charset-normalizer - Context7
+[2] charset-normalizer.
 	https://github.com/Ousret/charset_normalizer
 
 """
@@ -46,7 +43,7 @@ import sys
 if TYPE_CHECKING:
 	from charset_normalizer.models import CharsetMatch
 	from collections.abc import Collection
-	from hunterMakesPy.theTypes import Limitation
+	from hunterMakesPy.theTypes import ConcurrencyLimit
 	from typing import Any
 
 @dataclass
@@ -71,49 +68,78 @@ class ErrorMessageContext:
 	containerType: str | None = None
 	isElement: bool = False
 
-def defineConcurrencyLimit(*, limit: Limitation, cpuTotal: int = multiprocessing.cpu_count()) -> int:
-	"""Determine the concurrency limit based on the provided parameter.
+def defineConcurrencyLimit(*, limit: ConcurrencyLimit, cpuTotal: int = multiprocessing.cpu_count()) -> int:
+	"""Calculate a worker count from an absolute, fractional, or reserved-CPU limit.
+
+	You can use this function to select a worker count from `limit` and `cpuTotal`. This function
+	accepts explicit counts, fractions of `cpuTotal`, counts to reserve, and boolean choices.
+	This function also accepts numeric strings and strings representing `True`, `False`, or `None`.
+	The result is at least one worker and is at most 61 workers on Windows.
+
+	String Parsing
+	--------------
+	This function first uses `oopsieKwargsie` [1] to interpret strings representing `True`, `False`,
+	or `None`, ignoring capitalization and surrounding whitespace. Other strings are converted
+	with `float`. An invalid numeric string raises `ValueError` with the conversion error as the cause.
+
+	Processor Counts
+	----------------
+	This function rounds floating-point counts whose absolute value is at least one before applying
+	the count rules. Rounding uses Python `round` [2], including rounding ties to the nearest even
+	integer. This function applies the following rules before enforcing the platform bounds.
+
+	- `None`, `False`, or zero select `cpuTotal`.
+	- `True` selects one worker.
+	- A positive count of at least one selects that count.
+	- A positive fraction below one selects `round(limit * cpuTotal)` workers.
+	- A negative fraction above negative one reserves `abs(round(limit * cpuTotal))` CPUs.
+	- A negative count of at most negative one reserves `abs(int(limit))` CPUs.
+
+	This function caps the result at 61 on Windows, matching the restriction for
+	`concurrent.futures.ProcessPoolExecutor` [3]. This function then enforces the minimum of one.
 
 	Parameters
 	----------
-	limit : bool | float | int | None
-		Whether and how to limit CPU usage. See notes and examples for details how to describe the options to your users.
+	limit : ConcurrencyLimit
+		The worker-count specification. `None`, `False`, or zero select `cpuTotal`; `True` selects
+		one worker. Positive counts select workers to use, and negative counts select CPUs to reserve.
+		Fractions between negative one and one select proportions to reserve or use, respectively.
+		Strings are also accepted at runtime, although the type annotation excludes strings.
 	cpuTotal : int = multiprocessing.cpu_count()
-		The total number of CPUs available in the system. Default is `multiprocessing.cpu_count()`.
+		The CPU count used for fractional limits and reserved-CPU calculations. The default is the
+		value of `multiprocessing.cpu_count` [4] evaluated when this module is imported.
 
 	Returns
 	-------
 	concurrencyLimit : int
-		The calculated concurrency limit, ensuring it is at least 1.
+		The calculated worker count, with a minimum of one and a Windows maximum of 61.
+		An explicit positive count can exceed `cpuTotal`.
 
-	Example parameters
-	------------------
-	```python
-	CPUlimit: bool | float | int | None
-	CPUlimit: Limitation = None
-	```
+	Raises
+	------
+	ValueError
+		If a string does not represent a number, `True`, `False`, or `None`.
 
-	Example docstring
-	-----------------
-	```python
+	Examples
+	--------
+	The README selects three quarters of the default CPU count.
 
-	Arguments
-	---------
-	CPUlimit: bool | float | int | None
-		Whether and how to limit the the number of available processors used by the function. See notes for details.
+		```python
+		from hunterMakesPy.parseParameters import defineConcurrencyLimit
 
-	Notes
-	-----
-	Limits on CPU usage, `CPUlimit`:
-		- `False`, `None`, or `0`: No limits on processor usage; uses all available processors. All other values will potentially limit processor usage.
-		- `True`: Yes, limit the processor usage; limits to 1 processor.
-		- `int >= 1`: The maximum number of available processors to use.
-		- `0 < float < 1`: The maximum number of processors to use expressed as a fraction of available processors.
-		- `-1 < float < 0`: The number of processors to *not* use expressed as a fraction of available processors.
-		- `int <= -1`: The number of available processors to *not* use.
-		- If the value of `CPUlimit` is a `float` greater than 1 or less than -1, the function truncates the value to an `int` with the same sign as the `float`.
-	```
+		workers = defineConcurrencyLimit(limit=0.75)
+		```
 
+	References
+	----------
+	[1] `oopsieKwargsie`
+
+	[2] Python `round`.
+		https://docs.python.org/3/library/functions.html#round
+	[3] Python `concurrent.futures.ProcessPoolExecutor`.
+		https://docs.python.org/3/library/concurrent.futures.html#concurrent.futures.ProcessPoolExecutor
+	[4] Python `multiprocessing.cpu_count`.
+		https://docs.python.org/3/library/multiprocessing.html#multiprocessing.cpu_count
 	"""
 	if isinstance(limit, str):
 		limitFromString: bool | str | None = oopsieKwargsie(limit)
@@ -142,7 +168,7 @@ def defineConcurrencyLimit(*, limit: Limitation, cpuTotal: int = multiprocessing
 	elif limit <= -1:
 		concurrencyLimit = cpuTotal - abs(int(limit))
 
-	# https://docs.python.org/3/library/concurrent.futures.html#concurrent.futures.ProcessPoolExecutor
+	#https://docs.python.org/3/library/concurrent.futures.html#concurrent.futures.ProcessPoolExecutor
 	if sys.platform == "win32":
 		concurrencyLimit = min(concurrencyLimit, 61)
 	return max(int(concurrencyLimit), 1)
@@ -239,8 +265,9 @@ def intInnit(listInt_Allegedly: Collection[Any], parameterName: str | None = Non
 		message: str = f"I did not receive a value for `{parameterName}`, but I must have it."
 		raise ValueError(message)
 
-	# Be nice, and assume the input container is valid and every element is valid.
-	# Nevertheless, this is a "fail-early" step, so reject ambiguity and try to induce errors now that could be catastrophic later.
+	#Be nice, and assume the input container is valid and every element is valid.
+	#Nevertheless, this is a "fail-early" step, so reject ambiguity and try to induce errors now that could be catastrophic later.
+	#ruff: ignore[too-many-statements-in-try-clause]
 	try:
 		iter(listInt_Allegedly)
 		lengthInitial: int | None = None
@@ -256,12 +283,12 @@ def intInnit(listInt_Allegedly: Collection[Any], parameterName: str | None = Non
 				, isElement=True
 			)
 
-			# Always rejected as ambiguous
+			#Always rejected as ambiguous
 			if isinstance(allegedInt, bool):
 				raise TypeError(errorMessageContext)
 
-			# In this section, we know the Python type is not `int`, but maybe the value is clearly an integer.
-			# Through a series of conversions, allow data to cascade down into either an `int` or a meaningful error message.
+			#In this section, we know the Python type is not `int`, but maybe the value is clearly an integer.
+			#Through a series of conversions, allow data to cascade down into either an `int` or a meaningful error message.
 
 			if isinstance(allegedInt, (bytes, bytearray, memoryview)):
 				errorMessageContext.parameterValue = None  # Don't expose potentially garbled binary data in error messages
@@ -288,7 +315,7 @@ def intInnit(listInt_Allegedly: Collection[Any], parameterName: str | None = Non
 
 			listValidated.append(allegedInt)
 
-			if lengthInitial is not None and isinstance(listInt_Allegedly, Sized) and len(listInt_Allegedly) != lengthInitial:
+			if lengthInitial is not None and isinstance(listInt_Allegedly, Sized) and len(listInt_Allegedly) != lengthInitial:  # pyright: ignore[reportUnnecessaryComparison]
 				raise RuntimeError((lengthInitial, len(listInt_Allegedly)))
 
 	except (TypeError, ValueError) as ERROR:
@@ -298,8 +325,8 @@ def intInnit(listInt_Allegedly: Collection[Any], parameterName: str | None = Non
 				context.containerType = type(listInt_Allegedly).__name__
 			message = _constructErrorMessage(context, parameterName, parameterType)
 			raise type(ERROR)(message) from None
-		# If it's not our Exception, don't molest it
-		raise
+		#If it's not our Exception, don't molest it
+		raise ValueError from ERROR
 
 	except RuntimeError as ERROR:
 		lengthInitial, lengthCurrent = ERROR.args[0]
@@ -331,6 +358,7 @@ def oopsieKwargsie(huh: Any) -> bool | str | None:
 	if not isinstance(huh, str):
 		try:
 			huh = str(huh)
+		#ruff: ignore[blind-except]
 		except BaseException:
 			return huh
 	formatted: str = huh.strip().title()

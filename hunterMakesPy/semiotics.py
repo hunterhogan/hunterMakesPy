@@ -326,7 +326,7 @@ References
 #======== Some colors for printing text to the terminal. ========
 # Many values and options at https://gist.github.com/JBlond/2fea43a3049b38287e5e9cefc87b2124
 # Many, many, many options at https://stackoverflow.com/a/33206814/4403878
-# NOTE Always define color and background color at the same time.
+# Always define color and background color at the same time.
 
 ansiColorReset: Final[str] = '\x1b[0m'
 """Reset terminal text color and background to default settings.

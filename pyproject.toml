@@ -1,9 +1,9 @@
 [project]
 name = "hunterMakesPy"
-version = "0.7.6"
+version = "0.8.1"
 description = "Easy Python functions making making functional Python functions easier."
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 license = "CC-BY-NC-4.0"
 authors = [{ name = "Hunter Hogan", email = "HunterHogan@pm.me" }]
 keywords = [
@@ -20,7 +20,7 @@ classifiers = [
   "Natural Language :: English",
   "Operating System :: OS Independent",
   "Programming Language :: Python",
-  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.14",
   "Topic :: Software Development :: Libraries :: Python Modules",
   "Topic :: Utilities",

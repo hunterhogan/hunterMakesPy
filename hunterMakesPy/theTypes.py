@@ -1,9 +1,9 @@
 """I type, you type, we all `type` for `theTypes`."""
 from __future__ import annotations
 
+from collections.abc import Hashable
 from hunterMakesPy.theTypesCallableFunction import CallableFunction as CallableFunction
-from typing import Protocol, TypeAlias
-from typing_extensions import Self, TypeVar
+from typing import Protocol, Self, TypeAlias, TypeVar
 
 identifierDotAttribute: TypeAlias = str
 """`str` (***str***ing) representing a dotted attribute identifier.
@@ -11,7 +11,7 @@ identifierDotAttribute: TypeAlias = str
 `TypeAlias` for a `str` `object` using dot notation to access an attribute, such as 'scipy.signal.windows'.
 """
 
-Limitation: TypeAlias = bool | float | int | None
+ConcurrencyLimit: TypeAlias = bool | float | int | None
 
 class Ordinals(Protocol):
 	"""Any Python `object` `type` that may be ordered before or after a comparable `object` `type` by comparison operators."""
@@ -25,3 +25,5 @@ class Ordinals(Protocol):
 		...
 
 小于 = TypeVar('小于', bound=Ordinals)
+文件 = TypeVar('文件', bound=Hashable)
+文义 = TypeVar('文义')

@@ -4,10 +4,6 @@
 
 ruff.toml
 
-## pythonTests.yml
-
-Figure out a universal file. The split between setuptools and uv_build is the problem. And cython.
-
 ## Default files for repos
 
 <https://docs.github.com/en/communities/setting-up-your-project-for-healthy-contributions/creating-a-default-community-health-file>
@@ -18,7 +14,6 @@ Figure out a universal file. The split between setuptools and uv_build is the pr
 - Font selection: code-workspace
 - From hunterMakesPy.PackageSettings: the variables I wish were fixed during packaging and installation.
 - How to intelligently include the tests?
-- Switch to uv?
 
 ## A Python formatter that formats my style
 

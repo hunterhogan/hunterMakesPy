@@ -161,7 +161,7 @@ def test_autoDecodingRLE(
 		"range": range,
 		"list": list,
 	}
-	value_arrayTarget: NDArray[numpy.integer[Any]] = eval(arrayExpression, evaluationContext)  # noqa: S307
+	value_arrayTarget: NDArray[numpy.integer[Any]] = eval(arrayExpression, evaluationContext)  # ruff: ignore[suspicious-eval-usage]
 
 	resultRLE: str = autoDecodingRLE(value_arrayTarget, assumeAddSpaces=assumeAddSpaces)
 
@@ -179,7 +179,7 @@ def test_autoDecodingRLE(
 
 	assert resultRLE == expected, (f"autoDecodingRLE made {resultRLE!r}, expected {expected!r} for {description=} and {assumeAddSpaces=}.")
 
-	decodedData = eval(resultRLE)  # noqa: S307
+	decodedData = eval(resultRLE)  # ruff: ignore[suspicious-eval-usage]
 	reconstructedArray: NDArray[numpy.integer[Any]] = numpy.array(decodedData)
 	numpy.testing.assert_array_equal(
 		reconstructedArray

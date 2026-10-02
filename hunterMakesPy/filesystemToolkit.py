@@ -1,41 +1,43 @@
-"""Access dynamic import utilities and text-writing utilities.
+"""Import Python identifiers and write or append text to files.
 
 (AI generated docstring)
 
 You can use this module to import `identifier` values from logical module paths or Python files,
-create parent directories for output paths, and write text or formatted Python source to files and
-text streams. The writing functions can normalize Python imports with `autoflake` [1] and `isort` [2]
-before the destination receives the final text.
+create parent directories for output paths, append text to files, and write text or formatted Python
+source to files and text streams. The writing functions can normalize Python imports with
+`autoflake` [1] and `isort` [2] before the destination receives the final text.
 
 Contents
 --------
 Functions
-    importLogicalPath2Identifier
-        Import `identifier` from the module named by `logicalPathModule`.
-    importPathFilename2Identifier
-        Import `identifier` from the Python file at `pathFilename`.
-    makeDirectorySafely
-        Create parent directories for `pathFilename` when `pathFilename` is a filesystem path.
-    makeDirsSafely
-        Temporary alias for `makeDirectorySafely`.
-    writePython
-        Format `pythonSource` and write `pythonSource` to `pathFilename`.
-    writeStringToHere
-        Write `this` to `pathFilename`.
+	appendStringToHere
+		Append `this` to `pathFilename` without changing existing text.
+	importLogicalPath2Identifier
+		Import `identifier` from the module named by `logicalPathModule`.
+	importPathFilename2Identifier
+		Import `identifier` from the Python file at `pathFilename`.
+	makeDirectorySafely
+		Create parent directories for `pathFilename` when `pathFilename` is a filesystem path.
+	makeDirsSafely
+		Temporary alias for `makeDirectorySafely`.
+	writePython
+		Format `pythonSource` and write `pythonSource` to `pathFilename`.
+	writeStringToHere
+		Write `this` to `pathFilename`.
 
 Variables
 ---------
-    settings_autoflakeDEFAULT
-        Default settings dictionary for Python source cleanup.
-    settings_isortDEFAULT
-        Default settings dictionary for Python import sorting.
+	settings_autoflakeDEFAULT
+		Default settings dictionary for Python source cleanup.
+	settings_isortDEFAULT
+		Default settings dictionary for Python import sorting.
 
 References
 ----------
 [1] autoflake
-    https://github.com/PyCQA/autoflake
+	https://github.com/PyCQA/autoflake
 [2] isort
-    https://pycqa.github.io/isort/
+	https://pycqa.github.io/isort/
 """
 from __future__ import annotations
 
@@ -54,6 +56,58 @@ if TYPE_CHECKING:
 	from os import PathLike
 	from types import ModuleType
 	from typing import Any
+
+def appendStringToHere(this: str, pathFilename: PathLike[Any] | PurePath) -> Path:
+	"""Append `this` to the UTF-8 file at `pathFilename`.
+
+	(AI generated docstring)
+
+	You can use this function to add text to the end of a file while preserving existing text. This
+	function creates missing parent directories when possible and creates the file when needed.
+	This function returns the destination path after writing and closing the file.
+
+	Parameters
+	----------
+	this : str
+		The text to append. This function does not add a separator or trailing newline.
+	pathFilename : PathLike[Any] | PurePath
+		The destination file path. This function accepts a filesystem path rather than an open stream.
+
+	Returns
+	-------
+	destinationAppended : Path
+		The destination path as a `Path`, without resolving the path to an absolute path.
+
+	See Also
+	--------
+	`writeStringToHere`
+		Replace a file's contents or write to an open text stream.
+
+	File Writing
+	------------
+	This function prepares parent directories with `makeDirectorySafely` [1], then opens the file in
+	append mode with UTF-8 encoding and `newline=''` [2]. Newline characters in `this` are written
+	without translation. This function writes and flushes the text with `writeStringToHere` [3].
+	Directory creation suppresses `OSError`, but errors from opening or writing the file propagate.
+
+	Examples
+	--------
+	No invocation of this function exists elsewhere in the codebase.
+
+	References
+	----------
+	[1] `makeDirectorySafely`
+
+	[2] Python `open` modes, encoding, and newline handling.
+		https://docs.python.org/3/library/functions.html#open
+	[3] `writeStringToHere`
+
+	"""
+	pathFilename = Path(pathFilename)
+	makeDirectorySafely(pathFilename)
+	with pathFilename.open(encoding='utf-8', mode='a', newline='') as streamAppend:
+		writeStringToHere(this, streamAppend)
+	return pathFilename
 
 def importLogicalPath2Identifier(logicalPathModule: identifierDotAttribute, identifier: str, packageIdentifierIfRelative: str | None = None) -> Any:
 	"""Import `identifier` from the module named by `logicalPathModule`.
@@ -82,6 +136,7 @@ def importLogicalPath2Identifier(logicalPathModule: identifierDotAttribute, iden
 	return getattr(moduleImported, identifier)
 
 def importPathFilename2Identifier(pathFilename: PathLike[Any] | PurePath, identifier: str, moduleIdentifier: str | None = None) -> Any:
+	#ruff: ignore[docstring-extraneous-exception]
 	"""Import `identifier` from the Python file at `pathFilename`.
 
 	You can use this function to load a Python source file as a module and retrieve a named attribute
@@ -118,7 +173,7 @@ def importPathFilename2Identifier(pathFilename: PathLike[Any] | PurePath, identi
 		https://docs.python.org/3/library/importlib.html#importlib.util.spec_from_file_location
 	[2] `importlib.util.module_from_spec`
 		https://docs.python.org/3/library/importlib.html#importlib.util.module_from_spec
-	"""  # noqa: DOC502
+	"""
 	pathFilename = Path(pathFilename)
 
 	importlibSpecification: ModuleSpec | None = importlib.util.spec_from_file_location(moduleIdentifier or pathFilename.stem, pathFilename)

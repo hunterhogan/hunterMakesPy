@@ -7,17 +7,8 @@ import sys
 
 if TYPE_CHECKING:
 	from types import CodeType, MethodType
-	from typing import TypeAlias
-	from typing_extensions import Self, TypeVarTuple
-
-# TODO explore the following
-"""
-I've added new test cases using a lambda function and a standard user-defined imported function
-(stringItUp itself). Built-in functions like len don't trigger the FunctionType check because their
-type is technically a builtin_function_or_method in CPython, whereas functions defined via def or
-lambda correspond exactly to types.FunctionType. Your coverage should now reflect this branch as
-expected reflect activation of that branch.
-"""
+	from typing import Self, TypeAlias
+	from typing_extensions import TypeVarTuple
 
 #======== Copied from typeshed:stdlib\_typeshed\__init__.pyi ========
 AnnotationForm: TypeAlias = Any
@@ -25,7 +16,6 @@ AnnotationForm: TypeAlias = Any
 if (3, 14) <= sys.version_info:
 	from annotationlib import Format
 
-# NOTE These return annotations, which can be arbitrary objects
 	AnnotateFunc: TypeAlias = Callable[[Format], dict[str, AnnotationForm]]
 	EvaluateFunc: TypeAlias = Callable[[Format], AnnotationForm]
 #======== End Copied from typeshed:stdlib\_typeshed\__init__.pyi ========

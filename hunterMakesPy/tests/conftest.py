@@ -41,7 +41,7 @@ def pathTmpTesting(tmp_path: pathlib.Path) -> pathlib.Path:
 # Fixture for predictable Python source code samples
 @pytest.fixture
 def dictionaryPythonSourceSamples() -> dict[str, str]:
-	"""Provide predictable Python source code samples for testing."""  # noqa: DOC201
+	"""Provide predictable Python source code samples for testing."""
 	return {
 		'functionFibonacci': "def fibonacciNumber():\n    return 13\n",
 		'functionPrime': "def primeNumber():\n    return 17\n",
@@ -53,19 +53,19 @@ def dictionaryPythonSourceSamples() -> dict[str, str]:
 # Fixture for IO stream objects
 @pytest.fixture
 def streamMemoryString() -> io.StringIO:
-	"""Provide a StringIO object for testing stream operations."""  # noqa: DOC201
+	"""Provide a StringIO object for testing stream operations."""
 	return io.StringIO()
 
 # Fixture for predictable directory names using cardinal directions
 @pytest.fixture
 def listDirectoryNamesCardinal() -> list[str]:
-	"""Provide predictable directory names using cardinal directions."""  # noqa: DOC201
+	"""Provide predictable directory names using cardinal directions."""
 	return ['north', 'south', 'east', 'west']
 
 # Fixture for predictable file content using Fibonacci numbers
 @pytest.fixture
 def listFileContentsFibonacci() -> list[str]:
-	"""Provide predictable file contents using Fibonacci sequence."""  # noqa: DOC201
+	"""Provide predictable file contents using Fibonacci sequence."""
 	return ['fibonacci8', 'fibonacci13', 'fibonacci21', 'fibonacci34']
 
 def uniformTestFailureMessage(expected: Any, actual: Any, functionName: str, *arguments: Any, **keywordArguments: Any) -> str:
@@ -115,7 +115,7 @@ def standardizedEqualTo(expected: Any, functionTarget: Callable[..., Any], *argu
 		Keyword arguments to pass to `functionTarget`.
 
 	"""
-	if type(expected) == type[Exception]:  # noqa: E721
+	if type(expected) == type[Exception]:  # ruff: ignore[type-comparison]
 		messageExpected: str = expected.__name__
 	else:
 		messageExpected = expected
@@ -130,7 +130,7 @@ def standardizedEqualTo(expected: Any, functionTarget: Callable[..., Any], *argu
 	assert actual == expected, uniformTestFailureMessage(messageExpected, messageActual, functionName, *arguments, **keywordArguments)
 
 # Why I wish I could figure out how to implement standardized* test functions.
-# ruff: noqa: ERA001
+# ruff: file-ignore[commented-out-code]
 	# standardizedEqualTo(expected, updateExtendPolishDictionaryLists, *value_dictionaryLists, **keywordArguments)
 # NOTE one line of code with `standardizedEqualTo` (above) replaced the following ten lines of code. Use `standardizedEqualTo`.
 	# if isinstance(expected, type) and issubclass(expected, Exception):

@@ -12,14 +12,17 @@ if TYPE_CHECKING:
 	from importlib.machinery import ModuleSpec
 
 def getIdentifierPackagePACKAGING(identifierPackageFALLBACK: str) -> str:
-	"""Get package name from pyproject.toml or fallback to provided value."""  # noqa: DOC201
+	#ruff: ignore[docstring-missing-returns]
+	"""Get package name from pyproject.toml or fallback to provided value."""
 	try:
 		return tomli_loads(Path('pyproject.toml').read_text(encoding='utf-8'))['project']['name']
-	except Exception:  # noqa: BLE001
+	#ruff: ignore[blind-except]
+	except Exception:
 		return identifierPackageFALLBACK
 
 def getPathPackageINSTALLING(identifierPackage: str) -> Path:
-	"""Return the root directory of the installed package."""  # noqa: DOC201
+	#ruff: ignore[docstring-missing-returns]
+	"""Return the root directory of the installed package."""
 	try:
 		moduleSpecification: ModuleSpec | None = find_spec(identifierPackage)
 		if moduleSpecification and moduleSpecification.origin:
@@ -54,8 +57,6 @@ class PackageSettings:
 
 	```python
 	settings = PackageSettings(identifierPackageFALLBACK='cobraPy')
-	# Automatically discovers package name from pyproject.toml
-	# Resolves installation path from package identifier
 	```
 
 	Explicit configuration for specific deployment:
@@ -117,7 +118,6 @@ def raiseIfNone(expression: TypeSansNone | None, errorMessage: str | None = None
 	Basic usage with attribute access:
 	```python
 	annotation = raiseIfNone(ast_arg.annotation)
-	# Raises ValueError if ast_arg.annotation is None
 	```
 
 	Function return value validation:
@@ -130,7 +130,6 @@ def raiseIfNone(expression: TypeSansNone | None, errorMessage: str | None = None
 
 	listFiles = ['document.txt', 'image.png', 'data.csv']
 	filename = raiseIfNone(findFirstMatch(listFiles, '.txt'))
-	# Returns 'document.txt' when match exists
 	```
 
 	Dictionary value retrieval with custom message:
@@ -138,11 +137,6 @@ def raiseIfNone(expression: TypeSansNone | None, errorMessage: str | None = None
 	configurationMapping = {'host': 'localhost', 'port': 8080}
 	host = raiseIfNone(configurationMapping.get('host'),
 					"Configuration must include 'host' setting")
-	# Returns 'localhost' when key exists
-
-	# This would raise ValueError with custom message:
-	# database = raiseIfNone(configurationMapping.get('database'),
-	#                      "Configuration must include 'database' setting")
 	```
 
 	Thanks

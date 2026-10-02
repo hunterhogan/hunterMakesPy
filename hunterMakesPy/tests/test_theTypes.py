@@ -10,8 +10,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from hunterMakesPy import CallableFunction as CallableFunction
 from hunterMakesPy.tests.conftest import uniformTestFailureMessage
-from typing import TYPE_CHECKING
-from typing_extensions import Self
+from typing import Self, TYPE_CHECKING
 import pytest
 
 if TYPE_CHECKING:
