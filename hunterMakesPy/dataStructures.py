@@ -36,7 +36,6 @@ if TYPE_CHECKING:
 	from typing import Any, Literal
 
 def removeExtraWhitespace(string: str) -> str:
-	#ruff: ignore[docstring-missing-returns]
 	"""Remove extra whitespace from string representation of Python data structures."""
 	commas: str = regex.sub(r',\s+', ',', string)
 	bracketsOpening: str = regex.sub(r'([\[\(])\s+', r'\1', commas)
@@ -72,7 +71,6 @@ def autoDecodingRLE(arrayTarget: NDArray[integer[Any]], *, assumeAddSpaces: bool
 	"""
 	def sliceNDArrayToNestedLists(arraySlice: NDArray[integer[Any]]) -> Any:
 		def getLengthOption(optionAsStr: str) -> int:
-			#ruff: ignore[docstring-missing-returns]
 			"""`assumeAddSpaces` characters: `,` 1 space; `]*` 2 spaces."""
 			return assumeAddSpaces * (optionAsStr.count(',') + optionAsStr.count(']*') * 2) + len(optionAsStr)
 
@@ -161,7 +159,6 @@ def autoDecodingRLE(arrayTarget: NDArray[integer[Any]], *, assumeAddSpaces: bool
 	)
 
 	def replacementByContext(match: regex.Match[str]) -> str:
-		#ruff: ignore[docstring-missing-returns]
 		"""Generate replacement string based on context patterns."""
 		elephino: dict[str, str | None] = match.groupdict()
 		joinAhead: str | None = elephino.get('joinAhead') or elephino.get('joinAheadJoinAhead')

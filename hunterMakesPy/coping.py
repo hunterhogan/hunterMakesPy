@@ -12,7 +12,6 @@ if TYPE_CHECKING:
 	from importlib.machinery import ModuleSpec
 
 def getIdentifierPackagePACKAGING(identifierPackageFALLBACK: str) -> str:
-	#ruff: ignore[docstring-missing-returns]
 	"""Get package name from pyproject.toml or fallback to provided value."""
 	try:
 		return tomli_loads(Path('pyproject.toml').read_text(encoding='utf-8'))['project']['name']
@@ -21,7 +20,6 @@ def getIdentifierPackagePACKAGING(identifierPackageFALLBACK: str) -> str:
 		return identifierPackageFALLBACK
 
 def getPathPackageINSTALLING(identifierPackage: str) -> Path:
-	#ruff: ignore[docstring-missing-returns]
 	"""Return the root directory of the installed package."""
 	try:
 		moduleSpecification: ModuleSpec | None = find_spec(identifierPackage)
