@@ -85,23 +85,14 @@ def appendStringToHere(this: str, pathFilename: PathLike[Any] | PurePath) -> Pat
 
 	File Writing
 	------------
-	This function prepares parent directories with `makeDirectorySafely` [1], then opens the file in
-	append mode with UTF-8 encoding and `newline=''` [2]. Newline characters in `this` are written
-	without translation. This function writes and flushes the text with `writeStringToHere` [3].
+	This function prepares parent directories with `makeDirectorySafely`, then opens the file in
+	append mode with UTF-8 encoding and `newline=''`. Newline characters in `this` are written
+	without translation. This function writes and flushes the text with `writeStringToHere`.
 	Directory creation suppresses `OSError`, but errors from opening or writing the file propagate.
 
 	Examples
 	--------
 	No invocation of this function exists elsewhere in the codebase.
-
-	References
-	----------
-	[1] `makeDirectorySafely`
-
-	[2] Python `open` modes, encoding, and newline handling.
-		https://docs.python.org/3/library/functions.html#open
-	[3] `writeStringToHere`
-
 	"""
 	pathFilename = Path(pathFilename)
 	makeDirectorySafely(pathFilename)
@@ -141,8 +132,8 @@ def importPathFilename2Identifier(pathFilename: PathLike[Any] | PurePath, identi
 
 	You can use this function to load a Python source file as a module and retrieve a named attribute
 	from that module. This function builds a module specification with
-	`importlib.util.spec_from_file_location` [1], executes the loaded module with
-	`importlib.util.module_from_spec` [2], and returns the attribute selected by `identifier`.
+	`importlib.util.spec_from_file_location`, executes the loaded module with
+	`importlib.util.module_from_spec`, and returns the attribute selected by `identifier`.
 
 	Parameters
 	----------
@@ -166,13 +157,6 @@ def importPathFilename2Identifier(pathFilename: PathLike[Any] | PurePath, identi
 		Raised when the loader cannot read `pathFilename`.
 	AttributeError
 		Raised when the loaded module does not define `identifier`.
-
-	References
-	----------
-	[1] `importlib.util.spec_from_file_location`
-		https://docs.python.org/3/library/importlib.html#importlib.util.spec_from_file_location
-	[2] `importlib.util.module_from_spec`
-		https://docs.python.org/3/library/importlib.html#importlib.util.module_from_spec
 	"""
 	pathFilename = Path(pathFilename)
 
@@ -189,21 +173,14 @@ def makeDirectorySafely(pathFilename: Any) -> None:
 	"""Create parent directories for `pathFilename` when `pathFilename` is a filesystem path.
 
 	You can use this function to prepare an output location before a later write operation. This
-	function ignores `OSError` from `Path.mkdir` [1] and does nothing when `pathFilename` is an
-	`IOBase` [2] stream.
+	function ignores `OSError` from `Path.mkdir` and does nothing when `pathFilename` is an
+	`IOBase` stream.
 
 	Parameters
 	----------
 	pathFilename : Any
 		The target path or open stream. When `pathFilename` is not an `IOBase` instance, the
 		function creates the parent directory of `pathFilename`.
-
-	References
-	----------
-	[1] `pathlib.Path.mkdir`
-		https://docs.python.org/3/library/pathlib.html#pathlib.Path.mkdir
-	[2] `IOBase`
-		https://docs.python.org/3/library/io.html#io.IOBase
 	"""
 	if not isinstance(pathFilename, IOBase):
 		with contextlib.suppress(OSError):
@@ -296,7 +273,7 @@ def writeStringToHere(this: str, pathFilename: PathLike[Any] | PurePath | TextIO
 
 	You can use this function to send text to a filesystem path or an open text stream. This function
 	creates the parent directory when `pathFilename` is path-like, writes UTF-8 text with
-	`Path.write_text` [1], or writes and flushes a `TextIOBase` [2] stream.
+	`Path.write_text`, or writes and flushes a `TextIOBase` stream.
 
 	Parameters
 	----------
@@ -326,13 +303,6 @@ def writeStringToHere(this: str, pathFilename: PathLike[Any] | PurePath | TextIO
 		pathFilename.relative_to(pathTransformee)
 	)
 	```
-
-	References
-	----------
-	[1] `pathlib.Path.write_text`
-		https://docs.python.org/3/library/pathlib.html#pathlib.Path.write_text
-	[2] `TextIOBase`
-		https://docs.python.org/3/library/io.html#io.TextIOBase
 	"""
 	if isinstance(pathFilename, TextIOBase):
 		pathFilename.write(str(this))

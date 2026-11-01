@@ -66,7 +66,6 @@ class PackageSettings:
 		fileExtension='.pyx'
 	)
 	```
-
 	"""
 
 	identifierPackageFALLBACK: dataclasses.InitVar[str] = ''
@@ -140,7 +139,6 @@ def raiseIfNone(expression: TypeSansNone | None, errorMessage: str | None = None
 	Thanks
 	------
 	sobolevn, https://github.com/sobolevn, for the seed of this function. https://github.com/python/typing/discussions/1997#discussioncomment-13108399
-
 	"""
 	if expression is None:
 		message: str = errorMessage or 'A function unexpectedly returned `None`. Hint: look at the traceback immediately before `raiseIfNone`.'

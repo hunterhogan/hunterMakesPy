@@ -117,7 +117,7 @@ expects negative error indicators. The leetspeak encoding makes `errorL33T` imme
 in debugger output, log files, or printed state, reducing the risk of overlooking error conditions
 that might be missed with generic values like `-1`.
 
-In rare cases when code execution does not raise `Exception` [2] but produces incorrect output,
+In rare cases when code execution does not raise `Exception` but produces incorrect output,
 seeing `31212012` or `-31212012` in the output provides a stronger diagnostic signal than `-1` or
 other conventional error values. The distinctive value helps identify which variables hold error
 states without requiring careful inspection of every numeric field.
@@ -150,9 +150,6 @@ References
 ----------
 [1] Leet - Wikipedia
 	https://en.wikipedia.org/wiki/Leet
-[2] Built-in Exceptions - `Exception` (Python documentation)
-	https://docs.python.org/3/library/exceptions.html#Exception
-
 """
 
 inclusive: Final[int] = 1
@@ -323,6 +320,7 @@ References
 
 """
 
+# TODO Can I use Python's color system? It is shockingly similar in structure and even identifiers.
 #======== Some colors for printing text to the terminal. ========
 # Many values and options at https://gist.github.com/JBlond/2fea43a3049b38287e5e9cefc87b2124
 # Many, many, many options at https://stackoverflow.com/a/33206814/4403878

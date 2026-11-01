@@ -6,8 +6,8 @@
 You can use this module to convert integer-compatible inputs into lists of integers, calculate
 worker counts from absolute or fractional limits, and interpret strings as `True`, `False`, or
 `None`. Integer validation reports incompatible values with context about the caller's parameter.
-Worker-count calculation uses the system CPU count from `multiprocessing` [1] by default and also
-accepts numeric strings. Binary integer inputs use `charset_normalizer` [2] for text decoding.
+Worker-count calculation uses the system CPU count from `multiprocessing` by default and also
+accepts numeric strings. Binary integer inputs use `charset_normalizer` for text decoding.
 
 Contents
 --------
@@ -22,14 +22,6 @@ Functions
 Classes
 	ErrorMessageContext
 		Store value, type, and container information for integer-validation error messages.
-
-References
-----------
-[1] Python `multiprocessing`.
-	https://docs.python.org/3/library/multiprocessing.html
-[2] charset-normalizer.
-	https://github.com/Ousret/charset_normalizer
-
 """
 from __future__ import annotations
 
@@ -78,14 +70,14 @@ def defineConcurrencyLimit(*, limit: ConcurrencyLimit, cpuTotal: int = multiproc
 
 	String Parsing
 	--------------
-	This function first uses `oopsieKwargsie` [1] to interpret strings representing `True`, `False`,
+	This function first uses `oopsieKwargsie` to interpret strings representing `True`, `False`,
 	or `None`, ignoring capitalization and surrounding whitespace. Other strings are converted
 	with `float`. An invalid numeric string raises `ValueError` with the conversion error as the cause.
 
 	Processor Counts
 	----------------
 	This function rounds floating-point counts whose absolute value is at least one before applying
-	the count rules. Rounding uses Python `round` [2], including rounding ties to the nearest even
+	the count rules. Rounding uses Python `round`, including rounding ties to the nearest even
 	integer. This function applies the following rules before enforcing the platform bounds.
 
 	- `None`, `False`, or zero select `cpuTotal`.
@@ -96,7 +88,7 @@ def defineConcurrencyLimit(*, limit: ConcurrencyLimit, cpuTotal: int = multiproc
 	- A negative count of at most negative one reserves `abs(int(limit))` CPUs.
 
 	This function caps the result at 61 on Windows, matching the restriction for
-	`concurrent.futures.ProcessPoolExecutor` [3]. This function then enforces the minimum of one.
+	`concurrent.futures.ProcessPoolExecutor`. This function then enforces the minimum of one.
 
 	Parameters
 	----------
@@ -107,7 +99,7 @@ def defineConcurrencyLimit(*, limit: ConcurrencyLimit, cpuTotal: int = multiproc
 		Strings are also accepted at runtime, although the type annotation excludes strings.
 	cpuTotal : int = multiprocessing.cpu_count()
 		The CPU count used for fractional limits and reserved-CPU calculations. The default is the
-		value of `multiprocessing.cpu_count` [4] evaluated when this module is imported.
+		value of `multiprocessing.cpu_count` evaluated when this module is imported.
 
 	Returns
 	-------
@@ -129,17 +121,6 @@ def defineConcurrencyLimit(*, limit: ConcurrencyLimit, cpuTotal: int = multiproc
 
 		workers = defineConcurrencyLimit(limit=0.75)
 		```
-
-	References
-	----------
-	[1] `oopsieKwargsie`
-
-	[2] Python `round`.
-		https://docs.python.org/3/library/functions.html#round
-	[3] Python `concurrent.futures.ProcessPoolExecutor`.
-		https://docs.python.org/3/library/concurrent.futures.html#concurrent.futures.ProcessPoolExecutor
-	[4] Python `multiprocessing.cpu_count`.
-		https://docs.python.org/3/library/multiprocessing.html#multiprocessing.cpu_count
 	"""
 	if isinstance(limit, str):
 		limitFromString: bool | str | None = oopsieKwargsie(limit)
@@ -196,7 +177,6 @@ def _constructErrorMessage(context: ErrorMessageContext, parameterName: str, par
 	-------
 	errorMessage : str
 		The constructed error message string.
-
 	"""
 	messageParts: list[str] = ["I received "]
 

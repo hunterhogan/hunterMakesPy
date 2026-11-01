@@ -265,7 +265,7 @@ def updateExtendPolishDictionaryLists(*dictionaryLists: Mapping[文件, Iterable
 	the list follows the iterable's order, which may be unpredictable for sets. Strings contribute
 	individual characters, and mapping values contribute their keys.
 
-	Deduplication uses `dict.fromkeys` [1] to preserve first occurrences. Sorting uses `sorted` [2]
+	Deduplication uses `dict.fromkeys` [1] to preserve first occurrences. Sorting uses `sorted`
 	and runs after deduplication. Every retained value becomes a list regardless of the input type.
 
 	Parameters
@@ -316,8 +316,6 @@ def updateExtendPolishDictionaryLists(*dictionaryLists: Mapping[文件, Iterable
 	----------
 	[1] Python dictionaries and `dict.fromkeys`.
 		https://docs.python.org/3/library/stdtypes.html#dict.fromkeys
-	[2] Python `sorted`.
-		https://docs.python.org/3/library/functions.html#sorted
 	"""
 	ePluribusUnum: dict[文件, list[文义]] = {}
 
