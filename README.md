@@ -66,9 +66,10 @@ step = decreasing
 Load functions or classes from `"scipy.signal.windows"` or `"path/to/file.py"` without manual module-loading boilerplate.
 
 ```python
-from hunterMakesPy.filesystemToolkit import importLogicalPath2Identifier
+from hunterMakesPy.kitFilesystem import importLogicalPath2Identifier, importPathFilename2Identifier
 
 windowFunction = importLogicalPath2Identifier("scipy.signal.windows", "hann")
+parse = importPathFilename2Identifier("path/to/asdl.py", "parse")
 ```
 
 ## Create Directories Safely and Write Files with Formatting
@@ -76,7 +77,7 @@ windowFunction = importLogicalPath2Identifier("scipy.signal.windows", "hann")
 Write to `"deep/nested/path/file.txt"` and parent directories are created automatically. `writePython` removes unused imports and sorts import statements before writing.
 
 ```python
-from hunterMakesPy.filesystemToolkit import writeStringToHere, writePython
+from hunterMakesPy.kitFilesystem import writeStringToHere, writePython
 
 writeStringToHere("content", "nested/dirs/file.txt")  # Creates dirs
 writePython(sourceCode, "output/module.py")           # Formats, then writes
@@ -128,16 +129,14 @@ from hunterMakesPy import PackageSettings
 settings = PackageSettings(identifierPackageFALLBACK="myPackage")
 ```
 
-## Reuse Test Suites for Custom Implementations
+## Report the Call That Broke a Test
 
-Import parameterized test generators to validate custom functions that match the expected signatures.
+Import assertion functions that name the function and the arguments in the failure message, so a failing parameterized test shows exactly which call produced the wrong value. `assert_array_equal` and `assert_allclose` do the same for NumPy arrays.
 
 ```python
-from hunterMakesPy.tests.test_parseParameters import PytestFor_intInnit
+from hunterMakesPy.tests import assertEqualTo
 
-@pytest.mark.parametrize("test_name,test_func", PytestFor_intInnit(myFunction))
-def test_my_integer_validator(test_name, test_func):
-    test_func()
+assertEqualTo(intInnit(["8080", 443]), [8080, 443], intInnit.__name__, ["8080", 443])
 ```
 
 ## My recovery

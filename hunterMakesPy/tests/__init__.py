@@ -1,33 +1,31 @@
-"""Access comprehensive test suites for the hunterMakesPy package.
+"""Test the hunterMakesPy package, and share its assertion helpers with other packages.
 
-(AI generated docstring)
+Other packages import the assertion helpers from here:
 
-You can use this package to run test suites that validate all major functions and features
-in hunterMakesPy. The tests cover defensive programming utilities, parameter validation,
-file system operations, and data structure manipulation. Each test module corresponds to a
-public module in the parent package and can be executed independently using pytest [1].
+```python
+from hunterMakesPy.tests import assert_array_equal, assertEqualTo
+```
 
-The test suites use the conftest.py infrastructure for shared fixtures and test utilities.
-Tests are organized by module with comprehensive coverage of edge cases, error conditions,
-and typical usage patterns. You can import individual test functions or run entire test
-modules to validate behavior in your environment.
-
-Test Modules
-------------
-test_coping
-	Tests for defensive programming utilities and package configuration.
-test_dataStructures
-	Tests for data structure manipulation and encoding functions.
-test_filesystemToolkit
-	Tests for file system operations and dynamic imports.
-test_parseParameters
-	Tests for parameter validation and concurrency limit computation.
-test_theTypes
-	Tests for type protocols and type aliases.
-
-References
-----------
-[1] pytest - Context7
-	https://docs.pytest.org/
-
+Test package organization (in hunterMakesPy/tests/):
+- conftest.py: Fixtures: working directories with a given `pyproject.toml` and Python files written from source
+- conftestAnnex.py: Assertion helpers, re-exported here, with assertion rewriting registered before import
+- dataSamples/: Static samples, expected results with their basis, and pytest-ready parameter rows
+- test_coping.py: Package identity and location, and `raiseIfNone`
+- test_dataStructures.py: Run-length encoding, whitespace removal, string extraction, and merging mappings of lists
+- test_kitFilesystem.py: Writing and appending text, writing Python source, creating directories, and importing identifiers
+- test_parseParameters.py: Worker counts, integer validation, and interpreting strings as `True`, `False`, or `None`
+- test_theTypes.py: Runtime behavior of `CallableFunction`
 """
+from __future__ import annotations
+
+import pytest
+
+# Register assertion rewriting before importing `conftestAnnex`, so its plain `assert` statements report their operands.
+# ruff: ignore[non-empty-init-module]
+pytest.register_assert_rewrite('hunterMakesPy.tests.conftestAnnex')
+
+# isort: split
+# ruff: ignore[module-import-not-at-top-of-file]
+from hunterMakesPy.tests.conftestAnnex import (
+	assert_allclose as assert_allclose, assert_approx as assert_approx, assert_array_equal as assert_array_equal,
+	assertEqualTo as assertEqualTo, messageTestFailure as messageTestFailure, messageTestFailure_ndarray as messageTestFailure_ndarray)

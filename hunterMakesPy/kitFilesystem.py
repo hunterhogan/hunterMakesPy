@@ -4,8 +4,8 @@
 
 You can use this module to import `identifier` values from logical module paths or Python files,
 create parent directories for output paths, append text to files, and write text or formatted Python
-source to files and text streams. The writing functions can normalize Python imports with
-`autoflake` [1] and `isort` [2] before the destination receives the final text.
+source to files and text streams. The function `writePython` removes unused imports with `autoflake`
+and sorts imports with `isort` before the destination receives the final text.
 
 Contents
 --------
@@ -18,26 +18,16 @@ Functions
 		Import `identifier` from the Python file at `pathFilename`.
 	makeDirectorySafely
 		Create parent directories for `pathFilename` when `pathFilename` is a filesystem path.
-	makeDirsSafely
-		Temporary alias for `makeDirectorySafely`.
 	writePython
 		Format `pythonSource` and write `pythonSource` to `pathFilename`.
 	writeStringToHere
 		Write `this` to `pathFilename`.
 
 Variables
----------
 	settings_autoflakeDEFAULT
 		Default settings dictionary for Python source cleanup.
 	settings_isortDEFAULT
 		Default settings dictionary for Python import sorting.
-
-References
-----------
-[1] autoflake
-	https://github.com/PyCQA/autoflake
-[2] isort
-	https://pycqa.github.io/isort/
 """
 from __future__ import annotations
 
@@ -83,16 +73,13 @@ def appendStringToHere(this: str, pathFilename: PathLike[Any] | PurePath) -> Pat
 	`writeStringToHere`
 		Replace a file's contents or write to an open text stream.
 
-	File Writing
-	------------
-	This function prepares parent directories with `makeDirectorySafely`, then opens the file in
-	append mode with UTF-8 encoding and `newline=''`. Newline characters in `this` are written
-	without translation. This function writes and flushes the text with `writeStringToHere`.
-	Directory creation suppresses `OSError`, but errors from opening or writing the file propagate.
-
-	Examples
-	--------
-	No invocation of this function exists elsewhere in the codebase.
+	File Appending
+	--------------
+	The file receives `this` as UTF-8 text at the end of the existing text. Newline characters in
+	`this` are written without translation, so a line feed remains a line feed on every operating
+	system.
+	A failure to create a parent directory is silent, but a failure to open or write the file
+	raises the corresponding `OSError`.
 	"""
 	pathFilename = Path(pathFilename)
 	makeDirectorySafely(pathFilename)
@@ -114,14 +101,40 @@ def importLogicalPath2Identifier(logicalPathModule: identifierDotAttribute, iden
 	identifier : str
 		The attribute name to retrieve from the imported module.
 	packageIdentifierIfRelative : str | None = None
-		The package name that anchors a relative `logicalPathModule`. `None` means that
-		`logicalPathModule` is interpreted as an absolute import.
+		The package name that anchors a relative `logicalPathModule`, such as `'.kitFilesystem'`.
+		`None` means that `logicalPathModule` is interpreted as an absolute import.
 
 	Returns
 	-------
 	identifierImported : Any
 		The attribute retrieved from the imported module.
 
+	Raises
+	------
+	ModuleNotFoundError
+		Raised when Python cannot find the module named by `logicalPathModule`.
+	AttributeError
+		Raised when the imported module does not define `identifier`.
+
+	See Also
+	--------
+	`importPathFilename2Identifier`
+		Import `identifier` from a Python file instead of from a logical module path.
+
+	Examples
+	--------
+	The `mapFolding` package retrieves a dataclass from a logical module path.
+
+		```python
+		from hunterMakesPy.kitFilesystem import importLogicalPath2Identifier
+
+		dataclass: type = importLogicalPath2Identifier(logicalPathDataclass, identifierDataclass)
+		```
+
+	References
+	----------
+	[1] importlib.import_module - Python documentation
+		https://docs.python.org/3/library/importlib.html#importlib.import_module
 	"""
 	moduleImported: ModuleType = importlib.import_module(logicalPathModule, packageIdentifierIfRelative)
 	return getattr(moduleImported, identifier)
@@ -130,10 +143,10 @@ def importPathFilename2Identifier(pathFilename: PathLike[Any] | PurePath, identi
 	#ruff: ignore[docstring-extraneous-exception]
 	"""Import `identifier` from the Python file at `pathFilename`.
 
+	(AI generated docstring)
+
 	You can use this function to load a Python source file as a module and retrieve a named attribute
-	from that module. This function builds a module specification with
-	`importlib.util.spec_from_file_location`, executes the loaded module with
-	`importlib.util.module_from_spec`, and returns the attribute selected by `identifier`.
+	from that module. The file does not need to be part of an installed package.
 
 	Parameters
 	----------
@@ -141,8 +154,9 @@ def importPathFilename2Identifier(pathFilename: PathLike[Any] | PurePath, identi
 		The filesystem path of the Python source file.
 	identifier : str
 		The attribute name to retrieve from the loaded module.
-	moduleIdentifier : str | None = None
-		The module name to assign during loading. `None` uses `pathFilename.stem`.
+	moduleIdentifier : str = pathFilename.stem
+		The module name to assign during loading. `None` and empty text use the filename of
+		`pathFilename` without the suffix.
 
 	Returns
 	-------
@@ -152,11 +166,36 @@ def importPathFilename2Identifier(pathFilename: PathLike[Any] | PurePath, identi
 	Raises
 	------
 	ImportError
-		Raised when Python creates a module specification without a usable loader.
+		Raised when Python cannot create a module loader for `pathFilename`, such as when the
+		filename suffix is not a Python source suffix like `.py`.
 	FileNotFoundError
 		Raised when the loader cannot read `pathFilename`.
 	AttributeError
 		Raised when the loaded module does not define `identifier`.
+
+	See Also
+	--------
+	`importLogicalPath2Identifier`
+		Import `identifier` from a logical module path instead of from a Python file.
+
+	Module Execution
+	----------------
+	Each call executes the top-level code in `pathFilename` again and creates a new module object.
+	This function does not add the module to `sys.modules`, so a later Python keyword `import` with
+	the same module name does not find the loaded module. Exceptions raised by the top-level code in
+	`pathFilename` propagate to the caller.
+
+	Examples
+	--------
+	The `astToolFactory` package retrieves a parsing function from a Python file in the CPython
+	source tree.
+
+		```python
+		from hunterMakesPy.kitFilesystem import importPathFilename2Identifier
+
+		asdl_parse: Callable[[str], asdlParsedProtocol] = importPathFilename2Identifier(
+			path_asdl / filename_asdlDOTpy, 'parse')
+		```
 	"""
 	pathFilename = Path(pathFilename)
 
@@ -172,21 +211,35 @@ def importPathFilename2Identifier(pathFilename: PathLike[Any] | PurePath, identi
 def makeDirectorySafely(pathFilename: Any) -> None:
 	"""Create parent directories for `pathFilename` when `pathFilename` is a filesystem path.
 
-	You can use this function to prepare an output location before a later write operation. This
-	function ignores `OSError` from `Path.mkdir` and does nothing when `pathFilename` is an
-	`IOBase` stream.
+	(AI generated docstring)
+
+	You can use this function to prepare an output location before a later write operation. You can
+	pass a path or an open stream; an open stream does not need a directory, so nothing happens. A
+	failure to create a directory is silent: the later write operation reports any problem with the
+	output location.
 
 	Parameters
 	----------
 	pathFilename : Any
 		The target path or open stream. When `pathFilename` is not an `IOBase` instance, the
-		function creates the parent directory of `pathFilename`.
+		function creates the parent directory of `pathFilename` and every missing ancestor
+		directory. The function does not create `pathFilename` itself.
+
+	Examples
+	--------
+	The `hunterHearsPy` package prepares the directory for a WAV file before writing audio data.
+
+		```python
+		from hunterMakesPy.kitFilesystem import makeDirectorySafely
+
+		makeDirectorySafely(pathFilename)
+		soundfile.write(file=pathFilename, data=audioData, samplerate=sampleRate, subtype=subtype
+			, format='WAV')
+		```
 	"""
 	if not isinstance(pathFilename, IOBase):
 		with contextlib.suppress(OSError):
 			Path(pathFilename).parent.mkdir(parents=True, exist_ok=True)
-makeDirsSafely = makeDirectorySafely
-"""Alias for `makeDirectorySafely`."""
 
 settings_autoflakeDEFAULT: dict[str, list[str] | bool] = {
 	'additional_imports': []
@@ -195,7 +248,12 @@ settings_autoflakeDEFAULT: dict[str, list[str] | bool] = {
 	, 'remove_duplicate_keys': False
 	, 'remove_unused_variables': False
 }
-"""Default settings dictionary for Python source cleanup."""
+"""Default settings dictionary for Python source cleanup.
+
+You can read this dictionary to see the keyword arguments that `writePython` passes to `autoflake`
+when `settings` has no `'autoflake'` key. Changes to this dictionary affect every later call to
+`writePython` in the same process that uses the default `autoflake` settings.
+"""
 
 settings_isortDEFAULT: dict[str, bool | int | str | list[str]] = {
 	"combine_as_imports": True
@@ -210,7 +268,12 @@ settings_isortDEFAULT: dict[str, bool | int | str | list[str]] = {
 	, "no_sections": True
 	, "use_parentheses": True
 }
-"""Default settings dictionary for Python import sorting."""
+"""Default settings dictionary for Python import sorting.
+
+You can read this dictionary to see the keyword arguments that `writePython` passes to `isort`
+when `settings` has no `'isort'` key. Changes to this dictionary affect every later call to
+`writePython` in the same process that uses the default `isort` settings.
+"""
 
 @overload
 def writePython(pythonSource: str, pathFilename: PathLike[Any] | PurePath, settings: dict[str, dict[str, Any]] | None = None) -> Path: ...
@@ -222,8 +285,10 @@ def writePython(pythonSource: str, pathFilename: PathLike[Any] | PurePath | Text
 	(AI generated docstring)
 
 	You can use this function to normalize Python imports and then send the resulting source code to a
-	file path or open text stream. This function applies `autoflake` [1] first, applies `isort` [2]
-	second, appends a trailing newline, and writes the final text to `pathFilename`.
+	file path or open text stream. `autoflake` [1] removes unused imports, `isort` [2] sorts the
+	remaining imports, and `pathFilename` receives the formatted source code followed by a newline.
+	When the formatted source code already ends with a newline, the written text ends with a blank
+	line.
 
 	Parameters
 	----------
@@ -232,27 +297,44 @@ def writePython(pythonSource: str, pathFilename: PathLike[Any] | PurePath | Text
 	pathFilename : PathLike[Any] | PurePath | TextIOBase
 		The target destination. `pathFilename` can be a filesystem path or an open text stream.
 	settings : dict[str, dict[str, Any]] | None = None
-		Formatter configuration. The `'autoflake'` key overrides `settings_autoflakeDEFAULT`. The
-		`'isort'` key overrides `settings_isortDEFAULT`. `None` uses the default settings for each
-		formatter.
+		Formatter configuration. The `'autoflake'` value replaces `settings_autoflakeDEFAULT`
+		entirely, and the `'isort'` value replaces `settings_isortDEFAULT` entirely; this function
+		does not merge a supplied value with the default dictionary. A missing key, `None`, and an
+		empty dictionary use the default settings for the corresponding formatter.
 
 	Returns
 	-------
 	destinationWritten : Path | TextIOBase
-		The file path or text stream that received the formatted source code.
+		The file path, as a `Path`, or the text stream that received the formatted source code.
 
 	See Also
 	--------
 	`writeStringToHere`
 		Write text to the same destination types without Python-source formatting.
 
+	File Replacement
+	----------------
+	A path destination receives the same treatment as in `writeStringToHere`: this function
+	creates missing parent directories and replaces any existing file.
+
+	Examples
+	--------
+	The `astToolkit` package writes the source code of an `ast.Module` with optional formatter
+	settings.
+
+		```python
+		from hunterMakesPy.kitFilesystem import writePython
+
+		pythonSource: str = ast.unparse(astModule)
+		writePython(pythonSource, pathFilename, settings)
+		```
+
 	References
 	----------
-	[1] autoflake
+	[1] autoflake - keyword arguments of `fix_code`
 		https://github.com/PyCQA/autoflake
-	[2] isort
-		https://pycqa.github.io/isort/
-
+	[2] isort - configuration options
+		https://pycqa.github.io/isort/docs/configuration/options.html
 	"""
 	if settings is None:
 		settings = {}
@@ -271,9 +353,12 @@ def writeStringToHere(this: str, pathFilename: TextIOBase) -> TextIOBase: ...
 def writeStringToHere(this: str, pathFilename: PathLike[Any] | PurePath | TextIOBase) -> Path | TextIOBase:
 	"""Write `this` to `pathFilename`.
 
-	You can use this function to send text to a filesystem path or an open text stream. This function
-	creates the parent directory when `pathFilename` is path-like, writes UTF-8 text with
-	`Path.write_text`, or writes and flushes a `TextIOBase` stream.
+	(AI generated docstring)
+
+	You can use this function to send text to a filesystem path or an open text stream. When
+	`pathFilename` is a path, this function creates missing parent directories and writes `this` as
+	UTF-8 text. When `pathFilename` is an open text stream, this function writes `this` at the current
+	position of the stream and flushes the stream; the stream remains open.
 
 	Parameters
 	----------
@@ -285,24 +370,32 @@ def writeStringToHere(this: str, pathFilename: PathLike[Any] | PurePath | TextIO
 	Returns
 	-------
 	destinationWritten : Path | TextIOBase
-		The file path or text stream that received `this`.
+		The file path, as a `Path`, or the text stream that received `this`.
 
 	See Also
 	--------
+	`appendStringToHere`
+		Add text to the end of a file instead of replacing the file.
 	`writePython`
 		Format Python source before writing to the destination.
 
+	File Replacement
+	----------------
+	A path destination replaces any existing file. Each line feed in `this` becomes the newline
+	sequence of the operating system, so a file written on Windows contains a carriage return and a
+	line feed at the end of each line. A text stream receives `this` without this change by this
+	function. A failure to create a parent
+	directory is silent, but a failure to write the file raises the corresponding `OSError`.
+
 	Examples
 	--------
-	The package-assimilation code writes transformed source text to a destination package path.
+	The `mapFolding` package writes a computed count to a file.
 
-	```python from hunterMakesPy.filesystemToolkit import writeStringToHere
+		```python
+		from hunterMakesPy.kitFilesystem import writeStringToHere
 
-	writeStringToHere(
-		regexChangeImports(pathFilename.read_text()), settingsFor[humpyPackage].pathPackage /
-		pathFilename.relative_to(pathTransformee)
-	)
-	```
+		writeStringToHere(str(countTotal), pathFilename)
+		```
 	"""
 	if isinstance(pathFilename, TextIOBase):
 		pathFilename.write(str(this))

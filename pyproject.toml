@@ -1,6 +1,6 @@
 [project]
 name = "hunterMakesPy"
-version = "0.9.0"
+version = "0.10.0"
 description = "Easy Python functions making making functional Python functions easier."
 readme = "README.md"
 requires-python = ">=3.12"
@@ -32,13 +32,13 @@ dependencies = [
   "charset_normalizer",
   "isort",
   "more_itertools",
-  "numpy",
-  "tomli",
+  "numpy>=2.0",
   "typing_extensions>=4.10.0"
 ]
 optional-dependencies = { development = ["pytest-cov"], testing = [
-  "librosa",
-  "pytest"
+  "hypothesis",
+  "pytest>=9.0",
+  "pytest-xdist"
 ] }
 
 [project.urls]
@@ -60,7 +60,10 @@ run = { branch = true, data_file = "hunterMakesPy/tests/coverage/.coverage", omi
 
 [tool.pytest]
 addopts = ["--color=yes"]
+empty_parameter_set_mark = "fail_at_collect"
 log_auto_indent = "On"
+minversion = "9.0"
+strict = true
 testpaths = ["hunterMakesPy/tests"]
 
 [tool.setuptools]

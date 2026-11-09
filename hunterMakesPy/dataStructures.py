@@ -12,7 +12,7 @@ Functions
 	removeExtraWhitespace
 		Remove whitespace after commas and inside parentheses or square brackets.
 	stringItUp
-		Convert every element in input data structures to strings.
+		Collect string representations from nested values.
 	updateExtendPolishDictionaryLists
 		Merge iterable values into lists with optional deduplication and sorting.
 """
@@ -36,42 +36,65 @@ if TYPE_CHECKING:
 	from typing import Any, Literal
 
 def removeExtraWhitespace(string: str) -> str:
-	"""Remove extra whitespace from string representation of Python data structures."""
+	"""Remove whitespace after commas and inside parentheses or square brackets.
+
+	(AI generated docstring)
+
+	Parameters
+	----------
+	string : str
+		Text to compact. Whitespace inside quoted text is affected too, so use this operation
+		only when that whitespace can be removed without changing the intended meaning.
+
+	Returns
+	-------
+	stringCompacted : str
+		Text without whitespace immediately after commas, opening parentheses, or opening
+		square brackets, or immediately before closing parentheses or closing square brackets.
+	"""
 	commas: str = regex.sub(r',\s+', ',', string)
 	bracketsOpening: str = regex.sub(r'([\[\(])\s+', r'\1', commas)
 	return regex.sub(r'\s+([\]\)])', r'\1', bracketsOpening)
 
 def autoDecodingRLE(arrayTarget: NDArray[integer[Any]], *, assumeAddSpaces: bool = False) -> str:
-	"""Transform a NumPy array into a compact, self-decoding run-length encoded string representation.
+	"""Transform a NumPy integer array into a compact, self-decoding Python expression.
 
-	Use this function to convert a NumPy array into a string that, when evaluated as Python code,
-	creates a list or nested lists representing the original array structure. You can create a NumPy
-	array, torch Tensor, or other array-like object with the auto-decoded list of lists. The RLE
-	(Run-Length Encoding) string does _not_ need a decoder function: it is native Python syntax. The
-	function employs two encoding strategies: 1. Python `range` syntax for consecutive integer
-	sequences. 2. Multiplication syntax for repeated elements.
+	(AI generated docstring)
 
-	The resulting string representation is merely minified Python code, so it is space-efficient and,
-	hypothetically, human-readable.
+	You can convert a NumPy integer array into text that, when evaluated as Python code, reproduces
+	`arrayTarget.tolist()`. You can create a NumPy array, a PyTorch tensor, or another array-like
+	object from the decoded value. The RLE (Run-Length Encoding) text does not need a decoder
+	function; it is native Python syntax using unpacked `range` expressions for consecutive integers
+	and list multiplication for repeated elements.
+
+	The resulting text is minified Python code, so it is space-efficient and, hypothetically,
+	human-readable.
 
 	Parameters
 	----------
 	arrayTarget : NDArray[integer[Any]]
-		The NumPy array to be encoded.
+		The NumPy integer array to encode. A zero-dimensional array produces a scalar expression;
+		all other arrays produce a list expression.
 	assumeAddSpaces : bool = False
-		Affects internal length comparison during compression decisions. This parameter doesn't
-		directly change the output: instead, use it to assume that something else will add spaces,
-		such as `ast.unparse()` (Abstract Syntax Tree) or a Python formatter.
+		Whether encoding choices should account for spaces that `ast.unparse` or a Python
+		formatter may insert. `True` estimates one space per comma and two spaces around
+		multiplication after `]`. The returned expression remains compact in either mode.
 
 	Returns
 	-------
 	encodedString : str
-		A string representation of the array using run-length encoding that, when evaluated as Python
-		code, reproduces the original array structure.
+		A Python expression representing `arrayTarget.tolist()`. The expression does not store
+		NumPy dtype or shape metadata, including dimensions beyond an empty axis.
 	"""
 	def sliceNDArrayToNestedLists(arraySlice: NDArray[integer[Any]]) -> Any:
 		def getLengthOption(optionAsStr: str) -> int:
-			"""`assumeAddSpaces` characters: `,` 1 space; `]*` 2 spaces."""
+			"""I use this estimate to compare encoding lengths with optional formatter spaces.
+
+			(AI generated docstring)
+
+			The estimate includes one extra space per comma and two extra spaces per `]*` when
+			`assumeAddSpaces` is `True`.
+			"""
 			return assumeAddSpaces * (optionAsStr.count(',') + optionAsStr.count(']*') * 2) + len(optionAsStr)
 
 		if 1 < arraySlice.ndim:
@@ -148,18 +171,24 @@ def autoDecodingRLE(arrayTarget: NDArray[integer[Any]], *, assumeAddSpaces: bool
 	patternRegex: regex.Pattern[str] = regex.compile(
 		r"(?<!rang)(?:"
 		#Pattern 1: Comma ahead, bracket behind
-		r"(?P<joinAhead>,)\((?P<malkovich>\d+),(?P<multiply>\d+)\)(?P<bracketBehind>])|"
+		r"(?P<joinAhead>,)\((?P<malkovich>-?\d+|range\(-?\d+,-?\d+\)),(?P<multiply>\d+)\)(?P<bracketBehind>])|"
 		#Pattern 2: Bracket or start ahead, comma behind
-		r"(?P<bracketOrStartAhead>\[|^.)\((?P<malkovichMalkovich>\d+),(?P<multiplyIDK>\d+)\)(?P<joinBehind>,)|"
+		r"(?P<bracketOrStartAhead>\[|^.)\((?P<malkovichMalkovich>-?\d+|range\(-?\d+,-?\d+\)),(?P<multiplyIDK>\d+)\)(?P<joinBehind>,)|"
 		#Pattern 3: Bracket ahead, bracket behind
-		r"(?P<bracketAhead>\[)\((?P<malkovichMalkovichMalkovich>\d+),(?P<multiply_whatever>\d+)\)(?P<bracketBehindBracketBehind>])|"
+		r"(?P<bracketAhead>\[)\((?P<malkovichMalkovichMalkovich>-?\d+|range\(-?\d+,-?\d+\)),(?P<multiply_whatever>\d+)\)(?P<bracketBehindBracketBehind>])|"
 		#Pattern 4: Comma ahead, comma behind
-		r"(?P<joinAheadJoinAhead>,)\((?P<malkovichMalkovichMalkovichMalkovich>\d+),(?P<multiplyOrSomething>\d+)\)(?P<joinBehindJoinBehind>,)"
+		r"(?P<joinAheadJoinAhead>,)\((?P<malkovichMalkovichMalkovichMalkovich>-?\d+|range\(-?\d+,-?\d+\)),(?P<multiplyOrSomething>\d+)\)(?P<joinBehindJoinBehind>,)"
 		r")"
 	)
 
 	def replacementByContext(match: regex.Match[str]) -> str:
-		"""Generate replacement string based on context patterns."""
+		"""I use this replacement to express a repeated value with Python list multiplication.
+
+		(AI generated docstring)
+
+		The replacement joins the repeated list with any surrounding list elements so that
+		the resulting expression preserves the decoded values and their order.
+		"""
 		elephino: dict[str, str | None] = match.groupdict()
 		joinAhead: str | None = elephino.get('joinAhead') or elephino.get('joinAheadJoinAhead')
 		malkovich: str | None = elephino.get('malkovich') or elephino.get('malkovichMalkovich') or elephino.get('malkovichMalkovichMalkovich') or elephino.get('malkovichMalkovichMalkovichMalkovich')
@@ -182,17 +211,44 @@ def autoDecodingRLE(arrayTarget: NDArray[integer[Any]], *, assumeAddSpaces: bool
 def stringItUp(*scrapPile: Any) -> list[str]:
 	"""Convert, if possible, every element in the input data structure to a string.
 
-	Order is not preserved or readily predictable.
+	(AI generated docstring)
+
+	You can collect text from nested inputs into a flat `list`. Dictionaries contribute both keys
+	and values. Strings contribute their full text, and callables contribute their names.
 
 	Parameters
 	----------
 	*scrapPile : Any
-		(scrap2pile) One or more data structures to unpack and convert to strings.
+		(scrap2pile) Values or nested data structures to unpack and convert. No arguments produce
+		an empty `list`. `bytes` and `bytearray` contribute their Python string representations.
+		A `memoryview` contributes decoded text when text decoding succeeds. Other iterables
+		contribute their elements and are consumed.
 
 	Returns
 	-------
 	listStrungUp : list[str]
-		(list2strung2up) A `list` of string versions of all convertible elements.
+		(list2strung2up) A flat `list` of string representations. The result follows argument order
+		and container iteration order. Unordered containers can make the result order unpredictable.
+
+	Incomplete Conversion
+	---------------------
+	Other non-iterable values contribute their string representations. String conversion that
+	returns `None` or raises `AttributeError` or `TypeError` omits those values. Other exceptions
+	from that conversion produce a diagnostic on `sys.stderr` and propagate.
+
+	If recursive input exceeds Python's recursion limit, the result retains text already collected
+	and appends `repr` of the current top-level argument. Later arguments are not processed.
+
+	Examples
+	--------
+	The README collects text from nested user and configuration data.
+
+		```python
+		from hunterMakesPy.dataStructures import stringItUp
+
+		strings = stringItUp({"users": ["alice"], "config": {"host": "localhost"}})
+		# Returns ["users", "alice", "config", "host", "localhost"].
+		```
 	"""
 	scrap: Any = None
 	listStrungUp: list[str] = []
@@ -225,8 +281,9 @@ def stringItUp(*scrapPile: Any) -> list[str]:
 		else:
 			try:
 				#ruff: ignore[unnecessary-dunder-call]
-				sharingIsCaring: str = KitKat.__str__()
-				listStrungUp.append(sharingIsCaring)
+				sharingIsCaring: str | None = KitKat.__str__()
+				if sharingIsCaring is not None:
+					listStrungUp.append(sharingIsCaring)
 			except AttributeError:
 				pass
 			except TypeError:
@@ -255,24 +312,23 @@ def updateExtendPolishDictionaryLists(*dictionaryLists: Mapping[文件, Iterable
 def updateExtendPolishDictionaryLists(*dictionaryLists: Mapping[文件, Iterable[文义]], destroyDuplicates: bool = False, reorderLists: bool = False, killErroneousDataTypes: bool = False) -> dict[文件, list[文义]]:
 	"""Merge mappings of iterable values into a dictionary of lists.
 
+	(AI generated docstring)
+
 	You can use this function to combine values under matching keys across `dictionaryLists`.
-	This function returns a new dictionary with new lists and can remove duplicate elements,
-	sort elements, or skip entries that raise `TypeError` during merging.
+	You receive a new dictionary with new lists and can remove duplicate elements, sort elements,
+	or skip entries that raise `TypeError` during merging.
 
-	Iteration and Ordering
-	----------------------
-	This function consumes each value's iterable in mapping argument order. Within each value,
-	the list follows the iterable's order, which may be unpredictable for sets. Strings contribute
-	individual characters, and mapping values contribute their keys.
-
-	Deduplication uses `dict.fromkeys` [1] to preserve first occurrences. Sorting uses `sorted`
-	and runs after deduplication. Every retained value becomes a list regardless of the input type.
+	Input Consumption
+	-----------------
+	The input mappings and reusable value containers remain unchanged. Iterable values such as
+	generators are consumed. Each result list retains references to the original elements.
 
 	Parameters
 	----------
 	*dictionaryLists : Mapping[文件, Iterable[文义]]
 		The mappings to merge, with hashable keys and iterable values. A single mapping receives
-		the same conversion and optional processing. No mappings produce an empty dictionary.
+		the same conversion and optional processing. Omitting all mappings produces an empty
+		dictionary. Strings contribute individual characters. Mapping values contribute their keys.
 	destroyDuplicates : bool = False
 		If `True`, remove duplicate elements from each merged list, preserving the first occurrence.
 		Elements must be hashable when this option is enabled.
@@ -287,8 +343,9 @@ def updateExtendPolishDictionaryLists(*dictionaryLists: Mapping[文件, Iterable
 	Returns
 	-------
 	ePluribusUnum : dict[文件, list[文义]]
-		The merged dictionary, with a list for every retained key. This function does not modify
-		the input mappings or their containers, but the lists retain references to the original elements.
+		The merged dictionary, with a new list for every retained key. Mapping argument order and
+		each value's iteration order determine element order unless `reorderLists` is `True`.
+		Unordered inputs, such as sets, may produce unpredictable element order.
 
 	Raises
 	------
@@ -312,10 +369,6 @@ def updateExtendPolishDictionaryLists(*dictionaryLists: Mapping[文件, Iterable
 		# Returns {"servers": ["chicago", "tokyo"]}.
 		```
 
-	References
-	----------
-	[1] Python dictionaries and `dict.fromkeys`.
-		https://docs.python.org/3/library/stdtypes.html#dict.fromkeys
 	"""
 	ePluribusUnum: dict[文件, list[文义]] = {}
 

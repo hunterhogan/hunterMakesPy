@@ -13,72 +13,39 @@ Contents
 --------
 Functions
 	defineConcurrencyLimit
-		Determine the concurrency limit based on flexible parameter specifications.
+		Calculate a worker count from an absolute, fractional, or reserved-CPU limit.
 	intInnit
-		Validate and convert input values to a list of integers.
+		Validate and convert input values to a `list` of integers.
 	oopsieKwargsie
-		Interpret a string as True, False, or None to avoid exceptions.
-
-Classes
-	ErrorMessageContext
-		Store value, type, and container information for integer-validation error messages.
+		Interpret text as `True`, `False`, or `None`.
 """
 from __future__ import annotations
 
-from collections.abc import Sized
-from dataclasses import dataclass
+from fractions import Fraction
 from typing import TYPE_CHECKING
 import charset_normalizer
 import multiprocessing
 import sys
 
 if TYPE_CHECKING:
-	from charset_normalizer.models import CharsetMatch
 	from collections.abc import Collection
 	from hunterMakesPy.theTypes import ConcurrencyLimit
 	from typing import Any
 
-@dataclass
-class ErrorMessageContext:
-	"""Context information for constructing error messages.
-
-	Parameters
-	----------
-	parameterValue : Any = None
-		The value that caused the error.
-	parameterValueType : str | None = None
-		The name of the type of the parameter value.
-	containerType : str | None = None
-		The name of the type of the container holding the parameter.
-	isElement : bool = False
-		Whether the parameter is an element within a container.
-
-	"""
-
-	parameterValue: Any = None
-	parameterValueType: str | None = None
-	containerType: str | None = None
-	isElement: bool = False
-
 def defineConcurrencyLimit(*, limit: ConcurrencyLimit, cpuTotal: int = multiprocessing.cpu_count()) -> int:
 	"""Calculate a worker count from an absolute, fractional, or reserved-CPU limit.
 
-	You can use this function to select a worker count from `limit` and `cpuTotal`. This function
-	accepts explicit counts, fractions of `cpuTotal`, counts to reserve, and boolean choices.
-	This function also accepts numeric strings and strings representing `True`, `False`, or `None`.
-	The result is at least one worker and is at most 61 workers on Windows.
+	(AI generated docstring)
 
-	String Parsing
-	--------------
-	This function first uses `oopsieKwargsie` to interpret strings representing `True`, `False`,
-	or `None`, ignoring capitalization and surrounding whitespace. Other strings are converted
-	with `float`. An invalid numeric string raises `ValueError` with the conversion error as the cause.
+	You can select a worker count from `limit` and `cpuTotal` with an explicit count, a fraction
+	of `cpuTotal`, a count of CPUs to reserve, or a boolean choice. You can also supply numeric
+	strings and strings representing `True`, `False`, or `None`.
 
 	Processor Counts
 	----------------
-	This function rounds floating-point counts whose absolute value is at least one before applying
-	the count rules. Rounding uses Python `round`, including rounding ties to the nearest even
-	integer. This function applies the following rules before enforcing the platform bounds.
+	Floating-point counts whose absolute value is at least one round to the nearest integer before
+	the count rules apply. All rounding uses Python `round`, including ties to the nearest even
+	integer. The following rules determine the count before the minimum and maximum apply.
 
 	- `None`, `False`, or zero select `cpuTotal`.
 	- `True` selects one worker.
@@ -87,16 +54,17 @@ def defineConcurrencyLimit(*, limit: ConcurrencyLimit, cpuTotal: int = multiproc
 	- A negative fraction above negative one reserves `abs(round(limit * cpuTotal))` CPUs.
 	- A negative count of at most negative one reserves `abs(int(limit))` CPUs.
 
-	This function caps the result at 61 on Windows, matching the restriction for
-	`concurrent.futures.ProcessPoolExecutor`. This function then enforces the minimum of one.
+	The result is at least one worker. On Windows, the result is at most 61 workers, matching
+	the restriction for `concurrent.futures.ProcessPoolExecutor` [1].
 
 	Parameters
 	----------
-	limit : ConcurrencyLimit
+	limit : bool | float | int | str | None
 		The worker-count specification. `None`, `False`, or zero select `cpuTotal`; `True` selects
 		one worker. Positive counts select workers to use, and negative counts select CPUs to reserve.
 		Fractions between negative one and one select proportions to reserve or use, respectively.
-		Strings are also accepted at runtime, although the type annotation excludes strings.
+		Strings representing `True`, `False`, or `None` ignore capitalization and surrounding
+		whitespace. Other strings must represent numbers accepted by `float`.
 	cpuTotal : int = multiprocessing.cpu_count()
 		The CPU count used for fractional limits and reserved-CPU calculations. The default is the
 		value of `multiprocessing.cpu_count` evaluated when this module is imported.
@@ -112,6 +80,11 @@ def defineConcurrencyLimit(*, limit: ConcurrencyLimit, cpuTotal: int = multiproc
 	ValueError
 		If a string does not represent a number, `True`, `False`, or `None`.
 
+	See Also
+	--------
+	`oopsieKwargsie`
+		Interpret strings as `True`, `False`, or `None` without calculating a worker count.
+
 	Examples
 	--------
 	The README selects three quarters of the default CPU count.
@@ -121,6 +94,11 @@ def defineConcurrencyLimit(*, limit: ConcurrencyLimit, cpuTotal: int = multiproc
 
 		workers = defineConcurrencyLimit(limit=0.75)
 		```
+
+	References
+	----------
+	[1] Python documentation, "ProcessPoolExecutor", Windows worker-count restriction.
+	https://docs.python.org/3/library/concurrent.futures.html#concurrent.futures.ProcessPoolExecutor
 	"""
 	if isinstance(limit, str):
 		limitFromString: bool | str | None = oopsieKwargsie(limit)
@@ -154,186 +132,133 @@ def defineConcurrencyLimit(*, limit: ConcurrencyLimit, cpuTotal: int = multiproc
 		concurrencyLimit = min(concurrencyLimit, 61)
 	return max(int(concurrencyLimit), 1)
 
-def _constructErrorMessage(context: ErrorMessageContext, parameterName: str, parameterType: type[Any] | None) -> str:
-	"""Construct error message from available context using template.
-
-	I received ["value" | a value | `None`] [of type `type` | `None`] [as an element in | `None`] [a `containerType` type |
-	`None`] but `parameterName` must have integers [in type(s) `parameterType` | `None`].
-
-	Hypothetically, this is a prototype that can be generalized to other functions. In this package and a few of my other
-	packages, I have developed standardized error messages, but those are quite different from this. I will certainly continue to
-	develop this kind of functionality, and this function will influence things.
-
-	Parameters
-	----------
-	context : ErrorMessageContext
-		The error context containing parameter value, type, and container information.
-	parameterName : str
-		The name of the parameter that caused the error.
-	parameterType : type[Any] | None
-		The expected type of the parameter, used in error messages.
-
-	Returns
-	-------
-	errorMessage : str
-		The constructed error message string.
-	"""
-	messageParts: list[str] = ["I received "]
-
-	if context.parameterValue is not None and not isinstance(context.parameterValue, (bytes, bytearray, memoryview)):
-		messageParts.append(f'"{context.parameterValue}"')
-	else:
-		messageParts.append("a value")
-
-	if context.parameterValueType:
-		messageParts.append(f" of type `{context.parameterValueType}`")
-
-	if context.isElement:
-		messageParts.append(" as an element in")
-
-	if context.containerType:
-		messageParts.append(f" a `{context.containerType}` type")
-
-	messageParts.append(f" but {parameterName} must have integers")
-
-	if parameterType:
-		messageParts.append(f" in type(s) `{parameterType}`")
-
-	return "".join(messageParts)
-
 def intInnit(listInt_Allegedly: Collection[Any], parameterName: str | None = None, parameterType: type[Any] | None = None) -> list[int]:
 	"""Validate and convert input values to a `list` of integers.
 
-	Accepts various numeric types and attempts to convert them into integers while providing descriptive error messages. This
-	package includes Pytest tests that can be imported and run: `from hunterMakesPy.tests.test_parseParameters import
-	PytestFor_intInnit`.
+	(AI generated docstring)
+
+	You can validate a caller's collection before using its values as integers. Integers of any
+	magnitude, including integers written as strings, keep every digit. Boolean values and numbers
+	with fractional parts are rejected rather than rounded or truncated. Error messages identify
+	the incompatible value and provide context about the caller's parameter.
 
 	Parameters
 	----------
 	listInt_Allegedly : Collection[Any]
-		The input sequence that should contain integer-compatible values. Accepts integers, strings, floats, complex numbers, and
-		binary data. Rejects boolean values and non-integer numeric values.
-	parameterName : str | None = None
-		Name of the parameter from your function for which this function is validating the input validated. If there is an error
-		message, it provides context to your user. Defaults to 'the parameter'.
-	parameterType : type[Any] | None = None
-		Expected type(s) of the parameter, used in error messages.
+		Nonempty collection of integer-compatible values. Accepted elements include `int`, NumPy
+		integers, `str`, `float`, `decimal.Decimal`, `fractions.Fraction`, and `complex` values
+		with zero imaginary part. Text and decoded `bytes`, `bytearray`, or `memoryview` must
+		represent integers. The collection must support `len` and iteration.
+	parameterName : str = 'the parameter'
+		Name of the caller's parameter for error messages. Omitted text, `None`, and empty text
+		use `'the parameter'`.
+	parameterType : type[Any] = list
+		Type named in error messages. `None` uses `list`. This setting does not restrict the
+		accepted collection or element types.
 
 	Returns
 	-------
 	listValidated : list[int]
-		A `list` containing validated integers.
+		A new `list` containing validated integers in the collection's iteration order.
 
 	Raises
 	------
 	ValueError
-		When the input is empty or contains non-integer compatible values.
+		If the input is `None` or empty, or an element cannot represent an integer exactly.
+		Rejected values include `13.5`, `'NW'`, infinity, and `13+1j`.
 	TypeError
-		When an element is a boolean or incompatible type.
+		If the input has no length or cannot be iterated, or an element is a boolean or an
+		incompatible type, such as `None` or a `list`.
 	RuntimeError
-		If the input sequence length changes during iteration.
+		If the input has a different length after conversion than before conversion.
 
-	Notes
-	-----
-	The function performs strict validation and follows fail-early principles to catch potential issues before they become catastrophic.
+	Examples
+	--------
+	The README validates port numbers supplied as text and integers.
 
+		```python
+		from hunterMakesPy.parseParameters import intInnit
+
+		ports = intInnit(["8080", 443, "22"], "server_ports")
+		```
 	"""
 	parameterName = parameterName or 'the parameter'
 	parameterType = parameterType or list
 
-	if not listInt_Allegedly:
+	if listInt_Allegedly is None or len(listInt_Allegedly) == 0:  # pyright: ignore[reportUnnecessaryComparison]
 		message: str = f"I did not receive a value for `{parameterName}`, but I must have it."
 		raise ValueError(message)
 
-	#Be nice, and assume the input container is valid and every element is valid.
-	#Nevertheless, this is a "fail-early" step, so reject ambiguity and try to induce errors now that could be catastrophic later.
-	#ruff: ignore[too-many-statements-in-try-clause]
-	try:
-		iter(listInt_Allegedly)
-		lengthInitial: int | None = None
-		if isinstance(listInt_Allegedly, Sized):
-			lengthInitial = len(listInt_Allegedly)
+	lengthInitial: int = len(listInt_Allegedly)
+	listValidated: list[int] = []
 
-		listValidated: list[int] = []
-
-		for allegedInt in listInt_Allegedly:
-			errorMessageContext: ErrorMessageContext = ErrorMessageContext(
-				parameterValue=allegedInt
-				, parameterValueType=type(allegedInt).__name__
-				, isElement=True
-			)
-
+	#=SIN= `for` statement: each element is a separate conversion whose failure needs a message about that element.
+	for allegedInt in listInt_Allegedly:
+		#ruff: ignore[too-many-statements-in-try-clause]
+		try:
 			#Always rejected as ambiguous
 			if isinstance(allegedInt, bool):
-				raise TypeError(errorMessageContext)
+				raise TypeError
+			number: Any = allegedInt
+			if isinstance(number, memoryview):
+				number = number.tobytes()
+			if isinstance(number, (bytes, bytearray)):
+				number = str(charset_normalizer.from_bytes(number).best())
+			if isinstance(number, complex):
+				if number.imag != 0:
+					raise ValueError
+				number = number.real
+			fraction: Fraction = Fraction(number)
+			if fraction.denominator != 1:
+				raise ValueError
+		except (TypeError, ValueError, ArithmeticError) as ERROR:
+			message = (f"I received `{allegedInt = }` of type `{type(allegedInt).__name__}` as an element in a "
+				f"`{type(listInt_Allegedly).__name__}`, but `{parameterName}` must have integers in type(s) `{parameterType}`.")
+			if isinstance(ERROR, TypeError):
+				raise TypeError(message) from ERROR
+			raise ValueError(message) from ERROR
+		listValidated.append(int(fraction))
 
-			#In this section, we know the Python type is not `int`, but maybe the value is clearly an integer.
-			#Through a series of conversions, allow data to cascade down into either an `int` or a meaningful error message.
+	if len(listInt_Allegedly) != lengthInitial:
+		message = f"I observed the length of `{parameterName}` change from `{lengthInitial}` to `{len(listInt_Allegedly)}` while I iterated over it."
+		raise RuntimeError(message)
 
-			if isinstance(allegedInt, (bytes, bytearray, memoryview)):
-				errorMessageContext.parameterValue = None  # Don't expose potentially garbled binary data in error messages
-				if isinstance(allegedInt, memoryview):
-					allegedInt = allegedInt.tobytes()
-				decodedString: CharsetMatch | None = charset_normalizer.from_bytes(allegedInt).best()
-				if not decodedString:
-					raise ValueError(errorMessageContext)
-				allegedInt = errorMessageContext.parameterValue = str(decodedString)
-
-			if isinstance(allegedInt, complex):
-				if allegedInt.imag != 0:
-					raise ValueError(errorMessageContext)
-				allegedInt = float(allegedInt.real)
-			elif isinstance(allegedInt, str):
-				allegedInt = float(allegedInt.strip())
-
-			if isinstance(allegedInt, float):
-				if not float(allegedInt).is_integer():
-					raise ValueError(errorMessageContext)
-				allegedInt = int(allegedInt)
-			else:
-				allegedInt = int(allegedInt)
-
-			listValidated.append(allegedInt)
-
-			if lengthInitial is not None and isinstance(listInt_Allegedly, Sized) and len(listInt_Allegedly) != lengthInitial:  # pyright: ignore[reportUnnecessaryComparison]
-				raise RuntimeError((lengthInitial, len(listInt_Allegedly)))
-
-	except (TypeError, ValueError) as ERROR:
-		if isinstance(ERROR.args[0], ErrorMessageContext):
-			context: ErrorMessageContext = ERROR.args[0]
-			if not context.containerType:
-				context.containerType = type(listInt_Allegedly).__name__
-			message = _constructErrorMessage(context, parameterName, parameterType)
-			raise type(ERROR)(message) from None
-		#If it's not our Exception, don't molest it
-		raise ValueError from ERROR
-
-	except RuntimeError as ERROR:
-		lengthInitial, lengthCurrent = ERROR.args[0]
-		message = (f"`{parameterName}` was modified during iteration: {lengthInitial = }, current length {lengthCurrent = }.")
-		raise RuntimeError(message) from None
-
-	else:
-		return listValidated
+	return listValidated
 
 def oopsieKwargsie(huh: Any) -> bool | str | None:
 	"""Interpret a `str` as `True`, `False`, or `None` to avoid an `Exception`.
 
-	If a calling function passes a `str` to a parameter that shouldn't receive a `str`, `oopsieKwargsie()` might help you avoid an
-	`Exception`. It tries to interpret the string as `True`, `False`, or `None`.
+	(AI generated docstring)
 
-	Tests for this function can be run with: `from hunterMakesPy.tests.test_parseParameters import PytestFor_oopsieKwargsie`.
+	If a calling function passes a `str` to a parameter that should not receive a `str`,
+	`oopsieKwargsie` might help you avoid an `Exception`. Text representing `True`, `False`,
+	or `None` ignores capitalization and surrounding whitespace. Other text retains its original
+	capitalization and whitespace.
 
 	Parameters
 	----------
 	huh : Any
-		(huh) The input string to be parsed.
+		The value to interpret. A value other than a `str` is interpreted through its string
+		representation. If that representation cannot be obtained, the original value is returned.
 
 	Returns
 	-------
-	interpretedValue : bool | None | str
-		The reserved keyword `True`, `False`, or `None` or the original string, `huh`.
+	interpretedValue : Any
+		`True`, `False`, or `None` for recognized text. Unrecognized text is returned unchanged.
+		For an input other than a `str`, unrecognized text is its string representation. If obtaining
+		that representation raised an exception, the result is the original `huh`.
 
+	Examples
+	--------
+	The README interprets configuration values supplied as text.
+
+		```python
+		from hunterMakesPy.parseParameters import oopsieKwargsie
+
+		oopsieKwargsie("True")   # Returns True.
+		oopsieKwargsie("none")   # Returns None.
+		oopsieKwargsie("hello")  # Returns "hello".
+		```
 	"""
 	if not isinstance(huh, str):
 		try:
