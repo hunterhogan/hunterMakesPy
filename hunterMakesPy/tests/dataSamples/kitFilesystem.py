@@ -50,6 +50,12 @@ parametersImportPathFilename2IdentifierError: tuple[ParameterSet, ...] = (
 	pytest.param(None, 'primeGCD', FileNotFoundError, id='fileAbsent'),
 )
 
+# Reference: the docstring states that a filename suffix that is not a Python source suffix raises `ImportError`. No file exists.
+boxOfPathFilenamesNotPython: tuple[ParameterSet, ...] = (
+	pytest.param(PurePosixPath('north/moduleSample.txt'), id='suffixTxt'),
+	pytest.param(PurePosixPath('north/moduleSample'), id='suffixAbsent'),
+)
+
 boxOfModuleIdentifiers: tuple[ParameterSet, ...] = (
 	pytest.param(None, id='moduleIdentifierNone'),
 	pytest.param('moduleNorthEast', id='moduleNorthEast'),

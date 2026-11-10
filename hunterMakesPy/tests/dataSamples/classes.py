@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from collections import UserList
 from typing import TYPE_CHECKING
+import operator
 
 if TYPE_CHECKING:
 	from collections.abc import Iterator
@@ -24,13 +25,25 @@ class StrReturnsNone:
 		return None  # pyright: ignore[reportReturnType] # ruff: ignore[invalid-str-return-type] # ty: ignore[invalid-return-type]
 
 class StrReturnsNoneText:
+	"""Return the text 'None' from `__str__`, which is text, not the object `None`."""
 
 	def __str__(self) -> str:
 		return 'None'
-
 
 class StrDividesByZero:
 	"""Divide by zero in `__str__`, so `str(instance)` raises `ZeroDivisionError`."""
 
 	def __str__(self) -> str:
 		return str(13 // 0)
+
+class StrFormatsBadSpecification:
+	"""Format the instance with the specification 'NE' in `__str__`, so `str(instance)` raises `TypeError`."""
+
+	def __str__(self) -> str:
+		return format(self, 'NE')
+
+class StrReadsAbsentAttribute:
+	"""Read the absent attribute `north` in `__str__`, so `str(instance)` raises `AttributeError`."""
+
+	def __str__(self) -> str:
+		return operator.attrgetter('north')(self)

@@ -4,7 +4,7 @@ from hunterMakesPy.kitFilesystem import (
 	appendStringToHere, importLogicalPath2Identifier, importPathFilename2Identifier, makeDirectorySafely, writePython, writeStringToHere)
 from hunterMakesPy.tests import assertEqualTo
 from hunterMakesPy.tests.dataSamples.kitFilesystem import (
-	boxOfModuleIdentifiers, parametersImportLogicalPath2Identifier, parametersImportLogicalPath2IdentifierError,
+	boxOfModuleIdentifiers, boxOfPathFilenamesNotPython, parametersImportLogicalPath2Identifier, parametersImportLogicalPath2IdentifierError,
 	parametersImportPathFilename2Identifier, parametersImportPathFilename2IdentifierError, parametersMakeDirectorySafelyStream,
 	parametersWritePython)
 from hunterMakesPy.tests.dataSamples.text import boxOfTexts
@@ -13,7 +13,7 @@ import io
 import pytest
 
 if TYPE_CHECKING:
-	from pathlib import Path
+	from pathlib import Path, PurePath
 
 @pytest.mark.parametrize('this', boxOfTexts)
 def test_appendStringToHere(tmp_path: Path, this: str) -> None:
@@ -41,6 +41,11 @@ def test_importPathFilename2Identifier(pathFilename: Path, identifier: str, modu
 def test_importPathFilename2IdentifierError(pathFilename: Path, identifier: str, expected: type[Exception]) -> None:
 	with pytest.raises(expected):
 		importPathFilename2Identifier(pathFilename, identifier)
+
+@pytest.mark.parametrize('pathFilename', boxOfPathFilenamesNotPython)
+def test_importPathFilename2IdentifierSuffixError(pathFilename: PurePath) -> None:
+	with pytest.raises(ImportError):
+		importPathFilename2Identifier(pathFilename, 'primeGCD')
 
 def test_makeDirectorySafely(tmp_path: Path) -> None:
 	pathFilename: Path = tmp_path / 'north' / 'east' / 'south.txt'

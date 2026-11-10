@@ -53,7 +53,12 @@ requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
 [tool.coverage]
-report = { exclude_lines = ["if TYPE_CHECKING:", "if __name__ == \"__main__\":"], ignore_errors = false }
+report = { exclude_also = [
+  "@overload",
+  "^\\s*\\.\\.\\.$",
+  "if __name__ == \"__main__\":",
+  "if TYPE_CHECKING:",
+], ignore_errors = false }
 run = { branch = true, data_file = "hunterMakesPy/tests/coverage/.coverage", omit = [
   "hunterMakesPy/tests/*"
 ], source = ["."] }
@@ -61,6 +66,7 @@ run = { branch = true, data_file = "hunterMakesPy/tests/coverage/.coverage", omi
 [tool.pytest]
 addopts = ["--color=yes"]
 empty_parameter_set_mark = "fail_at_collect"
+filterwarnings = ["error"]
 log_auto_indent = "On"
 minversion = "9.0"
 strict = true
@@ -68,7 +74,7 @@ testpaths = ["hunterMakesPy/tests"]
 
 [tool.setuptools]
 package-data = { "*" = ["py.typed"] }
-packages = ["hunterMakesPy", "hunterMakesPy.tests"]
+packages = ["hunterMakesPy", "hunterMakesPy.tests", "hunterMakesPy.tests.dataSamples"]
 
 [tool.updateCitation]
 filenameCitationDOTcff = "CITATION.cff"

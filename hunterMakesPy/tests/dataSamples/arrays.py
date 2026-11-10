@@ -12,6 +12,11 @@ if TYPE_CHECKING:
 	from _pytest.mark.structures import ParameterSet
 	from numpy.typing import NDArray
 
+#================== Zero dimensions and empty arrays =============================================================================
+
+arrayEmpty: NDArray[numpy.int64] = numpy.array([], dtype=numpy.int64)
+arrayScalarFibonacci: NDArray[numpy.int64] = numpy.array(233)
+
 #================== One dimension ================================================================================================
 
 arrayRange: NDArray[numpy.int64] = numpy.arange(50, 60)
@@ -65,6 +70,7 @@ boxOfArraysInteger: tuple[ParameterSet, ...] = (
 	pytest.param(array13x9Saddle, id='array13x9Saddle'),
 	pytest.param(array60x1025MelMask, id='array60x1025MelMask'),
 	pytest.param(array100x100Modular, id='array100x100Modular'),
+	pytest.param(arrayEmpty, id='arrayEmpty'),
 	pytest.param(arrayRange, id='arrayRange'),
 	pytest.param(arrayRangeNegative, id='arrayRangeNegative'),
 	pytest.param(arrayRangeRange, id='arrayRangeRange'),
@@ -76,6 +82,7 @@ boxOfArraysInteger: tuple[ParameterSet, ...] = (
 	pytest.param(arrayRepeatRangeValue, id='arrayRepeatRangeValue'),
 	pytest.param(arrayRepeatRepeatValue, id='arrayRepeatRepeatValue'),
 	pytest.param(arrayRunsFibonacci, id='arrayRunsFibonacci'),
+	pytest.param(arrayScalarFibonacci, id='arrayScalarFibonacci'),
 	pytest.param(arrayValueRange, id='arrayValueRange'),
 	pytest.param(arrayValueRangeRepeat, id='arrayValueRangeRepeat'),
 	pytest.param(arrayValueRangeRunValue, id='arrayValueRangeRunValue'),

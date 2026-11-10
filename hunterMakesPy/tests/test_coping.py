@@ -41,6 +41,16 @@ def test_PackageSettings(pathWorkingDirectory: Path, identifierPackageFALLBACK: 
 	packageSettings: PackageSettings = PackageSettings(identifierPackageFALLBACK, pathPackage=pathPackage, identifierPackage=identifierPackage)
 	assertEqualTo((packageSettings.identifierPackage, packageSettings.pathPackage), (identifierPackage, pathPackage), PackageSettings.__name__, identifierPackageFALLBACK, pathPackage=pathPackage, identifierPackage=identifierPackage)
 
+@pytest.mark.parametrize('identifierPackageFALLBACK', boxOfIdentifiersInstalled)
+@pytest.mark.parametrize('pathWorkingDirectory', [None], indirect=True, ids=['pyprojectAbsent'])
+def test_PackageSettingsDiscovery(pathWorkingDirectory: Path, identifierPackageFALLBACK: str) -> None:
+	packageSettings: PackageSettings = PackageSettings(identifierPackageFALLBACK)
+	assertEqualTo(
+		(packageSettings.identifierPackage, packageSettings.pathPackage)
+		, (identifierPackageFALLBACK, importlib.resources.files(identifierPackageFALLBACK))
+		, PackageSettings.__name__, identifierPackageFALLBACK, pathWorkingDirectory=pathWorkingDirectory
+	)
+
 @pytest.mark.parametrize('errorMessage', boxOfErrorMessages)
 @pytest.mark.parametrize('expression', boxOfValuesNotNone)
 def test_raiseIfNone(expression: object, errorMessage: str | None) -> None:

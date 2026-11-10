@@ -6,12 +6,14 @@ from decimal import Decimal
 from fractions import Fraction
 from hunterMakesPy.tests.dataSamples.arrays import (
 	array2x2x2Primes, array2x3Primes, array2x3x5Range, array3x20RangeRun, array8x8Checkerboard, array10x12Stripes, array13x9Saddle,
-	array60x1025MelMask, array100x100Modular, arrayRange, arrayRangeNegative, arrayRangeRange, arrayRangeRepeat, arrayRangeRun,
-	arrayRangeValue, arrayRepeat, arrayRepeatRange, arrayRepeatRangeValue, arrayRepeatRepeatValue, arrayRunsFibonacci, arrayValueRange,
-	arrayValueRangeRepeat, arrayValueRangeRunValue, arrayValueRangeValue, arrayValueRepeat, arrayValueRepeatNegative)
+	array60x1025MelMask, array100x100Modular, arrayEmpty, arrayRange, arrayRangeNegative, arrayRangeRange, arrayRangeRepeat,
+	arrayRangeRun, arrayRangeValue, arrayRepeat, arrayRepeatRange, arrayRepeatRangeValue, arrayRepeatRepeatValue, arrayRunsFibonacci,
+	arrayScalarFibonacci, arrayValueRange, arrayValueRangeRepeat, arrayValueRangeRunValue, arrayValueRangeValue, arrayValueRepeat,
+	arrayValueRepeatNegative)
 from hunterMakesPy.tests.dataSamples.callables import (
 	callableItemGetter, callablePartial, functionBuiltin, functionCached, functionPurePython)
-from hunterMakesPy.tests.dataSamples.classes import StrDividesByZero, StrReturnsNone, StrReturnsNoneText
+from hunterMakesPy.tests.dataSamples.classes import (
+	StrDividesByZero, StrFormatsBadSpecification, StrReadsAbsentAttribute, StrReturnsNone, StrReturnsNoneText)
 from typing import TYPE_CHECKING
 import datetime
 import numpy
@@ -19,6 +21,7 @@ import pytest
 
 if TYPE_CHECKING:
 	from _pytest.mark.structures import ParameterSet
+	from typing import Any
 
 #================== removeExtraWhitespace ========================================================================================
 
@@ -32,6 +35,9 @@ parametersRemoveExtraWhitespace: tuple[ParameterSet, ...] = (
 )
 
 #================== stringItUp ===================================================================================================
+
+listContainsItself: list[Any] = []
+listContainsItself.append(listContainsItself)
 
 # Reference: hand-derived from the documented conversion of each element to a string; the order is unspecified.
 parametersStringItUp: tuple[ParameterSet, ...] = (
@@ -57,6 +63,12 @@ parametersStringItUp: tuple[ParameterSet, ...] = (
 	pytest.param((callableItemGetter, callablePartial), ['itemgetter', 'partial'], id='callablesUnnamed'),
 	pytest.param((StrReturnsNone(),), [], id='objectStrReturnsNone'),
 	pytest.param((StrReturnsNoneText(),), ['None'], id='objectStrReturnsNoneText'),
+	pytest.param((StrReadsAbsentAttribute(),), [], id='objectStrReadsAbsentAttribute'),
+	pytest.param((StrFormatsBadSpecification(),), [], id='objectStrFormatsBadSpecification'),
+	# Later arguments are not processed after the recursion limit.
+	pytest.param(('NE', listContainsItself, 'SW'), ['NE', '[[...]]'], id='listContainsItself'),
+	# Accepted recording: `charset_normalizer` finds no encoding for the 256 byte values in order, so nothing is contributed.
+	pytest.param((memoryview(bytes(range(256))),), [], id='memoryviewUndecodable'),
 )
 
 # Reference: the docstring states that only an `AttributeError` or `TypeError` from `__str__` is discarded.
@@ -179,4 +191,9 @@ parametersAutoDecodingRLE: tuple[ParameterSet, ...] = (
 	pytest.param(arrayValueRangeRunValue, True, '[97]+[*range(-5,5)]*3+[97]', id='arrayValueRangeRunValue-True'),
 	pytest.param(array3x20RangeRun, False, '[[*range(10)]*2,[*range(10)]*2,[*range(10)]*2]', id='array3x20RangeRun-False'),
 	pytest.param(array3x20RangeRun, True, '[[*range(10)]*2,[*range(10)]*2,[*range(10)]*2]', id='array3x20RangeRun-True'),
+	# Reference: the docstring states that a zero-dimensional array produces a scalar expression; an empty axis is the empty list.
+	pytest.param(arrayScalarFibonacci, False, '233', id='arrayScalarFibonacci-False'),
+	pytest.param(arrayScalarFibonacci, True, '233', id='arrayScalarFibonacci-True'),
+	pytest.param(arrayEmpty, False, '[]', id='arrayEmpty-False'),
+	pytest.param(arrayEmpty, True, '[]', id='arrayEmpty-True'),
 )
