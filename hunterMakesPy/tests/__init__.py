@@ -10,6 +10,7 @@ Test package organization (in hunterMakesPy/tests/):
 - conftest.py: Fixtures: working directories with a given `pyproject.toml` and Python files written from source
 - conftestAnnex.py: Assertion helpers, re-exported here, with assertion rewriting registered before import
 - dataSamples/: Samples whose meaning does not depend on a test, named by content
+- test_conftestAnnex.py: The assertion helpers' messages and strict array comparisons
 - test_coping.py: Package identity and location, and `raiseIfNone`
 - test_dataStructures.py: Run-length encoding, whitespace removal, string extraction, and merging mappings of lists
 - test_kitFilesystem.py: Writing and appending text, writing Python source, creating directories, and importing identifiers

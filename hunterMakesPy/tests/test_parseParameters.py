@@ -95,7 +95,8 @@ def test_defineConcurrencyLimitError(limit: str, cpuTotal: int, expected: type[E
 	pytest.param(numpy.array([89, 144]), [89, 144], id='arrayNumpy'),
 ))
 def test_intInnit(listInt_Allegedly: Collection[Any], expected: list[int]) -> None:
-	assertEqualTo(intInnit(listInt_Allegedly), expected, intInnit.__name__, listInt_Allegedly)
+	listInt: list[int] = intInnit(listInt_Allegedly)
+	assertEqualTo((listInt, [*map(type, listInt)]), (expected, [*map(type, expected)]), intInnit.__name__, listInt_Allegedly)
 
 @given(strategies.lists(strategies.integers(), min_size=1))
 def test_intInnitGenerated(listInt: list[int]) -> None:
@@ -149,5 +150,6 @@ objectStrReturnsNone: StrReturnsNone = StrReturnsNone()
 	pytest.param(None, None, id='objectNone'),
 	pytest.param(objectStrReturnsNone, objectStrReturnsNone, id='objectStrReturnsNone'),
 ))
-def test_oopsieKwargsie(huh: Any, expected: bool | str | None) -> None:
-	assertEqualTo(oopsieKwargsie(huh), expected, oopsieKwargsie.__name__, huh)
+def test_oopsieKwargsie(huh: Any, expected: object) -> None:
+	interpretation: bool | str | None = oopsieKwargsie(huh)
+	assertEqualTo((interpretation, type(interpretation)), (expected, type(expected)), oopsieKwargsie.__name__, huh)

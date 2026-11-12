@@ -29,7 +29,7 @@ import re as regex
 import sys
 
 if TYPE_CHECKING:
-	from collections.abc import Callable, Iterable, Iterator, Mapping
+	from collections.abc import Callable, Iterable, Mapping
 	from hunterMakesPy import 小于, 文义, 文件
 	from numpy import integer
 	from numpy.typing import NDArray
@@ -102,13 +102,14 @@ def autoDecodingRLE(arrayTarget: NDArray[integer[Any]], *, assumeAddSpaces: bool
 			return [sliceNDArrayToNestedLists(arraySlice[index]) for index in range(arraySlice.shape[axisOfOperation])]
 		if arraySlice.ndim == 1:
 			arraySliceAsList: list[int | range] = []
-			cache_consecutiveGroup_addMe: dict[Iterator[Any], list[int] | list[range]] = {}
+			cache_consecutiveGroup_addMe: dict[range, list[int] | list[range]] = {}
 			for consecutiveGroup in more_itertools.consecutive_groups(arraySlice.tolist()):
-				if consecutiveGroup in cache_consecutiveGroup_addMe:
-					addMe = cache_consecutiveGroup_addMe[consecutiveGroup]
+				ImaSerious: list[int] = list(consecutiveGroup)
+				rangeConsecutiveGroup: range = range(ImaSerious[0], ImaSerious[-1] + 1)
+				if rangeConsecutiveGroup in cache_consecutiveGroup_addMe:
+					addMe = cache_consecutiveGroup_addMe[rangeConsecutiveGroup]
 				else:
-					ImaSerious: list[int] = list(consecutiveGroup)
-					ImaRange: list[range] = [range(ImaSerious[0], ImaSerious[-1] + 1)]
+					ImaRange: list[range] = [rangeConsecutiveGroup]
 					ImaRangeAsStr: str = removeExtraWhitespace(str(ImaRange)).replace('range(0,', 'range(').replace('range', '*range')
 
 					option1 = ImaRange
@@ -127,7 +128,7 @@ def autoDecodingRLE(arrayTarget: NDArray[integer[Any]], *, assumeAddSpaces: bool
 					else:
 						addMe = option2
 
-					cache_consecutiveGroup_addMe[consecutiveGroup] = addMe
+					cache_consecutiveGroup_addMe[rangeConsecutiveGroup] = addMe
 
 				arraySliceAsList += addMe
 
