@@ -11,14 +11,14 @@ import tomllib
 if TYPE_CHECKING:
 	from importlib.machinery import ModuleSpec
 
-def getIdentifierPackagePACKAGING(identifierPackageFALLBACK: str) -> str:
+def _getIdentifierPackagePACKAGING(identifierPackageFALLBACK: str) -> str:
 	"""Get package name from pyproject.toml or fallback to provided value."""
 	identifierPackage: str = identifierPackageFALLBACK
 	with contextlib.suppress(OSError, tomllib.TOMLDecodeError, KeyError):
 		identifierPackage = tomllib.loads(Path('pyproject.toml').read_text(encoding='utf-8'))['project']['name'] or identifierPackageFALLBACK
 	return identifierPackage
 
-def getPathPackageINSTALLING(identifierPackage: str) -> Path:
+def _getPathPackageINSTALLING(identifierPackage: str) -> Path:
 	"""Return the root directory of the installed package."""
 	pathPackage: Path = Path.cwd()
 	with contextlib.suppress(ModuleNotFoundError):
@@ -46,7 +46,7 @@ class PackageSettings:
 	identifierPackage : str = ''
 		Canonical name of the package. An explicit value takes precedence over `pyproject.toml`, then
 		`identifierPackageFALLBACK`.
-	pathPackage : Path = getPathPackageINSTALLING(identifierPackage)
+	pathPackage : Path = _getPathPackageINSTALLING(identifierPackage)
 		Absolute path to the installed package directory. Automatically resolved from
 		`identifierPackage` if not provided.
 	fileExtension : str = '.py'
@@ -82,9 +82,9 @@ class PackageSettings:
 
 	def __post_init__(self, identifierPackageFALLBACK: str) -> None:
 		"""Initialize computed fields after dataclass initialization."""
-		self.identifierPackage = self.identifierPackage or getIdentifierPackagePACKAGING(identifierPackageFALLBACK)
+		self.identifierPackage = self.identifierPackage or _getIdentifierPackagePACKAGING(identifierPackageFALLBACK)
 		if self.pathPackage == Path() and self.identifierPackage:
-			self.pathPackage = getPathPackageINSTALLING(self.identifierPackage)
+			self.pathPackage = _getPathPackageINSTALLING(self.identifierPackage)
 
 def raiseIfNone[TypeSansNone](expression: TypeSansNone | None, errorMessage: str | None = None) -> TypeSansNone:
 	"""Convert the `expression` return annotation from '`cerPytainty | None`' to '`cerPytainty`' because `expression` cannot be `None`; `raise` an `Exception` if you're wrong.

@@ -9,7 +9,7 @@ from hunterMakesPy.tests import assert_array_equal, assertEqualTo
 Test package organization (in hunterMakesPy/tests/):
 - conftest.py: Fixtures: working directories with a given `pyproject.toml` and Python files written from source
 - conftestAnnex.py: Assertion helpers, re-exported here, with assertion rewriting registered before import
-- dataSamples/: Static samples, expected results with their basis, and pytest-ready parameter rows
+- dataSamples/: Samples whose meaning does not depend on a test, named by content
 - test_coping.py: Package identity and location, and `raiseIfNone`
 - test_dataStructures.py: Run-length encoding, whitespace removal, string extraction, and merging mappings of lists
 - test_kitFilesystem.py: Writing and appending text, writing Python source, creating directories, and importing identifiers

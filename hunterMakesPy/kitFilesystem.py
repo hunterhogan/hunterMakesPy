@@ -109,13 +109,6 @@ def importLogicalPath2Identifier(logicalPathModule: identifierDotAttribute, iden
 	identifierImported : Any
 		The attribute retrieved from the imported module.
 
-	Raises
-	------
-	ModuleNotFoundError
-		Raised when Python cannot find the module named by `logicalPathModule`.
-	AttributeError
-		Raised when the imported module does not define `identifier`.
-
 	See Also
 	--------
 	`importPathFilename2Identifier`
