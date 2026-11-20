@@ -59,7 +59,7 @@ def defineConcurrencyLimit(*, limit: ConcurrencyLimit, cpuTotal: int = multiproc
 
 	Parameters
 	----------
-	limit : bool | float | int | str | None
+	limit : bool | float | int | None
 		The worker-count specification. `None`, `False`, or zero select `cpuTotal`; `True` selects
 		one worker. Positive counts select workers to use, and negative counts select CPUs to reserve.
 		Fractions between negative one and one select proportions to reserve or use, respectively.
@@ -123,14 +123,15 @@ def defineConcurrencyLimit(*, limit: ConcurrencyLimit, cpuTotal: int = multiproc
 	elif 0 < limit < 1:
 		concurrencyLimit = round(limit * cpuTotal)
 	elif -1 < limit < 0:
-		concurrencyLimit = cpuTotal - abs(round(limit * cpuTotal))
+		concurrencyLimit = (cpuTotal - abs(round(limit * cpuTotal)))
 	elif limit <= -1:
 		concurrencyLimit = cpuTotal - abs(int(limit))
 
 	#https://docs.python.org/3/library/concurrent.futures.html#concurrent.futures.ProcessPoolExecutor
 	if sys.platform == "win32":
 		concurrencyLimit = min(concurrencyLimit, 61)
-	return max(int(concurrencyLimit), 1)
+	#pyrefly: ignore[unnecessary-type-conversion] #=SIN= Insurance.
+	return int(max(concurrencyLimit, 1))
 
 def intInnit(listInt_Allegedly: Collection[Any], parameterName: str | None = None, parameterType: type[Any] | None = None) -> list[int]:
 	"""Validate and convert input values to a `list` of integers.
@@ -185,7 +186,7 @@ def intInnit(listInt_Allegedly: Collection[Any], parameterName: str | None = Non
 	parameterName = parameterName or 'the parameter'
 	parameterType = parameterType or list
 
-	if listInt_Allegedly is None or len(listInt_Allegedly) == 0:  # pyright: ignore[reportUnnecessaryComparison]
+	if listInt_Allegedly is None or len(listInt_Allegedly) == 0:
 		message: str = f"I did not receive a value for `{parameterName}`, but I must have it."
 		raise ValueError(message)
 

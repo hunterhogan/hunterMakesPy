@@ -274,7 +274,7 @@ def stringItUp(*scrapPile: Any) -> list[str]:
 				drill(broken)
 				drill(piece)
 		elif isinstance(KitKat, (list, tuple, set, frozenset, range)):
-			for kit in KitKat:  # pyright: ignore[reportUnknownVariableType]
+			for kit in KitKat:
 				drill(kit)
 		elif hasattr(KitKat, '__iter__'):
 			for kat in KitKat:
@@ -384,7 +384,7 @@ def updateExtendPolishDictionaryLists(*dictionaryLists: Mapping[文件, Iterable
 				raise TypeError from error
 
 	if destroyDuplicates:
-		ePluribusUnum = mapValues(compose(list, dict.fromkeys), ePluribusUnum)
+		ePluribusUnum = mapValues(compose(list, dict.fromkeys), ePluribusUnum)  # ty: ignore[invalid-argument-type]
 	if reorderLists:
 		#=SIN= `sorted` is broken.
 		ePluribusUnum = mapValues(cast('Callable[[list[文义]], list[文义]]', sorted), ePluribusUnum)

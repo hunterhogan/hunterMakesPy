@@ -7,8 +7,10 @@ from hunterMakesPy.tests import assert_array_equal, assertEqualTo
 ```
 
 Test package organization (in hunterMakesPy/tests/):
-- conftest.py: Fixtures: working directories with a given `pyproject.toml` and Python files written from source
-- conftestAnnex.py: Assertion helpers, re-exported here, with assertion rewriting registered before import
+- conftest.py: Fixtures: working directories with a given `pyproject.toml`, Python files written from source, and isolated
+  copies of samples that a target mutates
+- conftestAnnex.py: Assertion helpers, re-exported here; assertion rewriting is registered before the import, so their plain
+  `assert` statements report their operands
 - dataSamples/: Samples whose meaning does not depend on a test, named by content
 - test_conftestAnnex.py: The assertion helpers' messages and strict array comparisons
 - test_coping.py: Package identity and location, and `raiseIfNone`
@@ -21,7 +23,6 @@ from __future__ import annotations
 
 import pytest
 
-# Register assertion rewriting before importing `conftestAnnex`, so its plain `assert` statements report their operands.
 # ruff: ignore[non-empty-init-module]
 pytest.register_assert_rewrite('hunterMakesPy.tests.conftestAnnex')
 

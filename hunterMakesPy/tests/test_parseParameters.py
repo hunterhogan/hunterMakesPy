@@ -1,4 +1,4 @@
-"""Expected values and exceptions come from the targets' docstrings unless a comment names another basis."""
+"""Expected values and exceptions come from the targets' docstrings unless a test's docstring names another basis."""
 from __future__ import annotations
 
 from decimal import Decimal
@@ -10,16 +10,13 @@ from hypothesis import given, strategies
 from typing import Any, TYPE_CHECKING
 import numpy
 import pytest
+import re as regex
 import sys
 
 if TYPE_CHECKING:
 	from collections.abc import Collection
 	from hunterMakesPy import ConcurrencyLimit
 
-markWindows: pytest.MarkDecorator = pytest.mark.skipif(sys.platform != 'win32', reason='Windows caps the worker count at 61.')
-markNotWindows: pytest.MarkDecorator = pytest.mark.skipif(sys.platform == 'win32', reason='Only Windows caps the worker count at 61.')
-
-# Python `round` rounds ties to even.
 @pytest.mark.parametrize('limit, cpuTotal, expected', (
 	pytest.param(None, 13, 13, id='None'),
 	pytest.param(False, 13, 13, id='False'),
@@ -48,21 +45,23 @@ markNotWindows: pytest.MarkDecorator = pytest.mark.skipif(sys.platform == 'win32
 	pytest.param('0.5', 13, 6, id='string1Half'),
 	pytest.param('-3', 13, 10, id='stringReserve3'),
 	pytest.param('-2.51', 13, 10, id='stringReserve251Hundredths'),
-	pytest.param(89, 13, 61, id='count89Windows', marks=markWindows),
-	pytest.param(89, 13, 89, id='count89', marks=markNotWindows),
+	pytest.param(89, 13, 61, id='count89Windows', marks=(markWindows := pytest.mark.skipif(sys.platform != 'win32', reason='Windows caps the worker count at 61.'))),
+	pytest.param(89, 13, 89, id='count89', marks=(markNotWindows := pytest.mark.skipif(sys.platform == 'win32', reason='Only Windows caps the worker count at 61.'))),
 	pytest.param(None, 144, 61, id='cpuTotal144Windows', marks=markWindows),
 	pytest.param(None, 144, 144, id='cpuTotal144', marks=markNotWindows),
 ))
 def test_defineConcurrencyLimit(limit: ConcurrencyLimit | str, cpuTotal: int, expected: int) -> None:
-	assertEqualTo(defineConcurrencyLimit(limit=limit, cpuTotal=cpuTotal), expected, defineConcurrencyLimit.__name__, limit=limit, cpuTotal=cpuTotal)  # pyright: ignore[reportArgumentType] # ty: ignore[invalid-argument-type]
+	concurrencyLimit = defineConcurrencyLimit(limit=limit, cpuTotal=cpuTotal)  # pyrefly: ignore[bad-argument-type] # ty: ignore[invalid-argument-type]
+	assertEqualTo((concurrencyLimit, type(concurrencyLimit)), (expected, int), defineConcurrencyLimit.__name__, limit=limit, cpuTotal=cpuTotal)
 
-# Limits span every documented rule: fractions and counts on both sides of zero, and counts beyond `cpuTotal`. `cpuTotal`
-# reaches beyond the Windows cap of 61.
 @given(
 	limit=strategies.one_of(strategies.none(), strategies.booleans(), strategies.integers(-233, 233), strategies.floats(-233, 233))
 	, cpuTotal=strategies.integers(1, 1597)
 )
 def test_defineConcurrencyLimitBounds(limit: ConcurrencyLimit, cpuTotal: int) -> None:
+	"""Limits span every documented rule: fractions and counts on both sides of zero, and counts beyond `cpuTotal`. `cpuTotal`
+	reaches beyond the Windows cap of 61.
+	"""
 	concurrencyLimit: int = defineConcurrencyLimit(limit=limit, cpuTotal=cpuTotal)
 	assert 1 <= concurrencyLimit, f'{defineConcurrencyLimit.__name__}({limit=}, {cpuTotal=}) = {concurrencyLimit}, but the minimum is 1.'
 	assert sys.platform != 'win32' or concurrencyLimit <= 61, f'{defineConcurrencyLimit.__name__}({limit=}, {cpuTotal=}) = {concurrencyLimit}, but the Windows maximum is 61.'
@@ -75,8 +74,10 @@ def test_defineConcurrencyLimitBounds(limit: ConcurrencyLimit, cpuTotal: int) ->
 ))
 def test_defineConcurrencyLimitError(limit: str, cpuTotal: int, expected: type[Exception]) -> None:
 	with pytest.raises(expected, match='must be a number, `True`, `False`, or `None`'):
-		defineConcurrencyLimit(limit=limit, cpuTotal=cpuTotal)  # pyright: ignore[reportArgumentType] # ty: ignore[invalid-argument-type]
+		defineConcurrencyLimit(limit=limit, cpuTotal=cpuTotal)  # pyrefly: ignore[bad-argument-type] # ty: ignore[invalid-argument-type]
 
+@pytest.mark.parametrize('parameterType', (None, tuple))
+@pytest.mark.parametrize('parameterName', (None, pytest.param('', id='stringEmpty'), 'ports'))
 @pytest.mark.parametrize('listInt_Allegedly, expected', (
 	pytest.param([2, 3, 5, 8], [2, 3, 5, 8], id='listInt'),
 	pytest.param((3, 5, 7), [3, 5, 7], id='tupleInt'),
@@ -94,41 +95,41 @@ def test_defineConcurrencyLimitError(limit: str, cpuTotal: int, expected: type[E
 	pytest.param(['9007199254740993'], [9007199254740993], id='listStringAbove2上53'),
 	pytest.param(numpy.array([89, 144]), [89, 144], id='arrayNumpy'),
 ))
-def test_intInnit(listInt_Allegedly: Collection[Any], expected: list[int]) -> None:
-	listInt: list[int] = intInnit(listInt_Allegedly)
-	assertEqualTo((listInt, [*map(type, listInt)]), (expected, [*map(type, expected)]), intInnit.__name__, listInt_Allegedly)
+def test_intInnit(listInt_Allegedly: Collection[Any], parameterName: str | None, parameterType: type | None, expected: list[int]) -> None:
+	listInt: list[int] = intInnit(listInt_Allegedly, parameterName, parameterType)
+	assertEqualTo((listInt, [*map(type, listInt)]), (expected, [*map(type, expected)]), intInnit.__name__, listInt_Allegedly, parameterName, parameterType)
 
 @given(strategies.lists(strategies.integers(), min_size=1))
 def test_intInnitGenerated(listInt: list[int]) -> None:
 	assertEqualTo(intInnit(listInt), listInt, intInnit.__name__, listInt)
 	assertEqualTo(intInnit([*map(str, listInt)]), listInt, intInnit.__name__, [*map(str, listInt)])
 
-@pytest.mark.parametrize('listInt_Allegedly, expected', (
-	pytest.param([], ValueError, id='listEmpty'),
-	pytest.param(None, ValueError, id='None'),
-	pytest.param(13, TypeError, id='intNotCollection'),
-	pytest.param([True], TypeError, id='listBool'),
-	pytest.param([13.7], ValueError, id='listFloatFractional'),
-	pytest.param([float('inf')], ValueError, id='listInfinity'),
-	pytest.param([float('nan')], ValueError, id='listNaN'),
-	pytest.param(['NW'], ValueError, id='listStringNW'),
-	pytest.param([''], ValueError, id='listStringEmpty'),
-	pytest.param(['SE.SW'], ValueError, id='listStringDotted'),
-	pytest.param([13 + 1j], ValueError, id='listComplexImaginary'),
-	pytest.param([34.5 + 0j], ValueError, id='listComplexFractional'),
-	pytest.param([b'\x00'], ValueError, id='listBytesNull'),
-	pytest.param([memoryview(b'\x00')], ValueError, id='listMemoryviewNull'),
-	pytest.param([None], TypeError, id='listNone'),
-	pytest.param([[17, 39]], TypeError, id='listNested'),
-	pytest.param(ListGrowsWhenIterated([13, 21, 34]), RuntimeError, id='listGrowsWhenIterated'),
-	pytest.param([Decimal('13.5')], ValueError, id='listDecimalFractional'),
-	pytest.param([Fraction(27, 2)], ValueError, id='listFractionFractional'),
-))
-def test_intInnitError(listInt_Allegedly: Collection[Any], expected: type[Exception]) -> None:
-	with pytest.raises(expected):
-		intInnit(listInt_Allegedly)
-
-objectStrReturnsNone: StrReturnsNone = StrReturnsNone()
+@pytest.mark.parametrize('parameterType', (None, tuple))
+@pytest.mark.parametrize('parameterName', (None, pytest.param('', id='stringEmpty'), 'ports'))
+@pytest.mark.parametrize('listInt_Allegedly, expected, message', (
+	pytest.param([], ValueError, 'I did not receive a value for `{parameterName}`', id='listEmpty'),
+	pytest.param(None, ValueError, 'I did not receive a value for `{parameterName}`', id='None'),
+	pytest.param(13, TypeError, "object of type 'int' has no len()", id='intNotCollection'),
+	pytest.param([True], TypeError, (messageElement := '{parameterName}` must have integers in type(s) `{parameterType}`'), id='listBool'),
+	pytest.param([13.7], ValueError, messageElement, id='listFloatFractional'),
+	pytest.param([float('inf')], ValueError, messageElement, id='listInfinity'),
+	pytest.param([float('nan')], ValueError, messageElement, id='listNaN'),
+	pytest.param(['NW'], ValueError, messageElement, id='listStringNW'),
+	pytest.param([''], ValueError, messageElement, id='listStringEmpty'),
+	pytest.param(['SE.SW'], ValueError, messageElement, id='listStringDotted'),
+	pytest.param([13 + 1j], ValueError, messageElement, id='listComplexImaginary'),
+	pytest.param([34.5 + 0j], ValueError, messageElement, id='listComplexFractional'),
+	pytest.param([b'\x00'], ValueError, messageElement, id='listBytesNull'),
+	pytest.param([memoryview(b'\x00')], ValueError, messageElement, id='listMemoryviewNull'),
+	pytest.param([None], TypeError, messageElement, id='listNone'),
+	pytest.param([[17, 39]], TypeError, messageElement, id='listNested'),
+	pytest.param(ListGrowsWhenIterated([13, 21, 34]), RuntimeError, 'length of `{parameterName}` change from `3` to `4`', id='listGrowsWhenIterated'),
+	pytest.param([Decimal('13.5')], ValueError, messageElement, id='listDecimalFractional'),
+	pytest.param([Fraction(27, 2)], ValueError, messageElement, id='listFractionFractional'),
+), indirect=['listInt_Allegedly'])
+def test_intInnitError(listInt_Allegedly: Collection[Any] | int | None, parameterName: str | None, parameterType: type | None, expected: type[Exception], message: str) -> None:
+	with pytest.raises(expected, match=regex.escape(message.format(parameterName=parameterName or 'the parameter', parameterType=parameterType or list))):
+		intInnit(listInt_Allegedly, parameterName, parameterType)  # pyrefly: ignore[bad-argument-type] # ty: ignore[invalid-argument-type]
 
 @pytest.mark.parametrize('huh, expected', (
 	pytest.param('True', True, id='True'),
@@ -148,7 +149,7 @@ objectStrReturnsNone: StrReturnsNone = StrReturnsNone()
 	pytest.param(123, '123', id='int'),
 	pytest.param(True, True, id='boolTrue'),
 	pytest.param(None, None, id='objectNone'),
-	pytest.param(objectStrReturnsNone, objectStrReturnsNone, id='objectStrReturnsNone'),
+	pytest.param((objectStrReturnsNone := StrReturnsNone()), objectStrReturnsNone, id='objectStrReturnsNone'),
 ))
 def test_oopsieKwargsie(huh: Any, expected: object) -> None:
 	interpretation: bool | str | None = oopsieKwargsie(huh)

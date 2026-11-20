@@ -1,7 +1,8 @@
-"""Assert test contracts and report the call that broke them.
+"""Assert that a target's result equals its expected value, and report the call that produced the result.
 
 Other packages import these objects from `hunterMakesPy.tests`. Each assertion reports the target function and the
-arguments that produced `actual`, then delegates the comparison to `==`, `pytest.approx`, or `numpy.testing`.
+arguments that produced `actual`, then delegates the comparison to `==`, `pytest.approx`, or `numpy.testing`. The
+helpers for NumPy arrays report shapes and dtypes, never the arrays.
 """
 from __future__ import annotations
 

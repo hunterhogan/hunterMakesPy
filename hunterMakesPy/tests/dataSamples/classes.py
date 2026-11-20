@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from collections import UserList
-from typing import TYPE_CHECKING
+from typing import override, TYPE_CHECKING
 import operator
 
 if TYPE_CHECKING:
@@ -14,6 +14,7 @@ class ListGrowsWhenIterated(UserList[int]):
 	An instance in a shared parameter grows with every consumer; every length still changes during iteration.
 	"""
 
+	@override
 	def __iter__(self) -> Iterator[int]:
 		self.append(89)
 		return super().__iter__()
@@ -22,7 +23,7 @@ class StrReturnsNone:
 	"""Return `None` from `__str__`, so `str(instance)` raises `TypeError`."""
 
 	def __str__(self) -> str:
-		return None  # pyright: ignore[reportReturnType] # ruff: ignore[invalid-str-return-type] # ty: ignore[invalid-return-type]
+		return None  # ruff: ignore[invalid-str-return-type] # pyrefly: ignore[bad-return] # ty: ignore[invalid-explicit-return]
 
 class StrReturnsNoneText:
 	"""Return the text 'None' from `__str__`, which is text, not the object `None`."""
@@ -34,7 +35,7 @@ class StrDividesByZero:
 	"""Divide by zero in `__str__`, so `str(instance)` raises `ZeroDivisionError`."""
 
 	def __str__(self) -> str:
-		return str(13 // 0)
+		return str(13 // 0)  # pyrefly: ignore[division-by-zero]
 
 class StrFormatsBadSpecification:
 	"""Format the instance with the specification 'NE' in `__str__`, so `str(instance)` raises `TypeError`."""

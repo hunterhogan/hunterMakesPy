@@ -1,11 +1,21 @@
-"""Fixtures that own temporary files and the working directory."""
+"""Fixtures that own temporary files, the working directory, and isolated copies of samples that a target mutates."""
 from __future__ import annotations
 
+from hunterMakesPy.tests.dataSamples.classes import ListGrowsWhenIterated
 from typing import TYPE_CHECKING
 import pytest
 
 if TYPE_CHECKING:
+	from collections.abc import Collection
 	from pathlib import Path
+	from typing import Any
+
+@pytest.fixture
+def listInt_Allegedly(request: pytest.FixtureRequest) -> Collection[Any] | int | None:
+	"""`request.param`, or, for a `ListGrowsWhenIterated`, a copy that only one test grows."""
+	if isinstance(request.param, ListGrowsWhenIterated):
+		return request.param.copy()
+	return request.param
 
 @pytest.fixture
 def pathFilename(request: pytest.FixtureRequest, tmp_path: Path) -> Path:

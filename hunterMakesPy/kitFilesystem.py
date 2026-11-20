@@ -159,8 +159,8 @@ def importPathFilename2Identifier(pathFilename: PathLike[Any] | PurePath, identi
 	Raises
 	------
 	ImportError
-		Raised when Python cannot create a module loader for `pathFilename`, such as when the
-		filename suffix is not a Python source suffix like `.py`.
+		Raised when Python cannot create a module loader for `pathFilename`, such as when the filename
+		suffix is not a Python source suffix like `.py`.
 	FileNotFoundError
 		Raised when the loader cannot read `pathFilename`.
 	AttributeError
@@ -391,10 +391,12 @@ def writeStringToHere(this: str, pathFilename: PathLike[Any] | PurePath | TextIO
 		```
 	"""
 	if isinstance(pathFilename, TextIOBase):
+		#pyrefly: ignore[unnecessary-type-conversion] #=SIN= Insurance.
 		pathFilename.write(str(this))
 		pathFilename.flush()
 	else:
 		pathFilename = Path(pathFilename)
 		makeDirectorySafely(pathFilename)
+		#pyrefly: ignore[unnecessary-type-conversion] #=SIN= Insurance.
 		pathFilename.write_text(str(this), encoding='utf-8')
 	return pathFilename

@@ -17,11 +17,11 @@ import typing
 	pytest.param(callableItemGetter, False, id='callableItemGetter'),
 ))
 def test_CallableFunction(value: object, expected: bool) -> None:
-	assertEqualTo(isinstance(value, CallableFunction), expected, isinstance.__name__, value, CallableFunction)
+	assert isinstance(value, CallableFunction) is expected, f'isinstance({value!r}, CallableFunction) expected {expected}.'
 
 @pytest.mark.parametrize('parameters, returnType, expected', (
 	pytest.param([int], str, ((int,), str), id='intToStr'),
 	pytest.param([int, float], bool, ((int, float), bool), id='intFloatToBool'),
 ))
 def test_CallableFunctionArguments(parameters: list[type], returnType: type, expected: tuple[tuple[type, ...], type]) -> None:
-	assertEqualTo(typing.get_args(CallableFunction[parameters, returnType]), expected, typing.get_args.__name__, parameters, returnType)  # pyright: ignore[reportInvalidTypeArguments] # ty: ignore[invalid-type-form]
+	assertEqualTo(typing.get_args(CallableFunction[parameters, returnType]), expected, typing.get_args.__name__, parameters, returnType)  # pyrefly: ignore[not-a-type] # ty: ignore[invalid-type-form]
