@@ -28,7 +28,6 @@ classifiers = [
   "Typing :: Typed",
 ]
 dependencies = ["Z0Z_tools>=4.1.1", "autoflake", "charset_normalizer", "isort", "more_itertools", "numpy>=2.0", "typing_extensions>=4.10.0"]
-optional-dependencies = { development = ["pytest-cov"], testing = ["hypothesis", "pytest>=9.0", "pytest-xdist"] }
 
 [project.urls]
 Documentation = "https://context7.com/hunterhogan/huntermakespy"
@@ -38,8 +37,12 @@ Issues = "https://github.com/hunterhogan/hunterMakesPy/issues"
 Repository = "https://github.com/hunterhogan/hunterMakesPy"
 
 [build-system]
-requires = ["setuptools"]
+requires = ["setuptools>=77.0.3"]
 build-backend = "setuptools.build_meta"
+
+[dependency-groups]
+dev = [{ include-group = "testing" }, "pytest-cov"]
+testing = ["hypothesis", "pytest>=9.0", "pytest-xdist"]
 
 [tool.coverage]
 report = { exclude_also = [

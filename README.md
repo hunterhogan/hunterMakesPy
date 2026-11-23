@@ -131,13 +131,31 @@ settings = PackageSettings(identifierPackageFALLBACK="myPackage")
 
 ## Report the Call That Broke a Test
 
-Import assertion functions that name the function and the arguments in the failure message, so a failing parameterized test shows exactly which call produced the wrong value. `assert_array_equal` and `assert_allclose` do the same for NumPy arrays.
+Install the published package with `pip install hunterMakesPy "pytest>=9.0"` to use the assertion helpers in your own tests. They report the function and arguments that produced the wrong value. `assert_array_equal` and `assert_allclose` do the same for NumPy arrays.
 
 ```python
 from hunterMakesPy.tests import assertEqualTo
 
 assertEqualTo(intInnit(["8080", 443]), [8080, 443], intInnit.__name__, ["8080", 443])
 ```
+
+## Run the Tests
+
+From the repository root, with an active virtual environment and pip 25.1 or later, install the project and its test dependency group.
+
+```sh
+pip install --group testing -e .
+pytest
+```
+
+For branch coverage, install the `dev` group, which includes `testing` and `pytest-cov`.
+
+```sh
+pip install --group dev -e .
+pytest --cov
+```
+
+These dependency groups replace the `testing` and `development` extras.
 
 ## My recovery
 
