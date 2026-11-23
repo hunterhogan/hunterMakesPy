@@ -1,0 +1,3 @@
+# Keep the checker search path available in a fresh checkout.
+*
+!.gitignore
