@@ -279,9 +279,8 @@ def writePython(pythonSource: str, pathFilename: PathLike[Any] | PurePath | Text
 
 	You can use this function to normalize Python imports and then send the resulting source code to a
 	file path or open text stream. `autoflake` [1] removes unused imports, `isort` [2] sorts the
-	remaining imports, and `pathFilename` receives the formatted source code followed by a newline.
-	When the formatted source code already ends with a newline, the written text ends with a blank
-	line.
+	remaining imports, and `pathFilename` receives the formatted source code ending with exactly one
+	line feed: trailing line feeds are removed and one is added.
 
 	Parameters
 	----------
@@ -337,7 +336,7 @@ def writePython(pythonSource: str, pathFilename: PathLike[Any] | PurePath | Text
 
 	settings_isort: dict[str, Any] = settings.get('isort', settings_isortDEFAULT)
 	pythonSource = isort_code(pythonSource, **settings_isort)
-	return writeStringToHere(pythonSource + '\n', pathFilename)
+	return writeStringToHere(pythonSource.rstrip('\n') + '\n', pathFilename)
 
 @overload
 def writeStringToHere(this: str, pathFilename: PathLike[Any] | PurePath) -> Path: ...
@@ -374,11 +373,9 @@ def writeStringToHere(this: str, pathFilename: PathLike[Any] | PurePath | TextIO
 
 	File Replacement
 	----------------
-	A path destination replaces any existing file. Each line feed in `this` becomes the newline
-	sequence of the operating system, so a file written on Windows contains a carriage return and a
-	line feed at the end of each line. A text stream receives `this` without this change by this
-	function. A failure to create a parent
-	directory is silent, but a failure to write the file raises the corresponding `OSError`.
+	A path destination replaces any existing file. Newline characters in `this` are written without
+	translation, so a line feed remains a line feed on every operating system. A failure to create a
+	parent directory is silent, but a failure to write the file raises the corresponding `OSError`.
 
 	Examples
 	--------
@@ -398,5 +395,5 @@ def writeStringToHere(this: str, pathFilename: PathLike[Any] | PurePath | TextIO
 		pathFilename = Path(pathFilename)
 		makeDirectorySafely(pathFilename)
 		#pyrefly: ignore[unnecessary-type-conversion] #=SIN= Insurance.
-		pathFilename.write_text(str(this), encoding='utf-8')
+		pathFilename.write_text(str(this), encoding='utf-8', newline='')
 	return pathFilename

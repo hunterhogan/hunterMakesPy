@@ -28,37 +28,37 @@ markParametrizeTexts: pytest.MarkDecorator = pytest.mark.parametrize('this', (
 ))
 
 markParametrizeWritePython: pytest.MarkDecorator = pytest.mark.parametrize('pythonSource, settings, expected', (
-	pytest.param(sourceImportsUnused, None, '\nfibonacci = 13\n\n', id='sourceImportsUnused-None'),
-	pytest.param(sourceImportsUnused, {}, '\nfibonacci = 13\n\n', id='sourceImportsUnused-settingsEmpty'),
-	pytest.param(sourceImportsUnused, (settingsAutoflakeKeepImports := {'autoflake': {'remove_all_unused_imports': False}}), '\nfibonacci = 13\n\n', id='sourceImportsUnused-settingsAutoflakeKeepImports'),
-	pytest.param(sourceImportsUnused, (settingsIsortDefaultProfile := {'isort': dict[str, Any]()}), '\nfibonacci = 13\n\n', id='sourceImportsUnused-settingsIsortDefaultProfile'),
-	pytest.param(sourceImportsUnused, (settingsFormatters := settingsAutoflakeKeepImports | settingsIsortDefaultProfile), '\nfibonacci = 13\n\n', id='sourceImportsUnused-settingsFormatters'),
-	pytest.param(sourceImportsUsed, None, sourceImportsUsed + '\n', id='sourceImportsUsed-None'),
-	pytest.param(sourceImportsUsed, {}, sourceImportsUsed + '\n', id='sourceImportsUsed-settingsEmpty'),
-	pytest.param(sourceImportsUsed, settingsAutoflakeKeepImports, sourceImportsUsed + '\n', id='sourceImportsUsed-settingsAutoflakeKeepImports'),
-	pytest.param(sourceImportsUsed, settingsIsortDefaultProfile, sourceImportsUsed + '\n', id='sourceImportsUsed-settingsIsortDefaultProfile'),
-	pytest.param(sourceImportsUsed, settingsFormatters, sourceImportsUsed + '\n', id='sourceImportsUsed-settingsFormatters'),
-	pytest.param(sourceImportsUnusedThirdParty, None, '\nfibonacci = 21\n\n', id='sourceImportsUnusedThirdParty-None'),
-	pytest.param(sourceImportsUnusedThirdParty, {}, '\nfibonacci = 21\n\n', id='sourceImportsUnusedThirdParty-settingsEmpty'),
-	pytest.param(sourceImportsUnusedThirdParty, settingsAutoflakeKeepImports, 'import numpy\n\nfibonacci = 21\n\n', id='sourceImportsUnusedThirdParty-settingsAutoflakeKeepImports'),
-	pytest.param(sourceImportsUnusedThirdParty, settingsIsortDefaultProfile, '\nfibonacci = 21\n\n', id='sourceImportsUnusedThirdParty-settingsIsortDefaultProfile'),
-	pytest.param(sourceImportsUnusedThirdParty, settingsFormatters, 'import numpy\n\nfibonacci = 21\n\n', id='sourceImportsUnusedThirdParty-settingsFormatters'),
+	pytest.param(sourceImportsUnused, None, '\nfibonacci = 13\n', id='sourceImportsUnused-None'),
+	pytest.param(sourceImportsUnused, {}, '\nfibonacci = 13\n', id='sourceImportsUnused-settingsEmpty'),
+	pytest.param(sourceImportsUnused, (settingsAutoflakeKeepImports := {'autoflake': {'remove_all_unused_imports': False}}), '\nfibonacci = 13\n', id='sourceImportsUnused-settingsAutoflakeKeepImports'),
+	pytest.param(sourceImportsUnused, (settingsIsortDefaultProfile := {'isort': dict[str, Any]()}), '\nfibonacci = 13\n', id='sourceImportsUnused-settingsIsortDefaultProfile'),
+	pytest.param(sourceImportsUnused, (settingsFormatters := settingsAutoflakeKeepImports | settingsIsortDefaultProfile), '\nfibonacci = 13\n', id='sourceImportsUnused-settingsFormatters'),
+	pytest.param(sourceImportsUsed, None, sourceImportsUsed, id='sourceImportsUsed-None'),
+	pytest.param(sourceImportsUsed, {}, sourceImportsUsed, id='sourceImportsUsed-settingsEmpty'),
+	pytest.param(sourceImportsUsed, settingsAutoflakeKeepImports, sourceImportsUsed, id='sourceImportsUsed-settingsAutoflakeKeepImports'),
+	pytest.param(sourceImportsUsed, settingsIsortDefaultProfile, sourceImportsUsed, id='sourceImportsUsed-settingsIsortDefaultProfile'),
+	pytest.param(sourceImportsUsed, settingsFormatters, sourceImportsUsed, id='sourceImportsUsed-settingsFormatters'),
+	pytest.param(sourceImportsUnusedThirdParty, None, '\nfibonacci = 21\n', id='sourceImportsUnusedThirdParty-None'),
+	pytest.param(sourceImportsUnusedThirdParty, {}, '\nfibonacci = 21\n', id='sourceImportsUnusedThirdParty-settingsEmpty'),
+	pytest.param(sourceImportsUnusedThirdParty, settingsAutoflakeKeepImports, 'import numpy\n\nfibonacci = 21\n', id='sourceImportsUnusedThirdParty-settingsAutoflakeKeepImports'),
+	pytest.param(sourceImportsUnusedThirdParty, settingsIsortDefaultProfile, '\nfibonacci = 21\n', id='sourceImportsUnusedThirdParty-settingsIsortDefaultProfile'),
+	pytest.param(sourceImportsUnusedThirdParty, settingsFormatters, 'import numpy\n\nfibonacci = 21\n', id='sourceImportsUnusedThirdParty-settingsFormatters'),
 	pytest.param(sourceImportsUnsorted, None, (sourceIsortProject := (
 		"from pathlib import PurePosixPath\nimport collections\nimport math\n\n"
-		"primes = collections.Counter([2, 3, 3, 5])\nnorth = PurePosixPath('north')\ntau = math.tau\n\n"
+		"primes = collections.Counter([2, 3, 3, 5])\nnorth = PurePosixPath('north')\ntau = math.tau\n"
 	)), id='sourceImportsUnsorted-None'),
 	pytest.param(sourceImportsUnsorted, {}, sourceIsortProject, id='sourceImportsUnsorted-settingsEmpty'),
 	pytest.param(sourceImportsUnsorted, settingsAutoflakeKeepImports, sourceIsortProject, id='sourceImportsUnsorted-settingsAutoflakeKeepImports'),
 	pytest.param(sourceImportsUnsorted, settingsIsortDefaultProfile, (sourceIsortDefault := (
 		"import collections\nimport math\nfrom pathlib import PurePosixPath\n\n"
-		"primes = collections.Counter([2, 3, 3, 5])\nnorth = PurePosixPath('north')\ntau = math.tau\n\n"
+		"primes = collections.Counter([2, 3, 3, 5])\nnorth = PurePosixPath('north')\ntau = math.tau\n"
 	)), id='sourceImportsUnsorted-settingsIsortDefaultProfile'),
 	pytest.param(sourceImportsUnsorted, settingsFormatters, sourceIsortDefault, id='sourceImportsUnsorted-settingsFormatters'),
 ))
 """Reference: the docstring of `writePython`, and the documentation of autoflake and isort.
 
 autoflake removes an unused standard-library import even when `remove_all_unused_imports` is `False`. Each formatter reads
-only its own settings, and `writePython` appends a newline to the formatted source.
+only its own settings, and `writePython` ends the formatted source with exactly one line feed.
 """
 
 @markParametrizeTexts
@@ -146,7 +146,7 @@ def test_makeDirectorySafelyStream(pathFilename: io.BytesIO | io.StringIO, expec
 def test_writePython(tmp_path: Path, pythonSource: str, settings: dict[str, dict[str, Any]] | None, expected: str) -> None:
 	pathFilename: Path = tmp_path / 'north' / 'moduleWritten.py'
 	assertEqualTo(writePython(pythonSource, pathFilename, settings), pathFilename, writePython.__name__, pythonSource, pathFilename, settings)
-	assertEqualTo(pathFilename.read_text(encoding='utf-8'), expected, writePython.__name__, pythonSource, pathFilename, settings)
+	assertEqualTo(pathFilename.read_bytes(), expected.encode('utf-8'), writePython.__name__, pythonSource, pathFilename, settings)
 
 @markParametrizeWritePython
 def test_writePythonStream(pythonSource: str, settings: dict[str, dict[str, Any]] | None, expected: str) -> None:
@@ -158,7 +158,7 @@ def test_writePythonStream(pythonSource: str, settings: dict[str, dict[str, Any]
 def test_writeStringToHere(tmp_path: Path, this: str) -> None:
 	pathFilename: Path = tmp_path / 'north' / 'east' / 'written.txt'
 	assertEqualTo(writeStringToHere(this, pathFilename), pathFilename, writeStringToHere.__name__, this, pathFilename)
-	assertEqualTo(pathFilename.read_text(encoding='utf-8'), this, writeStringToHere.__name__, this, pathFilename)
+	assertEqualTo(pathFilename.read_bytes(), this.encode('utf-8'), writeStringToHere.__name__, this, pathFilename)
 
 @markParametrizeTexts
 def test_writeStringToHereStream(this: str) -> None:
